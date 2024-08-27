@@ -7,7 +7,7 @@ license = "LICENSE"
 readme = "README.md"
 
 packages = [
-    {include = "ucla_geotech_tools", from = "src"},
+    {include = "ucla_plha", from = "src"},
 ]
 
 [tool.poetry.dependencies]
