@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "ucla_plha"
+version = "0.0.1"
+description = "A code for performing probabilistic liquefaction hazard analysis inside the hazard integral"
+authors = [
+  {name="Meera L. Kota", email="meerakota@g.ucla.edu"},
+  {name="Scott J. Brandenberg", email="sjbrandenberg@g.ucla.edu},
+]
+license = "LICENSE"
+readme = "README.md"
+
+packages = [
+    {include = "ucla_geotech_tools", from = "src"},
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+numpy = "^1.22"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.3"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
