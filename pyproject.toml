@@ -6,10 +6,6 @@ authors = ["Meera L. Kota", "Scott J. Brandenberg"]
 license = "LICENSE"
 readme = "README.md"
 
-packages = [
-    {include = "ucla_plha", from = "src"},
-]
-
 [tool.poetry.dependencies]
 python = "^3.8"
 numpy = "^1.22"
