@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Publish to PyPI and TestPyPI
+name: Publish to PyPI
 
 on: push
 jobs:
@@ -32,27 +32,3 @@ jobs:
         run: poetry build
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-  testpypi-publish:
-    name: Publish Python distribution to TestPyPI
-    if: ${{ !startsWith(github.ref, 'refs/tags/')}} # publish to TestPyPI on commits not involving tag pushes
-    runs-on: ubuntu-latest
-    environment:
-      name: testpypi
-      url: https://test.pypi.org/p/ucla_plha
-    permissions:
-      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-      - name: Poetry image
-        uses: abatilo/actions-poetry@v2
-      - name: Install the project dependencies
-        run: poetry install
-      - name: Build package
-        run: poetry build
-      - name: Publish distribution to TestPyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
