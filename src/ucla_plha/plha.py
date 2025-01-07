@@ -58,10 +58,10 @@ def get_ground_motion_data(gmm, vs30, dist, m, fault_type):
 def get_liquefaction_hazards(m, mu_ln_pga, sigma_ln_pga, rate, fsl, liquefaction_model, config):
     if(liquefaction_model=='cetin_et_al_2018'):
         c = config['liquefaction_models']['cetin_et_al_2018']
-        fsl_hazards = cetin_et_al_2018.get_fsl_hazards(mu_ln_pga, sigma_ln_pga, rate, fsl, m, c['sigmav'], c['sigmavp'], c['vs12'], c['d'], c['n160'], c['fc'], c['pa'])
+        fsl_hazards = cetin_et_al_2018.get_fsl_hazards(mu_ln_pga, sigma_ln_pga, rate, fsl, m, c['sigmav'], c['sigmavp'], c['vs12'], c['depth'], c['n160'], c['fc'], c['pa'])
     elif(liquefaction_model=='idriss_boulanger_2012'):
         c = config['liquefaction_models']['idriss_boulanger_2012']
-        fsl_hazards = idriss_boulanger_2012.get_fsl_hazards(mu_ln_pga, sigma_ln_pga, rate, fsl, m, c['sigmav'], c['sigmavp'], c['d'], c['n160'], c['fc'], c['pa'])
+        fsl_hazards = idriss_boulanger_2012.get_fsl_hazards(mu_ln_pga, sigma_ln_pga, rate, fsl, m, c['sigmav'], c['sigmavp'], c['depth'], c['n160'], c['fc'], c['pa'])
     return fsl_hazards
 
 def get_hazard(config_file):
@@ -127,18 +127,18 @@ def get_hazard(config_file):
                 ground_motion_model_weight = config['ground_motion_models'][ground_motion_model]['weight']
                 vs30 = config['ground_motion_models'][ground_motion_model]['vs30']
                 if(dist_types[ground_motion_model] == 'rjb'):
-                    mu_pga, std_pga = get_ground_motion_data(ground_motion_model, vs30, rjb, m, fault_type)
+                    mu_ln_pga, sigma_ln_pga = get_ground_motion_data(ground_motion_model, vs30, rjb, m, fault_type)
                 elif(dist_types[ground_motion_model] == 'rrup'):
-                    mu_pga, std_pga = get_ground_motion_data(ground_motion_model, vs30, rrup, m, fault_type)
+                    mu_ln_pga, sigma_ln_pga = get_ground_motion_data(ground_motion_model, vs30, rrup, m, fault_type)
                 else:
                     print('incorrect ground motion model')
                 # Compute seismic hazard if requested in config file
                 if(output_psha):
-                    seismic_hazards = (1 - ndtr((np.log(pga[:, np.newaxis]) - mu_pga) / std_pga)) * rate
+                    seismic_hazards = (1 - ndtr((np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga)) * rate
                     seismic_hazard += source_model_weight * ground_motion_model_weight * np.sum(seismic_hazards, axis=1)
                     if(output_psha_disaggregation):
                         for i in range(len(pga)):
-                            eps = (np.log(pga[i]) - mu_pga) / std_pga
+                            eps = (np.log(pga[i]) - mu_ln_pga) / sigma_ln_pga
                             for j in range(len(magnitude_bin_center)):
                                 for k in range(len(distance_bin_center)):
                                     for l in range(len(epsilon_bin_center)):
@@ -149,7 +149,7 @@ def get_hazard(config_file):
                 for liquefaction_model in config['liquefaction_models'].keys():
                     liquefaction_model_weight = config['liquefaction_models'][liquefaction_model]['weight']
                     if(output_plha):
-                        liquefaction_hazards = get_liquefaction_hazards(m, mu_pga, std_pga, liquefaction_model, config)
+                        liquefaction_hazards = get_liquefaction_hazards(m, mu_ln_pga, sigma_ln_pga, rate, fsl, liquefaction_model, config)
                         liquefaction_hazard += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards, axis=0)
 
     # Now prepare output
