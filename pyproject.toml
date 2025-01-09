@@ -18,4 +18,5 @@ numpy = "^1.22"
 pytest = "^7.4.3"
 
 [build-system]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
