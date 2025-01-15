@@ -13,9 +13,9 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.8"
 numpy = "^1.22"
-ngl_tools
-importlib_resources
-scikit_learn
+ngl_tools = ">0"
+importlib_resources = ">0"
+scikit_learn = ">0"
 
 
 [tool.poetry.group.test.dependencies]
