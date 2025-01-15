@@ -13,6 +13,10 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.8"
 numpy = "^1.22"
+ngl_tools
+importlib_resources
+scikit_learn
+
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"
