@@ -71,4 +71,7 @@ def get_fsl_cdfs(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_l
         pmp = 1.0 - np.prod((1.0 - pfmt * pfts * pfs) ** (t / tc), axis=1)
         temp = pmp @ w
         fsl_cdfs[i] = sp.interpolate.pchip_interpolate(amax, temp.T, fsl, axis=0)
-    return fsl_cdfs
+
+    eps = np.zeros((len(m), len(amax)))
+    
+    return fsl_cdfs, eps
