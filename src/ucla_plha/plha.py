@@ -105,13 +105,13 @@ def get_liquefaction_hazards(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model
             required_headers = ['ztop', 'zbot', 'qc1Ncs_lay', 'Ic_lay', 'sigmav_lay', 'sigmavp_lay', 'Ksat_lay']
             if(not all(item in header for item in required_headers)):
                 error = 'If you specify process_cpt = false, the required headers are ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay'
-            ztop = c['ztop']
-            zbot = c['zbot']
-            qc1Ncs_lay = c['qc1Ncs_lay']
-            Ic_lay = c['Ic_lay']
-            sigmav_lay = c['sigmav_lay']
-            sigmavp_lay = c['sigmavp_lay']
-            Ksat_lay = c['Ksat_lay']
+            ztop = cpt_df['ztop'].values
+            zbot = cpt_df['zbot'].values
+            qc1Ncs_lay = cpt_df['qc1Ncs_lay'].values
+            Ic_lay = cpt_df['Ic_lay'].values
+            sigmav_lay = cpt_df['sigmav_lay'].values
+            sigmavp_lay = cpt_df['sigmavp_lay'].values
+            Ksat_lay = cpt_df['Ksat_lay'].values
         return ngl_smt_2024.get_fsl_hazards(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, N = c['N'])
             
 
