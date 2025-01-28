@@ -61,7 +61,7 @@ def get_fsl_cdfs(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_l
     t = zbot - ztop
 
     # Initialize result array and perform convolution numerically via matrix multiplication
-    fsl_cdfs = np.zeros((len(m), len(amax)))
+    fsl_cdfs = np.zeros((len(m), len(fsl)))
     for i in range(len(m)):
         pdf_array = pdf(log_amax_diff, mu_ln_pga[i], sigma_ln_pga[i])
         w = dx * pdf_array
@@ -72,6 +72,6 @@ def get_fsl_cdfs(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_l
         temp = pmp @ w
         fsl_cdfs[i] = sp.interpolate.pchip_interpolate(amax, temp.T, fsl, axis=0)
 
-    eps = np.zeros((len(m), len(amax)))
+    eps = np.zeros((len(m), len(fsl)))
     
     return fsl_cdfs, eps
