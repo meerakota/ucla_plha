@@ -25,5 +25,7 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, fsl, m, sigmav, sigmavp, vs12, d, n160
     sigma_ln_csr = sigma_ln_pga
     mu_ln_fsl = mu_ln_csr - mu_ln_crr
     sigma_ln_fsl = np.sqrt(sigma_ln_crr**2 + sigma_ln_csr**2)
-    fsl_cdfs = ndtr((np.log(fsl) - mu_ln_fsl[:, np.newaxis]) / sigma_ln_fsl[:, np.newaxis])
+    eps = (np.log(fsl) - mu_ln_fsl[:, np.newaxis]) / sigma_ln_fsl[:, np.newaxis]
+    fsl_cdfs = ndtr(eps)
+
     return fsl_cdfs
