@@ -41,7 +41,7 @@ def process_cpt(depth, qt, fs, dGWT, **kwargs):
     return (ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay)
     
 
-def get_fsl_hazards(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, rate, fsl, N=50):
+def get_fsl_hazards(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, N=50):
     # Define model constants
     lambda_csr = -0.365
     tc = 2.0
@@ -61,7 +61,7 @@ def get_fsl_hazards(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksa
     t = zbot - ztop
 
     # Initialize result array and perform convolution numerically via matrix multiplication
-    result = np.zeros((len(m), len(amax)))
+    fsl_cdfs = np.zeros((len(m), len(amax)))
     for i in range(len(m)):
         pdf_array = pdf(log_amax_diff, mu_ln_pga[i], sigma_ln_pga[i])
         w = dx * pdf_array
@@ -70,6 +70,5 @@ def get_fsl_hazards(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksa
         pfts = smt.get_pfts(csrm_hat_lay, crr_hat_lay, Ksat_lay)
         pmp = 1.0 - np.prod((1.0 - pfmt * pfts * pfs) ** (t / tc), axis=1)
         temp = pmp @ w
-        result[i] = sp.interpolate.pchip_interpolate(amax, temp.T, fsl, axis=0)
-    fsl_hazards = rate[:, np.newaxis] * result
-    return fsl_hazards
+        fsl_cdfs[i] = sp.interpolate.pchip_interpolate(amax, temp.T, fsl, axis=0)
+    return fsl_cdfs
