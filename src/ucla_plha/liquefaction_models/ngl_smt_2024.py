@@ -41,7 +41,7 @@ def process_cpt(depth, qt, fs, dGWT, **kwargs):
     return (ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay)
     
 
-def get_fsl_hazards(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, N=50):
+def get_fsl_cdfs(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, N=50):
     # Define model constants
     lambda_csr = -0.365
     tc = 2.0
