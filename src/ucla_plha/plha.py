@@ -54,13 +54,13 @@ def get_ground_motion_data(gmm, vs30, dist, m, fault_type):
         print('incorrect ground motion model')
     return([mu_ln_pga, sigma_ln_pga])
 
-def get_liquefaction_hazards(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config):
+def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config):
     if(liquefaction_model=='cetin_et_al_2018'):
         c = config['liquefaction_models']['cetin_et_al_2018']
-        return cetin_et_al_2018.get_fsl_hazards(mu_ln_pga, sigma_ln_pga, fsl, m, c['sigmav'], c['sigmavp'], c['vs12'], c['depth'], c['n160'], c['fc'], c['pa'])
+        return cetin_et_al_2018.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, fsl, m, c['sigmav'], c['sigmavp'], c['vs12'], c['depth'], c['n160'], c['fc'], c['pa'])
     elif(liquefaction_model=='idriss_boulanger_2012'):
         c = config['liquefaction_models']['idriss_boulanger_2012']
-        return idriss_boulanger_2012.get_fsl_hazards(mu_ln_pga, sigma_ln_pga, fsl, m, c['sigmav'], c['sigmavp'], c['depth'], c['n160'], c['fc'], c['pa'])
+        return idriss_boulanger_2012.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, fsl, m, c['sigmav'], c['sigmavp'], c['depth'], c['n160'], c['fc'], c['pa'])
     elif(liquefaction_model=='ngl_smt_2024'):
         c = config['liquefaction_models']['ngl_smt_2024']
         cpt_df = pd.read_csv(c['cpt_data'])
@@ -112,7 +112,8 @@ def get_liquefaction_hazards(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model
             sigmav_lay = cpt_df['sigmav_lay'].values
             sigmavp_lay = cpt_df['sigmavp_lay'].values
             Ksat_lay = cpt_df['Ksat_lay'].values
-        return ngl_smt_2024.get_fsl_hazards(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, N = c['N'])
+
+        return ngl_smt_2024.get_fsl_cdfs(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, N = c['N'])
             
 
 def get_hazard(config_file):
@@ -215,7 +216,7 @@ def get_hazard(config_file):
                 for liquefaction_model in config['liquefaction_models'].keys():
                     liquefaction_model_weight = config['liquefaction_models'][liquefaction_model]['weight']
                     if(output_plha):
-                        liquefaction_hazards, eps = get_liquefaction_hazards(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config)
+                        liquefaction_hazards, eps = get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config)
                         liquefaction_hazards *= rate[:, np.newaxis]
                         liquefaction_hazard += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards, axis=0)
                         if(output_plha_disaggregation):
