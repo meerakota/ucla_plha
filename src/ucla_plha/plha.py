@@ -238,5 +238,10 @@ def get_hazard(config_file):
         else:
             output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard}
     if(output_plha):
-        output['output']["plha"] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard}
+        if(output_plha_disaggregation):
+            for i in range(len(fsl)):
+                plha_disagg[i] = plha_disagg[i] / liquefaction_hazard[i] * 100
+            output['output']['plha'] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard, 'disaggregation': plha_disagg}
+        else:
+            output['output']['plha'] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard}
     return output
