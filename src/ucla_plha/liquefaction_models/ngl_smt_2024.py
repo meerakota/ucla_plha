@@ -1,6 +1,7 @@
 import numpy as np
 import scipy as sp
 import ngl_tools.smt as smt
+from scipy.stats import norm
 
 def pdf(x, mu, sigma):
     return 1.0 / np.sqrt(2.0*np.pi) / sigma * np.exp(-0.5 * ((x - mu)/sigma)**2)
