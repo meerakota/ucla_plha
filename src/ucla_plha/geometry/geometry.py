@@ -5,28 +5,28 @@ def point_to_xyz(p):
     '''
     Convert point latitude, longitude, elevation values to Cartesian coordinates.
     p = N x 3 Numpy array, where N is the number of points. 
-    Each row of p has [latitude, longitude, depth], where latitude and longitude are in degrees and elevation is in km.
+    Each row of p has [latitude, longitude, elevation], where latitude and longitude are in degrees and elevation is in km.
     r = Earth's radius in km.
     '''
     p_xyz = np.empty(3)
     rad = np.pi/180.0
     lat = p[0]
     lon = p[1]
-    depth = p[2]
+    elevation = p[2]
     a = 6378.1370 # Earth's equatorial radius in km
     b = 6356.7523 # Earth's polar radius in km
     r = np.sqrt(((a**2 * np.cos(lat * rad))**2 + (b**2 * np.sin(lat * rad))**2) / ((a * np.cos(lat * rad))**2 + (b * np.sin(lat * rad))**2))
     p_xyz[0] = (
-        (r - depth)
+        (r - elevation)
         * np.cos(lat * rad)
         * np.cos(lon * rad)
     )
     p_xyz[1] = (
-        (r - depth)
+        (r - elevation)
         * np.cos(lat * rad)
         * np.sin(lon * rad)
     )
-    p_xyz[2] = (r - depth) * np.sin(lat * rad)
+    p_xyz[2] = (r - elevation) * np.sin(lat * rad)
     return np.asarray(p_xyz)
 
 def point_triangle_distance(tri_xyz, p_xyz, fault_id):
