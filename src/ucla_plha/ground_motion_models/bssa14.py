@@ -132,7 +132,7 @@ def get_im(vs30,rjb,m,fault_type):
     cond22 = (vs30 < v1) & (r1 < rjb) & (rjb <= r2) & (m <= 4.5)
     phi[cond22] = phi1+deltaphir*(np.log(rjb[cond22]/r1)/np.log(r2/r1))-deltaphiv
     cond23 = (vs30 < v1) & (r1 < rjb) & (rjb <= r2) & (4.5 < m) & (m < 5.5)
-    phi[cond23] = phi1+(phi2-phi1)*(m[cond23]-4.5)+deltaphir*(np.log(rjb[cond22]/r1)/np.log(r2/r1))-deltaphiv
+    phi[cond23] = phi1+(phi2-phi1)*(m[cond23]-4.5)+deltaphir*(np.log(rjb[cond23]/r1)/np.log(r2/r1))-deltaphiv
     cond24 = (vs30 < v1) & (r1 < rjb) & (rjb <= r2) & (m >= 5.5)
     phi[cond24] = phi2+deltaphir*(np.log(rjb[cond24]/r1)/np.log(r2/r1))-deltaphiv
     cond25 = (vs30 < v1) & (rjb > r2) & (m <= 4.5)
