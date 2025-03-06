@@ -8,24 +8,38 @@ from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14
 from ucla_plha.geometry import geometry
 from importlib_resources import files
 
-def get_source_data(source_type, source_model, dist_type, p_xyz, dist_cutoff):
+def get_source_data(source_type, source_model, p_xyz, rjb_cutoff, rrup_cutoff):
     if(source_type == 'fault_source_models'):
         path = files('ucla_plha').joinpath('source_models/fault_source_models/' + source_model)
         ruptures = pd.read_pickle(str(path.joinpath('ruptures.pkl')), compression='gzip')
-        fault_id = np.load(str(path.joinpath('fault_id.npy')))
+        tri_segment_id = np.load(str(path.joinpath('tri_segment_id.npy')))
+        rect_segment_id = np.load(str(path.joinpath('rect_segment_id.npy')))
+        dip = np.load(str(path.joinpath('dip.npy')))
+        ztor = np.load(str(path.joinpath('ztor.npy')))
+        zbor = np.load(str(path.joinpath('zbor.npy')))
         m = ruptures['m'].values
         fault_type = ruptures['style'].values
         ruptures_segments = pd.read_pickle(str(path.joinpath('ruptures_segments.pkl')), compression='gzip')
         segment_index = ruptures_segments['segment_index'].values
-        if(dist_type == 'rjb'):
-            tri = np.load(str(path.joinpath('tri_rjb.npy')))
-        elif(dist_type == 'rrup'):
-            tri = np.load(str(path.joinpath('tri_rrup.npy')))
-        dist_all = geometry.point_triangle_distance(tri, p_xyz, fault_id)
-        ruptures_segments['dist_all'] = dist_all[segment_index]
-        dist = ruptures_segments.groupby('rupture_index')['dist_all'].min().values
-        filter = (dist < dist_cutoff)
+        tri_rjb = np.load(str(path.joinpath('tri_rjb.npy')))
+        tri_rrup = np.load(str(path.joinpath('tri_rrup.npy')))
+        rect = np.load(str(path.joinpath('rect_rjb.npy')))
+        rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
+        ruptures_segments['rjb_all'] = rjb_all[segment_index]
+        rjb = ruptures_segments.groupby('rupture_index')['rjb_all'].min().values
+        rrup_all = geometry.point_triangle_distance(tri_rrup, p_xyz, tri_segment_id)
+        ruptures_segments['rrup_all'] = rrup_all[segment_index]
+        rrup = ruptures_segments.groupby('rupture_index')['rrup_all'].min().values
+        Rx_all, Rx1_all, Ry0_all = geometry.get_Rx_Rx1_Ry0(rect, p_xyz, rect_segment_id)
+        ruptures_segments['Rx_all'] = Rx_all[segment_index]
+        ruptures_segments['Rx1_all'] = Rx1_all[segment_index]
+        ruptures_segments['Ry0_all'] = Ry0_all[segment_index]
+        rx = ruptures_segments.groupby('rupture_index')['Rx_all'].min().values
+        rx1 = ruptures_segments.groupby('rupture_index')['Rx1_all'].min().values
+        ry0 = ruptures_segments.groupby('rupture_index')['Ry0_all'].min().values
+        filter = ((rjb < rjb_cutoff) or (rrup < rrup_cutoff))
         rate = ruptures['rate'].values
+        return([m[filter], fault_type[filter], rate[filter], rjb[filter], rrup[filter], rx[filter], rx1[filter], ry0[filter], dip[filter], ztor[filter], zbor[filter]])
     elif(source_type == 'point_source_models'):
         path = files('ucla_plha').joinpath('source_models/point_source_models/' + source_model)
         ruptures = pd.read_pickle(str(path.joinpath('ruptures.pkl')), compression='gzip')
@@ -37,19 +51,20 @@ def get_source_data(source_type, source_model, dist_type, p_xyz, dist_cutoff):
         for i, ni in enumerate(node_index):
             dist_temp[ni] = np.sqrt((points[i,0] - p_xyz[0])**2 + (points[i,1] - p_xyz[1])**2 + (points[i,2] - p_xyz[2])**2)
         dist = dist_temp[ruptures['node_index'].values]
-        filter = (dist < dist_cutoff)
+        filter = ((rjb < rjb_cutoff) or (rrup < rrup_cutoff))
         rate = ruptures['rate'].values
-    return([m[filter], fault_type[filter], rate[filter], dist[filter]])
+        # For point sources, use same distance for Rx, Rx1, Ry0, which will turn off the hanging wall term
+        return([m[filter], fault_type[filter], rate[filter], dist[filter], dist[filter], dist[filter], dist[filter], dist[filter], dip[filter], ztor[filter], zbor[filter]])
 
-def get_ground_motion_data(gmm, vs30, dist, m, fault_type):
+def get_ground_motion_data(gmm, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, ztor, zbor, dip, z1p0, z2p5, measured_vs30):
     if(gmm == 'bssa14'):
-        mu_ln_pga, sigma_ln_pga = bssa14.get_im(vs30, dist, m, fault_type)
+        mu_ln_pga, sigma_ln_pga = bssa14.get_im(vs30, rjb, m, fault_type)
     elif(gmm == 'cb14'):
-        mu_ln_pga, sigma_ln_pga = cb14.get_im(vs30, dist, m, fault_type)
+        mu_ln_pga, sigma_ln_pga = cb14.get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, z2p5)
     elif(gmm == 'ba14'):
         mu_ln_pga, sigma_ln_pga = cy14.get_im(vs30, dist, m, fault_type)
     elif(gmm == 'ask14'):
-        mu_ln_pga, sigma_ln_pga = ask14.get_im(vs30, dist, m, fault_type)
+        mu_ln_pga, sigma_ln_pga = ask14.get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, dip, ztor, measured_vs30, z1p0)
     else:
         print('incorrect ground motion model')
     return([mu_ln_pga, sigma_ln_pga])
@@ -127,7 +142,7 @@ def get_hazard(config_file):
         print("Config File Error:", e.message)
         return
 
-    dist_types = {'bssa14': 'rjb', 'cy14': 'rjb', 'cb14': 'rjb', 'as14': 'rjb'}
+    dist_types = {'bssa14': 'rjb', 'cy14': 'rjb', 'cb14': 'rjb', 'ask14': 'rjb'}
     
     # Read geometry properties
     latitude = config['geometry']['latitude']
@@ -180,29 +195,35 @@ def get_hazard(config_file):
         if(dist_types[gmm] not in distance_types):
             distance_types.append(dist_types[gmm])
 
-    # Loop over source models. This is nested between fault_source_models and point_source_models, so there are two loops
+    # Loop over source models. We have fault_source_models and point_source_models, so there are two loops
+    m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = get_source_data(source_model, fault_source_model, p_xyz, rjb_cutoff, rrup_cutoff)
     for source_model in config['source_models'].keys():
         for fault_source_model in config['source_models'][source_model].keys():
             source_model_weight = config['source_models'][source_model][fault_source_model]['weight']
-            # Compute distances we need for the ground motion models we are using
-            if('rjb' in distance_types):
-                m, fault_type, rate, rjb = get_source_data(source_model, fault_source_model, 'rjb', p_xyz, rjb_cutoff)
-            if('rrup' in distance_types):
-                m, fault_type, rate, rrup = get_source_data(source_model, fault_source_model, 'rrup', p_xyz, rrup_cutoff)
             # Loop over ground motion models.
             for ground_motion_model in config['ground_motion_models'].keys():
+                # retrieve parameters common to all models
                 ground_motion_model_weight = config['ground_motion_models'][ground_motion_model]['weight']
                 vs30 = config['ground_motion_models'][ground_motion_model]['vs30']
-                if(dist_types[ground_motion_model] == 'rjb'):
-                    mu_ln_pga, sigma_ln_pga = get_ground_motion_data(ground_motion_model, vs30, rjb, m, fault_type)
-                elif(dist_types[ground_motion_model] == 'rrup'):
-                    mu_ln_pga, sigma_ln_pga = get_ground_motion_data(ground_motion_model, vs30, rrup, m, fault_type)
-                else:
-                    print('incorrect ground motion model')
+                z1p0 = None
+                z2p5 = None
+                measured_vs30 = False
+                # retrieve model-specific parameters
+                if(ground_motion_model == 'ask14'):
+                    if('measured_vs30' in config['ground_motion_models']['cb14'].keys()):
+                        measured_vs30 = config['ground_motion_models']['ask14']['measured_vs30']
+                    if('z1p0' in config['ground_motion_models'][ground_motion_model].keys()):
+                        z1p0 = config['ground_motion_models']['ask14']['z1p0']
+                if(ground_motion_model == 'cb14'):
+                    if('z2p5' in config['ground_motion_models']['cb14'].keys()):
+                        z2p5 = config['ground_motion_models']['cb14']['z2p5']
+                                                                    
+                mu_ln_pga, sigma_ln_pga = get_ground_motion_data(ground_motion_model, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, ztor, zbor, dip, z1p0, z2p5, measured_vs30)
                 # Compute seismic hazard if requested in config file
                 if(output_psha):
                     seismic_hazards = (1 - ndtr((np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga)) * rate
                     seismic_hazard += source_model_weight * ground_motion_model_weight * np.sum(seismic_hazards, axis=1)
+                    # Compute seismic hazard disaggregation if requested in config file
                     if(output_psha_disaggregation):
                         for i in range(len(pga)):
                             eps = (np.log(pga[i]) - mu_ln_pga) / sigma_ln_pga
@@ -219,6 +240,7 @@ def get_hazard(config_file):
                         liquefaction_hazards, eps = get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config)
                         liquefaction_hazards *= rate[:, np.newaxis]
                         liquefaction_hazard += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards, axis=0)
+                        # Compute liquefaction hazard disaggregation if requested in config file
                         if(output_plha_disaggregation):
                             for i in range(len(fsl)):
                                 for j in range(len(plha_magnitude_bin_center)):
@@ -233,15 +255,15 @@ def get_hazard(config_file):
     if(output_psha):
         if(output_psha_disaggregation):
             for i in range(len(pga)):
-                psha_disagg[i] = psha_disagg[i] / seismic_hazard[i] * 100
-            output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard, 'disaggregation': psha_disagg}
+                psha_disagg[i] = psha_disagg[i] / seismic_hazard[i] * 100.0
+            output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard, "disaggregation": psha_disagg}
         else:
             output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard}
     if(output_plha):
         if(output_plha_disaggregation):
             for i in range(len(fsl)):
-                plha_disagg[i] = plha_disagg[i] / liquefaction_hazard[i] * 100
-            output['output']['plha'] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard, 'disaggregation': plha_disagg}
+                plha_disagg[i] = plha_disagg[i] / liquefaction_hazard[i] * 100.0
+            output['output']['plha'] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard, "disaggregation": plha_disagg}
         else:
-            output['output']['plha'] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard}
+            output['output']["plha"] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard}
     return output
