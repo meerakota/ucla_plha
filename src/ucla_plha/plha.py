@@ -26,18 +26,27 @@ def get_source_data(source_type, source_model, p_xyz, rjb_cutoff, rrup_cutoff):
         rect = np.load(str(path.joinpath('rect_rjb.npy')))
         rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
         ruptures_segments['rjb_all'] = rjb_all[segment_index]
-        rjb = ruptures_segments.groupby('rupture_index')['rjb_all'].min().values
         rrup_all = geometry.point_triangle_distance(tri_rrup, p_xyz, tri_segment_id)
         ruptures_segments['rrup_all'] = rrup_all[segment_index]
-        rrup = ruptures_segments.groupby('rupture_index')['rrup_all'].min().values
         Rx_all, Rx1_all, Ry0_all = geometry.get_Rx_Rx1_Ry0(rect, p_xyz, rect_segment_id)
         ruptures_segments['Rx_all'] = Rx_all[segment_index]
         ruptures_segments['Rx1_all'] = Rx1_all[segment_index]
         ruptures_segments['Ry0_all'] = Ry0_all[segment_index]
-        rx = ruptures_segments.groupby('rupture_index')['Rx_all'].min().values
-        rx1 = ruptures_segments.groupby('rupture_index')['Rx1_all'].min().values
-        ry0 = ruptures_segments.groupby('rupture_index')['Ry0_all'].min().values
-        filter = ((rjb < rjb_cutoff) or (rrup < rrup_cutoff))
+        ruptures_segments['dip_all'] = dip[segment_index]
+        ruptures_segments['ztor_all'] = ztor[segment_index]
+        ruptures_segments['zbor_all'] = zbor[segment_index]
+
+        grouped_ruptures_segments = ruptures_segments.groupby('rupture_index')
+        rjb = grouped_ruptures_segments['rjb_all'].min().values
+        rrup = grouped_ruptures_segments['rrup_all'].min().values
+        rx = grouped_ruptures_segments['Rx_all'].min().values
+        rx1 = grouped_ruptures_segments['Rx1_all'].min().values
+        ry0 = grouped_ruptures_segments['Ry0_all'].min().values        
+        dip = grouped_ruptures_segments['dip_all'].min().values
+        ztor = grouped_ruptures_segments['ztor_all'].min().values
+        zbor = grouped_ruptures_segments['zbor_all'].min().values
+
+        filter = rjb < rjb_cutoff
         rate = ruptures['rate'].values
         return([m[filter], fault_type[filter], rate[filter], rjb[filter], rrup[filter], rx[filter], rx1[filter], ry0[filter], dip[filter], ztor[filter], zbor[filter]])
     elif(source_type == 'point_source_models'):
@@ -51,8 +60,11 @@ def get_source_data(source_type, source_model, p_xyz, rjb_cutoff, rrup_cutoff):
         for i, ni in enumerate(node_index):
             dist_temp[ni] = np.sqrt((points[i,0] - p_xyz[0])**2 + (points[i,1] - p_xyz[1])**2 + (points[i,2] - p_xyz[2])**2)
         dist = dist_temp[ruptures['node_index'].values]
-        filter = ((rjb < rjb_cutoff) or (rrup < rrup_cutoff))
+        filter = dist < rjb_cutoff
         rate = ruptures['rate'].values
+        dip = np.zeros(len(m))
+        ztor = np.zeros(len(m))
+        zbor = np.zeros(len(m))
         # For point sources, use same distance for Rx, Rx1, Ry0, which will turn off the hanging wall term
         return([m[filter], fault_type[filter], rate[filter], dist[filter], dist[filter], dist[filter], dist[filter], dist[filter], dip[filter], ztor[filter], zbor[filter]])
 
@@ -60,9 +72,9 @@ def get_ground_motion_data(gmm, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, zt
     if(gmm == 'bssa14'):
         mu_ln_pga, sigma_ln_pga = bssa14.get_im(vs30, rjb, m, fault_type)
     elif(gmm == 'cb14'):
-        mu_ln_pga, sigma_ln_pga = cb14.get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, z2p5)
-    elif(gmm == 'ba14'):
-        mu_ln_pga, sigma_ln_pga = cy14.get_im(vs30, dist, m, fault_type)
+        mu_ln_pga, sigma_ln_pga = cb14.get_im(vs30,rjb,rrup,rx,m,fault_type,ztor,zbor,dip,z2p5)
+    elif(gmm == 'cy14'):
+        mu_ln_pga, sigma_ln_pga = cy14.get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,z1p0)
     elif(gmm == 'ask14'):
         mu_ln_pga, sigma_ln_pga = ask14.get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, dip, ztor, measured_vs30, z1p0)
     else:
@@ -128,7 +140,7 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             sigmavp_lay = cpt_df['sigmavp_lay'].values
             Ksat_lay = cpt_df['Ksat_lay'].values
 
-        return ngl_smt_2024.get_fsl_cdfs(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, N = c['N'])
+        return ngl_smt_2024.get_fsl_cdfs2(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, 101.325)
             
 
 def get_hazard(config_file):
@@ -196,9 +208,9 @@ def get_hazard(config_file):
             distance_types.append(dist_types[gmm])
 
     # Loop over source models. We have fault_source_models and point_source_models, so there are two loops
-    m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = get_source_data(source_model, fault_source_model, p_xyz, rjb_cutoff, rrup_cutoff)
     for source_model in config['source_models'].keys():
-        for fault_source_model in config['source_models'][source_model].keys():
+       for fault_source_model in config['source_models'][source_model].keys():
+            m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = get_source_data(source_model, fault_source_model, p_xyz, rjb_cutoff, rrup_cutoff)
             source_model_weight = config['source_models'][source_model][fault_source_model]['weight']
             # Loop over ground motion models.
             for ground_motion_model in config['ground_motion_models'].keys():
@@ -209,14 +221,14 @@ def get_hazard(config_file):
                 z2p5 = None
                 measured_vs30 = False
                 # retrieve model-specific parameters
-                if(ground_motion_model == 'ask14'):
-                    if('measured_vs30' in config['ground_motion_models']['cb14'].keys()):
-                        measured_vs30 = config['ground_motion_models']['ask14']['measured_vs30']
+                if((ground_motion_model == 'ask14') or (ground_motion_model == 'cy14')):
+                    if('measured_vs30' in config['ground_motion_models'][ground_motion_model].keys()):
+                        measured_vs30 = config['ground_motion_models'][ground_motion_model]['measured_vs30']
                     if('z1p0' in config['ground_motion_models'][ground_motion_model].keys()):
-                        z1p0 = config['ground_motion_models']['ask14']['z1p0']
+                        z1p0 = config['ground_motion_models'][ground_motion_model]['z1p0']
                 if(ground_motion_model == 'cb14'):
-                    if('z2p5' in config['ground_motion_models']['cb14'].keys()):
-                        z2p5 = config['ground_motion_models']['cb14']['z2p5']
+                    if('z2p5' in config['ground_motion_models'][ground_motion_model].keys()):
+                        z2p5 = config['ground_motion_models'][ground_motion_model]['z2p5']
                                                                     
                 mu_ln_pga, sigma_ln_pga = get_ground_motion_data(ground_motion_model, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, ztor, zbor, dip, z1p0, z2p5, measured_vs30)
                 # Compute seismic hazard if requested in config file
