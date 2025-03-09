@@ -96,7 +96,9 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "weight": {"type": "number"},
+                        "z1p0": {"type": "number"},
+                        "measured_vs30": {"type": "boolean"}
                     },
                     "required": ["vs30", "weight"],
                     "additionalProperties": false       
@@ -105,7 +107,8 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "weight": {"type": "number"},
+                        "z2p5": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
                     "additionalProperties": false          
@@ -114,7 +117,9 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "weight": {"type": "number"},
+                        "z1p0": {"type": "number"),
+                        "measured_vs30": {"type": "boolean"}
                     },
                     "required": ["vs30", "weight"],
                     "additionalProperties": false
