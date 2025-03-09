@@ -84,10 +84,10 @@ def get_ground_motion_data(gmm, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, zt
 def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config):
     if(liquefaction_model=='cetin_et_al_2018'):
         c = config['liquefaction_models']['cetin_et_al_2018']
-        return cetin_et_al_2018.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, fsl, m, c['sigmav'], c['sigmavp'], c['vs12'], c['depth'], c['n160'], c['fc'], c['pa'])
+        return cetin_et_al_2018.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, c['sigmav'], c['sigmavp'], c['vs12'], c['depth'], c['n160'], c['fc'], fsl, c['pa'])
     elif(liquefaction_model=='idriss_boulanger_2012'):
         c = config['liquefaction_models']['idriss_boulanger_2012']
-        return idriss_boulanger_2012.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, fsl, m, c['sigmav'], c['sigmavp'], c['depth'], c['n160'], c['fc'], c['pa'])
+        return idriss_boulanger_2012.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, c['sigmav'], c['sigmavp'], c['depth'], c['n160'], c['fc'], fsl, c['pa'])
     elif(liquefaction_model=='ngl_smt_2024'):
         c = config['liquefaction_models']['ngl_smt_2024']
         cpt_df = pd.read_csv(c['cpt_data'])
@@ -127,20 +127,20 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             if(error):
                 print("cpt_data ERROR: ", error)
                 return
-            ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay = ngl_smt_2024.process_cpt(cpt_df['depth'].values, cpt_df['qt'].values, cpt_df['fs'].values, c['dGWT'], sigmav=sigmav, sigmavp=sigmavp)
+            ztop, zbot, qc1Ncs, Ic, sigmav, sigmavp, Ksat = ngl_smt_2024.process_cpt(cpt_df['depth'].values, cpt_df['qt'].values, cpt_df['fs'].values, c['dGWT'], sigmav=sigmav, sigmavp=sigmavp)
         else:
-            required_headers = ['ztop', 'zbot', 'qc1Ncs_lay', 'Ic_lay', 'sigmav_lay', 'sigmavp_lay', 'Ksat_lay']
+            required_headers = ['ztop', 'zbot', 'qc1Ncs', 'Ic', 'sigmav', 'sigmavp', 'Ksat']
             if(not all(item in header for item in required_headers)):
-                error = 'If you specify process_cpt = false, the required headers are ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay'
+                error = 'If you specify process_cpt = false, the required headers are ztop, zbot, qc1Ncs, Ic, sigmav, sigmavp, Ksat'
             ztop = cpt_df['ztop'].values
             zbot = cpt_df['zbot'].values
-            qc1Ncs_lay = cpt_df['qc1Ncs_lay'].values
-            Ic_lay = cpt_df['Ic_lay'].values
-            sigmav_lay = cpt_df['sigmav_lay'].values
-            sigmavp_lay = cpt_df['sigmavp_lay'].values
-            Ksat_lay = cpt_df['Ksat_lay'].values
-
-        return ngl_smt_2024.get_fsl_cdfs2(ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay, mu_ln_pga, sigma_ln_pga, m, fsl, 101.325)
+            qc1Ncs = cpt_df['qc1Ncs'].values
+            Ic = cpt_df['Ic'].values
+            sigmav = cpt_df['sigmav'].values
+            sigmavp = cpt_df['sigmavp'].values
+            Ksat = cpt_df['Ksat'].values
+                                        
+        return ngl_smt_2024.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, ztop, zbot, qc1Ncs, Ic, sigmav, sigmavp, Ksat, fsl, 101.325)
             
 
 def get_hazard(config_file):
