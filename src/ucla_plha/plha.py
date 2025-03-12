@@ -22,33 +22,39 @@ def get_source_data(source_type, source_model, p_xyz, rjb_cutoff, rrup_cutoff):
         ruptures_segments = pd.read_pickle(str(path.joinpath('ruptures_segments.pkl')), compression='gzip')
         segment_index = ruptures_segments['segment_index'].values
         tri_rjb = np.load(str(path.joinpath('tri_rjb.npy')))
-        tri_rrup = np.load(str(path.joinpath('tri_rrup.npy')))
         rect = np.load(str(path.joinpath('rect_rjb.npy')))
         rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
         ruptures_segments['rjb_all'] = rjb_all[segment_index]
-        rrup_all = geometry.point_triangle_distance(tri_rrup, p_xyz, tri_segment_id)
-        ruptures_segments['rrup_all'] = rrup_all[segment_index]
-        Rx_all, Rx1_all, Ry0_all = geometry.get_Rx_Rx1_Ry0(rect, p_xyz, rect_segment_id)
-        ruptures_segments['Rx_all'] = Rx_all[segment_index]
-        ruptures_segments['Rx1_all'] = Rx1_all[segment_index]
-        ruptures_segments['Ry0_all'] = Ry0_all[segment_index]
-        ruptures_segments['dip_all'] = dip[segment_index]
-        ruptures_segments['ztor_all'] = ztor[segment_index]
-        ruptures_segments['zbor_all'] = zbor[segment_index]
+            
+        if(source_model != 'bssa_14'):
+            tri_rrup = np.load(str(path.joinpath('tri_rrup.npy')))
+            rrup_all = geometry.point_triangle_distance(tri_rrup, p_xyz, tri_segment_id)
+            ruptures_segments['rrup_all'] = rrup_all[segment_index]
+            Rx_all, Rx1_all, Ry0_all = geometry.get_Rx_Rx1_Ry0(rect, p_xyz, rect_segment_id)
+            ruptures_segments['Rx_all'] = Rx_all[segment_index]
+            ruptures_segments['Rx1_all'] = Rx1_all[segment_index]
+            ruptures_segments['Ry0_all'] = Ry0_all[segment_index]
+            ruptures_segments['dip_all'] = dip[segment_index]
+            ruptures_segments['ztor_all'] = ztor[segment_index]
+            ruptures_segments['zbor_all'] = zbor[segment_index]
 
         grouped_ruptures_segments = ruptures_segments.groupby('rupture_index')
         rjb = grouped_ruptures_segments['rjb_all'].min().values
-        rrup = grouped_ruptures_segments['rrup_all'].min().values
-        rx = grouped_ruptures_segments['Rx_all'].min().values
-        rx1 = grouped_ruptures_segments['Rx1_all'].min().values
-        ry0 = grouped_ruptures_segments['Ry0_all'].min().values        
-        dip = grouped_ruptures_segments['dip_all'].min().values
-        ztor = grouped_ruptures_segments['ztor_all'].min().values
-        zbor = grouped_ruptures_segments['zbor_all'].min().values
-
         filter = rjb < rjb_cutoff
         rate = ruptures['rate'].values
-        return([m[filter], fault_type[filter], rate[filter], rjb[filter], rrup[filter], rx[filter], rx1[filter], ry0[filter], dip[filter], ztor[filter], zbor[filter]])
+        
+        if(source_model != 'bssa14):
+            rrup = grouped_ruptures_segments['rrup_all'].min().values
+            rx = grouped_ruptures_segments['Rx_all'].min().values
+            rx1 = grouped_ruptures_segments['Rx1_all'].min().values
+            ry0 = grouped_ruptures_segments['Ry0_all'].min().values        
+            dip = grouped_ruptures_segments['dip_all'].min().values
+            ztor = grouped_ruptures_segments['ztor_all'].min().values
+            zbor = grouped_ruptures_segments['zbor_all'].min().values
+            return([m[filter], fault_type[filter], rate[filter], rjb[filter], rrup[filter], rx[filter], rx1[filter], ry0[filter], dip[filter], ztor[filter], zbor[filter]])
+        else:
+            return([m[filter], fault_type[filter], rate[filter], rjb[filter], rjb[filter], rjb[filter], rjb[filter], rjb[filter], rjb[filter], rjb[filter], rjb[filter]])        
+        
     elif(source_type == 'point_source_models'):
         path = files('ucla_plha').joinpath('source_models/point_source_models/' + source_model)
         ruptures = pd.read_pickle(str(path.joinpath('ruptures.pkl')), compression='gzip')
