@@ -189,7 +189,7 @@ def get_hazard(config_file):
         fsl = np.asarray(config['output']['plha']['fsl'], dtype=float)
         output_plha = True
         if("disaggregation" in config['output']['plha'].keys()):
-            output_psha_disaggregation = True
+            output_plha_disaggregation = True
             plha_magnitude_bin_edges = np.asarray(config['output']['plha']['disaggregation']['magnitude_bin_edges'], dtype=float)
             plha_distance_bin_edges = np.asarray(config['output']['plha']['disaggregation']['distance_bin_edges'], dtype=float)
             plha_epsilon_bin_edges = np.asarray(config['output']['plha']['disaggregation']['epsilon_bin_edges'], dtype=float)
