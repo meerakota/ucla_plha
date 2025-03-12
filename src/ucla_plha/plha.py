@@ -26,7 +26,7 @@ def get_source_data(source_type, source_model, p_xyz, rjb_cutoff, rrup_cutoff):
         rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
         ruptures_segments['rjb_all'] = rjb_all[segment_index]
             
-        if(source_model != 'bssa_14'):
+        if(source_model != 'bssa14'):
             tri_rrup = np.load(str(path.joinpath('tri_rrup.npy')))
             rrup_all = geometry.point_triangle_distance(tri_rrup, p_xyz, tri_segment_id)
             ruptures_segments['rrup_all'] = rrup_all[segment_index]
