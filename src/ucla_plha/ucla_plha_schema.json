@@ -10,8 +10,7 @@
                 "latitude": {"type": "number"},
                 "longitude": {"type": "number"},
                 "elevation": {"type": "number"},
-                "rjb_cutoff": {"type": "number"},
-                "rrup_cutoff": {"type": "number"}
+                "dist_cutoff": {"type": "number"}
             },
             "additionalProperties": false,
             "required": ["latitude", "longitude", "elevation"]
@@ -96,9 +95,7 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
-                        "weight": {"type": "number"},
-                        "z1p0": {"type": "number"},
-                        "measured_vs30": {"type": "boolean"}
+                        "weight": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
                     "additionalProperties": false       
@@ -107,8 +104,7 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
-                        "weight": {"type": "number"},
-                        "z2p5": {"type": "number"}
+                        "weight": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
                     "additionalProperties": false          
@@ -117,9 +113,7 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
-                        "weight": {"type": "number"},
-                        "z1p0": {"type": "number"),
-                        "measured_vs30": {"type": "boolean"}
+                        "weight": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
                     "additionalProperties": false
