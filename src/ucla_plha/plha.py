@@ -8,6 +8,7 @@ from ucla_plha.liquefaction_models import cetin_et_al_2018, idriss_boulanger_201
 from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14
 from ucla_plha.geometry import geometry
 from importlib_resources import files
+import numba
 
 def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
     if(source_type == 'fault_source_models'):
@@ -178,7 +179,21 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             Ksat = cpt_df['Ksat'].values
                                         
         return ngl_smt_2024.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, ztop, zbot, qc1Ncs, Ic, sigmav, sigmavp, Ksat, fsl, 101.325)
-            
+
+@numba.jit(nopython=True)           
+def get_disagg(liquefaction_hazards, eps, m, rjb, plha_magnitude_bin_edges, plha_distance_bin_edges, plha_epsilon_bin_edges, source_model_weight, ground_motion_model_weight, liquefaction_model_weight):
+    N = eps.shape[0]
+    M = eps.shape[1]
+    plha_magnitude_bin_center = 0.5 * (plha_magnitude_bin_edges[0:-1] + plha_magnitude_bin_edges[1:])
+    plha_distance_bin_center = 0.5 * (plha_distance_bin_edges[0:-1] + plha_distance_bin_edges[1:])
+    plha_epsilon_bin_center = 0.5 * (plha_epsilon_bin_edges[0:-1] + plha_epsilon_bin_edges[1:])
+    plha_disagg = np.zeros((M, len(plha_magnitude_bin_center), len(plha_distance_bin_center), len(plha_epsilon_bin_center)))
+    for i in range(N):
+        for j in range(len(plha_magnitude_bin_center)):
+            for k in range(len(plha_distance_bin_center)):
+                for l in range(len(plha_epsilon_bin_center)):
+                    plha_disagg[i, j, k, l] += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards[i, (m >= plha_magnitude_bin_edges[j]) & (m < plha_magnitude_bin_edges[j+1]) & (rjb >= plha_distance_bin_edges[k]) & (rjb < plha_distance_bin_edges[k+1]) & (eps[i] >= plha_epsilon_bin_edges[l]) & (eps[i] < plha_epsilon_bin_edges[l+1])])
+    return plha_disagg
 
 def get_hazard(config_file):
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is 
@@ -285,14 +300,17 @@ def get_hazard(config_file):
                         liquefaction_hazards, eps = get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config)
                         liquefaction_hazards *= rate[:, np.newaxis]
                         liquefaction_hazard += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards, axis=0)
+                        eps = eps.T
+                        liquefaction_hazards = liquefaction_hazards.T
                         # Compute liquefaction hazard disaggregation if requested in config file
+                        # if(output_plha_disaggregation):
+                        #     for i in range(len(fsl)):
+                        #         for j in range(len(plha_magnitude_bin_center)):
+                        #             for k in range(len(plha_distance_bin_center)):
+                        #                 for l in range(len(plha_epsilon_bin_center)):
+                        #                     plha_disagg[i, j, k, l] += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards[i, (m >= plha_magnitude_bin_edges[j]) & (m < plha_magnitude_bin_edges[j+1]) & (rjb >= plha_distance_bin_edges[k]) & (rjb < plha_distance_bin_edges[k+1]) & (eps[i] >= plha_epsilon_bin_edges[l]) & (eps[i] < plha_epsilon_bin_edges[l+1])])
                         if(output_plha_disaggregation):
-                            for i in range(len(fsl)):
-                                for j in range(len(plha_magnitude_bin_center)):
-                                    for k in range(len(plha_distance_bin_center)):
-                                        for l in range(len(plha_epsilon_bin_center)):
-                                            plha_disagg[i, j, k, l] += source_model_weight * ground_motion_model_weight * np.sum(seismic_hazards[i, (m >= plha_magnitude_bin_edges[j]) & (m < plha_magnitude_bin_edges[j+1]) & (rjb >= plha_distance_bin_edges[k]) & (rjb < plha_distance_bin_edges[k+1]) & (eps[i] >= plha_epsilon_bin_edges[l]) & (eps[i] < plha_epsilon_bin_edges[l+1])])
-
+                            plha_disagg = get_disagg(liquefaction_hazards, eps, m, rjb, plha_magnitude_bin_edges, plha_distance_bin_edges, plha_epsilon_bin_edges, source_model_weight, ground_motion_model_weight, liquefaction_model_weight)
     # Now prepare output
     output = {}
     output['input'] = config
