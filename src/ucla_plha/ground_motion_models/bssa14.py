@@ -92,7 +92,7 @@ def get_im(vs30,rjb,m,fault_type):
 
     # phi(M, RJB) equation 16 in BSSA14
     phi_m_rjb = np.empty(len(fault_type), dtype=float)
-    phi_m_rjb[rjb <= r1] = phi_m[r <= r1]
+    phi_m_rjb[rjb <= r1] = phi_m[rjb <= r1]
     phi_m_rjb[(r1 < rjb) & (rjb <= r2)] = phi_m[(r1 < rjb) & (rjb <= r2)] + deltaphir * np.log(rjb[(r1 < rjb) & (rjb <= r2)] / r1) / np.log(r2 / r1)
     phi_m_rjb[rjb > r2] = phi_m[rjb > r2] + deltaphir
 
