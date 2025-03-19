@@ -1,0 +1,73 @@
+{
+    "geometry": {
+        "latitude": 33.012691,
+        "longitude": -117.279216, 
+        "elevation": -0.024,
+        "rjb_cutoff": 200,
+        "rrup_cutoff": 200
+    },
+    "source_models": {
+        "fault_source_models": {
+            "ucerf3_fm31": {
+                "weight": 0.5
+            },
+            "ucerf3_fm32":{
+                "weight": 0.5
+            }
+        },
+        "point_source_models":{
+            "ucerf3_fm31_grid_sub_seis":{
+                "weight": 0.5
+            },
+            "ucerf3_fm31_grid_unassociated":{
+                "weight": 0.5
+            },
+            "ucerf3_fm32_grid_sub_seis":{
+                "weight": 0.5
+            },
+            "ucerf3_fm32_grid_unassociated":{
+                "weight": 0.5
+            }
+        }
+    },
+    "ground_motion_models":{
+        "bssa14":{
+            "weight": 1.0,
+            "vs30": 250.0
+        }
+    },
+    "liquefaction_models":{
+        "cetin_et_al_2018":{
+            "n160": 20.0,
+            "fc": 0.0,
+            "vs12": 150.0,
+            "sigmav": 70.0,
+            "sigmavp": 50.0,
+            "depth": 5.0,
+            "weight": 0.5,
+            "pa": 101.325
+        },
+        "idriss_boulanger_2012":{
+            "n160": 20.0,
+            "fc": 0.0,
+            "sigmav": 70.0,
+            "sigmavp": 50.0,
+            "depth": 5.0,
+            "weight": 0.50,
+            "pa": 101.325
+        }
+    },
+    "output": {
+        "psha": {
+            "pga": [0.010, 0.014, 0.021, 0.030, 0.043, 0.062, 0.089, 0.127, 0.183, 0.264, 0.379, 0.546, 0.785, 1.129, 1.624, 2.336, 3.360, 4.833, 6.952, 10.000],
+            "disaggregation": {
+                "magnitude_bin_edges": [5.0, 5.4, 5.8, 6.2, 6.6, 7.0, 7.4, 7.8, 8.2, 8.6],
+                "distance_bin_edges": [0.0, 20.0, 40.0, 60.0, 80.0, 100.0, 120.0, 140.0, 160.0],
+                "epsilon_bin_edges": [-500.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 500.0]
+            }
+        },
+        "plha": {
+            "fsl": [0.100, 0.123, 0.151, 0.185, 0.228, 0.280, 0.344, 0.423, 0.519, 0.638, 0.784, 0.963, 1.183, 1.454, 1.785, 2.194, 2.696, 3.312, 4.070, 5.000]
+        }
+    }
+}

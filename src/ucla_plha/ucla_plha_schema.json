@@ -1,0 +1,211 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "id": "resource:/schemas/ucla_plha_schema.json",
+    "type": "object",
+    "required": ["geometry", "source_models", "ground_motion_models", "liquefaction_models", "output"],
+    "properties": {
+        "geometry": {
+            "type": "object",
+            "properties":{
+                "latitude": {"type": "number"},
+                "longitude": {"type": "number"},
+                "elevation": {"type": "number"},
+                "dist_cutoff": {"type": "number"}
+            },
+            "additionalProperties": false,
+            "required": ["latitude", "longitude", "elevation"]
+        },
+        "source_models": {
+            "type": "object",
+            "properties": {
+                "fault_source_models": {
+                    "type": "object",
+                    "properties": {
+                        "ucerf3_fm31": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {"type": "number"}
+                            },
+                            "required": ["weight"],
+                            "additionalProperties": false
+                        },
+                        "ucerf3_fm32": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {"type": "number"}
+                            },
+                            "required": ["weight"],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "point_source_models": {
+                    "type": "object",
+                    "properties": {
+                        "ucerf3_fm31_grid_sub_seis": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {"type": "number"}
+                            },
+                            "required": ["weight"],
+                            "additionalProperties": false
+                        },
+                        "ucerf3_fm31_grid_unassociated": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {"type": "number"}
+                            },
+                            "required": ["weight"],
+                            "additionalProperties": false
+                        },
+                        "ucerf3_fm32_grid_sub_seis": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {"type": "number"}
+                            },
+                            "required": ["weight"],
+                            "additionalProperties": false
+                        },
+                        "ucerf3_fm32_grid_unassociated": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {"type": "number"}
+                            },
+                            "required": ["weight"],
+                            "additionalProperties": false
+                        }
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "ground_motion_models": {
+            "type": "object",
+            "properties": {
+                "bssa14": {
+                    "type": "object",
+                    "properties": {
+                        "vs30": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["vs30", "weight"],
+                    "additionalProperties": false          
+                },
+                "cy14": {
+                    "type": "object",
+                    "properties": {
+                        "vs30": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["vs30", "weight"],
+                    "additionalProperties": false       
+                },
+                "cb14": {
+                    "type": "object",
+                    "properties": {
+                        "vs30": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["vs30", "weight"],
+                    "additionalProperties": false          
+                },
+                "ask14": {
+                    "type": "object",
+                    "properties": {
+                        "vs30": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["vs30", "weight"],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "liquefaction_models": {
+            "type": "object",
+            "properties": {
+                "cetin_et_al_2018": {
+                    "type": "object",
+                    "properties": {
+                        "n160": {"type": "number"},
+                        "fc": {"type": "number"},
+                        "vs12": {"type": "number"},
+                        "sigmav": {"type": "number"},
+                        "sigmavp": {"type": "number"},
+                        "depth": {"type": "number"},
+                        "pa": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["n160", "fc", "vs12", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "additionalProperties": false
+                },
+                "idriss_boulanger_2012": {
+                    "type": "object",
+                    "properties": {
+                        "n160": {"type": "number"},
+                        "fc": {"type": "number"},
+                        "sigmav": {"type": "number"},
+                        "sigmavp": {"type": "number"},
+                        "depth": {"type": "number"},
+                        "pa": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["n160", "fc", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "additionalProperties": false
+                },
+                "ngl_smt_2024": {
+                    "type": "object",
+                    "properties": {
+                        "process_cpt": {"type": "boolean"},
+                        "dGWT": {"type": "number"},
+                        "gamma": {"type": "number"},
+                        "gammaw": {"type": "number"},
+                        "cpt_data": {"type": "string"},
+                        "N": {"type": "integer"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["process_cpt", "cpt_data", "weight"],
+                    "additionalProperties": false
+                }
+            }
+        },
+        "output": {
+            "type": "object",
+            "properties": {
+                "psha": {
+                    "type": "object",
+                    "properties": {
+                        "pga": {"type": "array", "items": {"type": "number"}},
+                        "disaggregation": {
+                            "type": "object",
+                            "properties": {
+                                "magnitude_bin_edges": {"type": "array", "items": {"type": "number"}},
+
+                                "distance_bin_edges": {"type": "array", "items": {"type": "number"}},
+                                "epsilon_bin_edges": {"type": "array", "items": {"type": "number"}}
+                            },
+                            "required": ["magnitude_bin_edges", "distance_bin_edges", "epsilon_bin_edges"],
+                            "additionalProperties": false
+                        }
+                    }
+                },
+                "plha": {
+                    "type": "object",
+                    "properties": {
+                        "fsl": {"type": "array", "items": {"type": "number"}},
+                        "disaggregation": {
+                            "type": "object",
+                            "properties": {
+                                "magnitude_bin_edges": {"type": "array", "items": {"type": "number"}},
+                                "distance_bin_edges": {"type": "array", "items": {"type": "number"}},
+                                "epsilon_bin_edges": {"type": "array", "items": {"type": "number"}}
+                            },
+                            "required": ["magnitude_bin_edges", "distance_bin_edges", "epsilon_bin_edges"],
+                            "additionalProperties": false
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
