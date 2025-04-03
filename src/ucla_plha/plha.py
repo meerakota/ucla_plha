@@ -332,14 +332,23 @@ def get_hazard(config_file):
         if(output_psha_disaggregation):
             for i in range(len(pga)):
                 psha_disagg[i] = psha_disagg[i] / seismic_hazard[i] * 100.0
-            output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard, "disaggregation": psha_disagg}
+            output['output']['psha'] = {"PGA": pga.tolist(), "annual_rate_of_exceedance": seismic_hazard.tolist(), "disaggregation": psha_disagg.tolist()}
         else:
-            output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard}
+            output['output']['psha'] = {"PGA": pga.tolist(), "annual_rate_of_exceedance": seismic_hazard.tolist()}
     if(output_plha):
         if(output_plha_disaggregation):
             for i in range(len(fsl)):
                 plha_disagg[i] = plha_disagg[i] / liquefaction_hazard[i] * 100.0
-            output['output']['plha'] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard, "disaggregation": plha_disagg}
+            output['output']['plha'] = {"FSL": fsl.tolist(), "annual_rate_of_nonexceedance": liquefaction_hazard.tolist(), "disaggregation": plha_disagg.tolist()}
         else:
-            output['output']["plha"] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard}
+            output['output']["plha"] = {"FSL": fsl.tolist(), "annual_rate_of_nonexceedance": liquefaction_hazard.tolist()}
+    
+    if('outputfile' in config['output'].keys()):
+        if(config['output']['outputfile'] == 'default'):
+            outputfilename = config_file.split('.json')[0] + '_output.json'
+        else:
+            outputfilename = config['output']['outputfile']
+        with open(outputfilename, 'w') as outputfile:
+            json.dump(output, outputfile, indent=4)
+    
     return output
