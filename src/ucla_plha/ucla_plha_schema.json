@@ -204,7 +204,9 @@
                             "additionalProperties": false
                         }
                     }
-                }
+                },
+                ,
+                "outputfile": {"type": "string"}
             }
         }
     }
