@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-04/schema",
     "id": "resource:/schemas/ucla_plha_schema.json",
     "type": "object",
-    "required": ["geometry", "source_models", "ground_motion_models", "liquefaction_models", "output"],
+    "required": ["geometry", "source_models", "ground_motion_models", "output"],
     "properties": {
         "geometry": {
             "type": "object",
