@@ -8,16 +8,32 @@ from ucla_plha.liquefaction_models import cetin_et_al_2018, idriss_boulanger_201
 from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14
 from ucla_plha.geometry import geometry
 from importlib_resources import files
-import numba
+import os
+
+def decompress_ucerf3_source_data():
+    branches = ['ucerf3_fm31', 'ucerf3_fm32']
+    for branch in branches:
+        path = files('ucla_plha').joinpath('source_models/fault_source_models/' + branch)
+        ruptures = pd.read_pickle(str(path.joinpath('ruptures.gz')), compression='gzip')
+        pd.to_pickle(ruptures, str(path.joinpath('ruptures.pkl')))
+        ruptures_segments = pd.read_pickle(str(path.joinpath('ruptures_segments.gz')), compression='gzip')
+        pd.to_pickle(ruptures_segments, str(path.joinpath('ruptures_segments.pkl')))
 
 def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
     if(source_type == 'fault_source_models'):
         # Read files required by all ground motion models
         path = files('ucla_plha').joinpath('source_models/fault_source_models/' + source_model)
-        ruptures = pd.read_pickle(str(path.joinpath('ruptures.pkl')), compression='gzip')
+        # Read decompressed version of files if they exist. Otherwise read zipped version.
+        if(os.path.exists(str(path.joinpath('ruptures.pkl')))):
+            ruptures = pd.read_pickle(str(path.joinpath('ruptures.pkl')))
+        else:
+            ruptures = pd.read_pickle(str(path.joinpath('ruptures.gz')), compression='gzip')
         m = ruptures['m'].values
         fault_type = ruptures['style'].values
-        ruptures_segments = pd.read_pickle(str(path.joinpath('ruptures_segments.pkl')), compression='gzip')
+        if(os.path.exists(str(path.joinpath('ruptures_segments.pkl')))):
+            ruptures_segments = pd.read_pickle(str(path.joinpath('ruptures_segments.pkl')))
+        else:
+            ruptures_segments = pd.read_pickle(str(path.joinpath('ruptures_segments.gz')), compression='gzip')
         segment_index = ruptures_segments['segment_index'].values
         rate = ruptures['rate'].values
         dip = ruptures['dip'].values
@@ -49,9 +65,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
             ruptures_segments['dip_all'] = dip[segment_index]
             ruptures_segments['ztor_all'] = ztor[segment_index]
             ruptures_segments['zbor_all'] = zbor[segment_index]
-
         grouped_ruptures_segments = ruptures_segments.groupby('rupture_index')
-
         if(any(gmm in ['ask14', 'cb14', 'cy14'] for gmm in gmms)):
             rrup = grouped_ruptures_segments['rrup_all'].min().values
             filter = rrup < dist_cutoff
@@ -69,7 +83,6 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
             filter = rjb < dist_cutoff
         else:
             rjb = empty_array
-        
                 
         return(m[filter], fault_type[filter], rate[filter], rjb[filter], rrup[filter], rx[filter], rx1[filter], ry0[filter], dip[filter], ztor[filter], zbor[filter])
     
@@ -180,20 +193,30 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
                                         
         return ngl_smt_2024.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, ztop, zbot, qc1Ncs, Ic, sigmav, sigmavp, Ksat, fsl, 101.325)
 
-@numba.jit(nopython=True)           
-def get_disagg(liquefaction_hazards, eps, m, rjb, plha_magnitude_bin_edges, plha_distance_bin_edges, plha_epsilon_bin_edges, source_model_weight, ground_motion_model_weight, liquefaction_model_weight):
-    N = eps.shape[0]
-    M = eps.shape[1]
-    plha_magnitude_bin_center = 0.5 * (plha_magnitude_bin_edges[0:-1] + plha_magnitude_bin_edges[1:])
-    plha_distance_bin_center = 0.5 * (plha_distance_bin_edges[0:-1] + plha_distance_bin_edges[1:])
-    plha_epsilon_bin_center = 0.5 * (plha_epsilon_bin_edges[0:-1] + plha_epsilon_bin_edges[1:])
-    plha_disagg = np.zeros((M, len(plha_magnitude_bin_center), len(plha_distance_bin_center), len(plha_epsilon_bin_center)))
-    for i in range(N):
-        for j in range(len(plha_magnitude_bin_center)):
-            for k in range(len(plha_distance_bin_center)):
-                for l in range(len(plha_epsilon_bin_center)):
-                    plha_disagg[i, j, k, l] += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards[i, (m >= plha_magnitude_bin_edges[j]) & (m < plha_magnitude_bin_edges[j+1]) & (rjb >= plha_distance_bin_edges[k]) & (rjb < plha_distance_bin_edges[k+1]) & (eps[i] >= plha_epsilon_bin_edges[l]) & (eps[i] < plha_epsilon_bin_edges[l+1])])
-    return plha_disagg
+def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
+    '''
+    hazards = N x M Numpy array of hazard values, dtype = float, N = number of intensity measure values, M = number of events
+    m = 1d Numpy array of length M of magnitude values, dtype = float
+    r = 1d Numpy array of length M of distance values, dtype = float
+    eps = N x M Numpy array of epsilon values, dtype = float
+    m_bin_edges = 1d Numpy array of magnitude bin edges
+    r_bin_edges = 1d Numpy array of distance bin edges
+    eps_bin_edges = 1d Numpy array of distance bin edges
+    '''
+    m_hazard = np.digitize(m, m_bin_edges)
+    r_hazard = np.digitize(r, r_bin_edges)
+    Nbins = (len(m_bin_edges) - 1) * (len(r_bin_edges) - 1) * (len(eps_bin_edges) - 1)
+    sum_hazard = np.zeros(Nbins)
+    disagg = np.empty((len(hazards), len(m_bin_edges) - 1, len(r_bin_edges) - 1, len(eps_bin_edges) - 1), dtype = float)
+    for i in range(len(hazards)):
+        eps_hazard = np.digitize(eps[i], eps_bin_edges)
+        bin_indices = m_hazard + (r_hazard - 1) * (len(m_bin_edges) - 1) + (eps_hazard - 1) * (len(m_bin_edges) - 1) * (len(r_bin_edges) - 1)
+        sum_hazard = np.zeros(Nbins, dtype=float)
+        for j in range(Nbins):
+            sum_hazard[j] = np.sum(hazards[i][bin_indices == j + 1])
+        disagg[i] = sum_hazard.reshape((len(m_bin_edges) - 1, len(r_bin_edges) - 1, len(eps_bin_edges) - 1))
+    
+    return disagg
 
 def get_hazard(config_file):
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is 
@@ -226,15 +249,15 @@ def get_hazard(config_file):
             psha_magnitude_bin_center = 0.5 * (psha_magnitude_bin_edges[0:-1] + psha_magnitude_bin_edges[1:])
             psha_distance_bin_center = 0.5 * (psha_distance_bin_edges[0:-1] + psha_distance_bin_edges[1:])
             psha_epsilon_bin_center = 0.5 * (psha_epsilon_bin_edges[0:-1] + psha_epsilon_bin_edges[1:])
-            psha_disagg = np.zeros((len(pga), len(psha_magnitude_bin_center), len(psha_distance_bin_center), len(psha_epsilon_bin_center)))
+            psha_disagg = np.zeros((len(pga), len(psha_magnitude_bin_center), len(psha_distance_bin_center), len(psha_epsilon_bin_center)), dtype=float)
         else:
             output_psha_disaggregation = False
         seismic_hazard = np.zeros(len(pga))
     else:
         output_psha = False
         output_psha_disaggregation = False
-
-    if(config['output']['plha']):
+    
+    if('plha' in config['output'].keys()):
         fsl = np.asarray(config['output']['plha']['fsl'], dtype=float)
         output_plha = True
         if("disaggregation" in config['output']['plha'].keys()):
@@ -245,16 +268,18 @@ def get_hazard(config_file):
             plha_magnitude_bin_center = 0.5 * (plha_magnitude_bin_edges[0:-1] + plha_magnitude_bin_edges[1:])
             plha_distance_bin_center = 0.5 * (plha_distance_bin_edges[0:-1] + plha_distance_bin_edges[1:])
             plha_epsilon_bin_center = 0.5 * (plha_epsilon_bin_edges[0:-1] + plha_epsilon_bin_edges[1:])
-            plha_disagg = np.zeros((len(pga), len(plha_magnitude_bin_center), len(plha_distance_bin_center), len(plha_epsilon_bin_center)))
+            plha_disagg = np.zeros((len(pga), len(plha_magnitude_bin_center), len(plha_distance_bin_center), len(plha_epsilon_bin_center)), dtype=float)
         else:
             output_plha_disaggregation = False
         liquefaction_hazard = np.zeros(len(fsl))
+    else:
+        output_plha = False
+        output_plha_disaggregation = False
 
     # Loop over all ground motion models to get list of distance types
     gmms = []
     for gmm in config['ground_motion_models'].keys():
         gmms.append(gmm)
-
     # Loop over source models. We have fault_source_models and point_source_models, so there are two loops
     for source_model in config['source_models'].keys():
        for fault_source_model in config['source_models'][source_model].keys():
@@ -278,39 +303,27 @@ def get_hazard(config_file):
                     if('z2p5' in config['ground_motion_models'][ground_motion_model].keys()):
                         z2p5 = config['ground_motion_models'][ground_motion_model]['z2p5']                                                    
                 mu_ln_pga, sigma_ln_pga = get_ground_motion_data(ground_motion_model, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, ztor, zbor, dip, z1p0, z2p5, measured_vs30)
-                
                 # Compute seismic hazard if requested in config file
                 if(output_psha):
-                    seismic_hazards = (1 - ndtr((np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga)) * rate
+                    eps = (np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga
+                    seismic_hazards = (1 - ndtr(eps)) * rate
                     seismic_hazard += source_model_weight * ground_motion_model_weight * np.sum(seismic_hazards, axis=1)
                     # Compute seismic hazard disaggregation if requested in config file
                     if(output_psha_disaggregation):
-                        for i in range(len(pga)):
-                            eps = (np.log(pga[i]) - mu_ln_pga) / sigma_ln_pga
-                            for j in range(len(psha_magnitude_bin_center)):
-                                for k in range(len(psha_distance_bin_center)):
-                                    for l in range(len(psha_epsilon_bin_center)):
-                                        psha_disagg[i, j, k, l] += source_model_weight * ground_motion_model_weight * np.sum(seismic_hazards[i, (m >= psha_magnitude_bin_edges[j]) & (m < psha_magnitude_bin_edges[j+1]) & (rjb >= psha_distance_bin_edges[k]) & (rjb < psha_distance_bin_edges[k+1]) & (eps >= psha_epsilon_bin_edges[l]) & (eps < psha_epsilon_bin_edges[l+1])])
-                        
-
+                        psha_disagg += source_model_weight * ground_motion_model_weight * get_disagg(seismic_hazards, m, rjb, eps, psha_magnitude_bin_edges, psha_distance_bin_edges, psha_epsilon_bin_edges)
                 # Compute liquefaction hazard if requested in config file
-                for liquefaction_model in config['liquefaction_models'].keys():
-                    liquefaction_model_weight = config['liquefaction_models'][liquefaction_model]['weight']
-                    if(output_plha):
-                        liquefaction_hazards, eps = get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config)
-                        liquefaction_hazards *= rate[:, np.newaxis]
-                        liquefaction_hazard += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards, axis=0)
-                        eps = eps.T
-                        liquefaction_hazards = liquefaction_hazards.T
-                        # Compute liquefaction hazard disaggregation if requested in config file
-                        # if(output_plha_disaggregation):
-                        #     for i in range(len(fsl)):
-                        #         for j in range(len(plha_magnitude_bin_center)):
-                        #             for k in range(len(plha_distance_bin_center)):
-                        #                 for l in range(len(plha_epsilon_bin_center)):
-                        #                     plha_disagg[i, j, k, l] += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards[i, (m >= plha_magnitude_bin_edges[j]) & (m < plha_magnitude_bin_edges[j+1]) & (rjb >= plha_distance_bin_edges[k]) & (rjb < plha_distance_bin_edges[k+1]) & (eps[i] >= plha_epsilon_bin_edges[l]) & (eps[i] < plha_epsilon_bin_edges[l+1])])
-                        if(output_plha_disaggregation):
-                            plha_disagg = get_disagg(liquefaction_hazards, eps, m, rjb, plha_magnitude_bin_edges, plha_distance_bin_edges, plha_epsilon_bin_edges, source_model_weight, ground_motion_model_weight, liquefaction_model_weight)
+                if('liquefaction_models' in config.keys()):
+                    for liquefaction_model in config['liquefaction_models'].keys():
+                        liquefaction_model_weight = config['liquefaction_models'][liquefaction_model]['weight']
+                        if(output_plha):
+                            liquefaction_hazards, eps = get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config)
+                            liquefaction_hazards *= rate[:, np.newaxis]
+                            liquefaction_hazard += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * np.sum(liquefaction_hazards, axis=0)
+                            eps = eps.T
+                            liquefaction_hazards = liquefaction_hazards.T
+                            # Compute liquefaction hazard disaggregation if requested in config file
+                            if(output_plha_disaggregation):
+                                plha_disagg += source_model_weight * ground_motion_model_weight * liquefaction_model_weight * get_disagg(liquefaction_hazards, m, rjb, eps, psha_magnitude_bin_edges, psha_distance_bin_edges, psha_epsilon_bin_edges)
     # Now prepare output
     output = {}
     output['input'] = config
@@ -319,14 +332,23 @@ def get_hazard(config_file):
         if(output_psha_disaggregation):
             for i in range(len(pga)):
                 psha_disagg[i] = psha_disagg[i] / seismic_hazard[i] * 100.0
-            output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard, "disaggregation": psha_disagg}
+            output['output']['psha'] = {"PGA": pga.tolist(), "annual_rate_of_exceedance": seismic_hazard.tolist(), "disaggregation": psha_disagg.tolist()}
         else:
-            output['output']['psha'] = {"PGA": pga, "annual_rate_of_exceedance": seismic_hazard}
+            output['output']['psha'] = {"PGA": pga.tolist(), "annual_rate_of_exceedance": seismic_hazard.tolist()}
     if(output_plha):
         if(output_plha_disaggregation):
             for i in range(len(fsl)):
                 plha_disagg[i] = plha_disagg[i] / liquefaction_hazard[i] * 100.0
-            output['output']['plha'] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard, "disaggregation": plha_disagg}
+            output['output']['plha'] = {"FSL": fsl.tolist(), "annual_rate_of_nonexceedance": liquefaction_hazard.tolist(), "disaggregation": plha_disagg.tolist()}
         else:
-            output['output']["plha"] = {"FSL": fsl, "annual_rate_of_nonexceedance": liquefaction_hazard}
+            output['output']["plha"] = {"FSL": fsl.tolist(), "annual_rate_of_nonexceedance": liquefaction_hazard.tolist()}
+    
+    if('outputfile' in config['output'].keys()):
+        if(config['output']['outputfile'] == 'default'):
+            outputfilename = config_file.split('.json')[0] + '_output.json'
+        else:
+            outputfilename = config['output']['outputfile']
+        with open(outputfilename, 'w') as outputfile:
+            json.dump(output, outputfile, indent=4)
+    
     return output
