@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ucla_plha"
-version = "0.0.2"
+version = "1.0.0"
 description = "A code for performing probabilistic liquefaction hazard analysis inside the hazard integral"
 authors = ["Meera L. Kota", "Scott J. Brandenberg"]
 license = "LICENSE"
@@ -13,6 +13,10 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.8"
 numpy = "^1.22"
+ngl_tools = ">0"
+importlib_resources = ">0"
+scikit_learn = ">0"
+
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.3"
