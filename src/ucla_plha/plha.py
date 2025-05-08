@@ -210,7 +210,7 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
     disagg = np.empty((len(hazards), len(m_bin_edges) - 1, len(r_bin_edges) - 1, len(eps_bin_edges) - 1), dtype = float)
     for i in range(len(hazards)):
         eps_hazard = np.digitize(eps[i], eps_bin_edges)
-        bin_indices = m_hazard + (r_hazard - 1) * (len(m_bin_edges) - 1) + (eps_hazard - 1) * (len(m_bin_edges) - 1) * (len(r_bin_edges) - 1)
+        bin_indices = eps_hazard - 1 + (r_hazard - 1) * (len(eps_bin_edges) - 1) + (m_hazard - 1) * (len(eps_bin_edges) - 1) * (len(r_bin_edges) - 1)
         sum_hazard = np.zeros(Nbins, dtype=float)
         for j in range(Nbins):
             sum_hazard[j] = np.sum(hazards[i][bin_indices == j + 1])
