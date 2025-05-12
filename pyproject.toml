@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ucla_plha"
-version = "1.0.0"
+version = "1.0.1"
 description = "A code for performing probabilistic liquefaction hazard analysis inside the hazard integral"
 authors = ["Meera L. Kota", "Scott J. Brandenberg"]
 license = "LICENSE"
