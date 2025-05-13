@@ -15,7 +15,7 @@ def process_cpt(depth, qt, fs, dGWT, **kwargs):
         gamma = kwargs.get('gamma')
         sigmav = gamma * depth
         if(dGWT < 0):
-            sigmav -= dGWT * gammaw
+            dGWT = 0.0
         u = gammaw * (depth - dGWT)
         sigmavp = sigmav - u
     elif('sigmav' in kwargs):
