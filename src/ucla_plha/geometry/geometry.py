@@ -17,19 +17,19 @@ def point_to_xyz(p):
     b = 6356.7523 # Earth's polar radius in km
     r = np.sqrt(((a**2 * np.cos(lat * rad))**2 + (b**2 * np.sin(lat * rad))**2) / ((a * np.cos(lat * rad))**2 + (b * np.sin(lat * rad))**2))
     p_xyz[0] = (
-        (r - elevation)
+        (r + elevation)
         * np.cos(lat * rad)
         * np.cos(lon * rad)
     )
     p_xyz[1] = (
-        (r - elevation)
+        (r + elevation)
         * np.cos(lat * rad)
         * np.sin(lon * rad)
     )
-    p_xyz[2] = (r - elevation) * np.sin(lat * rad)
+    p_xyz[2] = (r + elevation) * np.sin(lat * rad)
     return np.asarray(p_xyz)
 
-def point_triangle_distance(tri_xyz, p_xyz, fault_id):
+def point_triangle_distance(tri_xyz, p_xyz, tri_segment_id):
     '''
     Compute distance between all of the triangles for a source model (tri_xyz) and the point p_xyz.
     Return a Numpy array of distances and associated fault_id's.
@@ -171,9 +171,56 @@ def point_triangle_distance(tri_xyz, p_xyz, fault_id):
 
     # use Pandas groupby function to find shortest distance for a particular fault rupture
     df = pd.DataFrame()
-    df['fault_id'] = fault_id
+    df['tri_segment_id'] = tri_segment_id
     df['sqrdistance'] = sqrdistance
-    sqrdistance_out = df.groupby('fault_id')['sqrdistance'].min().values
+    sqrdistance_out = df.groupby('tri_segment_id')['sqrdistance'].min().values
 
     # return distance array
     return np.sqrt(sqrdistance_out).T
+
+def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
+    """
+    rect_points is an Nx4x3 Numpy array with the x, y, z coordinates of four points on the surface projection of the fault, and N is the number of faults
+    point is a 1x3 numpy array with the x, y, z coordinates of the point
+    top edge of fault is defined by (x1,y1,z1) (x2,y2,z2), and bottom edge by (x3,y3,z3) (x4,y4,z4)
+    
+                         Rx            point
+              |<---------------------->o(x0,y0,z0)
+              |                        ^
+              |               Rx1      |
+              |        |<------------->| Ry0
+              |        |               |
+              |        |               v
+    (x2,y2,z2)o--------o(x4,y4,z4)-------
+              |////////|
+              |////////|<--Surface projection of fault
+        top-->|////////|<--bottom
+              |////////|
+              |////////|
+    (x1,y1,z1)o--------o(x3,y3,z3)
+    
+    """
+    width = np.sqrt(np.sum((rect_points[:,1] - rect_points[:,0])**2, axis=1))
+    length = np.sqrt(np.sum((rect_points[:,0] - rect_points[:,3])**2, axis=1))
+    Rx = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,0], rect_points[:,0] - point))**2, axis=1)) / width
+    Rx1 = np.sqrt(np.sum((np.cross(rect_points[:,2] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / width 
+    Ry1 = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / length
+    Ry2 = np.sqrt(np.sum((np.cross(rect_points[:,0] - rect_points[:,2], rect_points[:,2] - point))**2, axis=1)) / length
+    Ry0 = np.empty(len(rect_points), dtype=float)
+    Ry0[Ry1 < Ry2] = Ry1[Ry1 < Ry2]
+    Ry0[Ry2 < Ry1] = Ry2[Ry2 < Ry1]
+    Ry0[(Ry1 < width) & (Ry2 < width)] = 0
+
+    # A "segment" in the UCERF3 model sometimes consists of multiple geometric objects, so we need to 
+    # compute the shortest distance between each geometric object and the point to find the shortest distance 
+    # to the "segment"
+    df = pd.DataFrame()
+    df['rect_segment_id'] = rect_segment_id
+    df['Rx'] = Rx
+    df['Rx1'] = Rx1
+    df['Ry0'] = Ry0
+    Rx_out = df.groupby('rect_segment_id')['Rx'].min().values
+    Rx1_out = df.groupby('rect_segment_id')['Rx1'].min().values
+    Ry0_out = df.groupby('rect_segment_id')['Ry0'].min().values
+
+    return (Rx_out, Rx1_out, Ry0_out)
