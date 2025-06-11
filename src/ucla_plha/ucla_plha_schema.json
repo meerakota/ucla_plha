@@ -96,6 +96,7 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
+                        "measured_vs30": {"type": "number"},
                         "weight": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
@@ -105,6 +106,7 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
+                        "measured_vs30": {"type": "number"},
                         "weight": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
