@@ -10,7 +10,8 @@
                 "latitude": {"type": "number"},
                 "longitude": {"type": "number"},
                 "elevation": {"type": "number"},
-                "dist_cutoff": {"type": "number"}
+                "dist_cutoff": {"type": "number"},
+                "m_min": {"type": "number"}
             },
             "additionalProperties": false,
             "required": ["latitude", "longitude", "elevation"]
