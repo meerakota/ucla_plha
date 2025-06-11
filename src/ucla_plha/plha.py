@@ -229,13 +229,13 @@ def get_hazard(config_file):
         print("Config File Error:", e.message)
         return
     
-    # Read geometry properties
-    latitude = config['geometry']['latitude']
-    longitude = config['geometry']['longitude']
-    elevation = config['geometry']['elevation']
+    # Read site properties
+    latitude = config['site']['latitude']
+    longitude = config['site']['longitude']
+    elevation = config['site']['elevation']
     point = np.asarray([latitude, longitude, elevation])
-    dist_cutoff = config['geometry']['dist_cutoff']
-    m_min = config['geometry']['m_min']
+    dist_cutoff = config['site']['dist_cutoff']
+    m_min = config['site']['m_min']
     p_xyz = geometry.point_to_xyz(point)
 
     # Read output properties
