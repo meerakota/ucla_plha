@@ -19,7 +19,7 @@ def decompress_ucerf3_source_data():
         ruptures_segments = pd.read_pickle(str(path.joinpath('ruptures_segments.gz')), compression='gzip')
         pd.to_pickle(ruptures_segments, str(path.joinpath('ruptures_segments.pkl')))
 
-def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
+def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
     if(source_type == 'fault_source_models'):
         # Read files required by all ground motion models
         path = files('ucla_plha').joinpath('source_models/fault_source_models/' + source_model)
@@ -68,7 +68,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
         grouped_ruptures_segments = ruptures_segments.groupby('rupture_index')
         if(any(gmm in ['ask14', 'cb14', 'cy14'] for gmm in gmms)):
             rrup = grouped_ruptures_segments['rrup_all'].min().values
-            filter = rrup < dist_cutoff
+            filter = (rrup < dist_cutoff) & (m >= m_min)
             rx = grouped_ruptures_segments['Rx_all'].min().values
             rx1 = grouped_ruptures_segments['Rx1_all'].min().values
             ry0 = grouped_ruptures_segments['Ry0_all'].min().values
@@ -80,7 +80,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
 
         if(any(gmm in ['bssa14', 'cb14', 'cy14'] for gmm in gmms)):
             rjb = grouped_ruptures_segments['rjb_all'].min().values
-            filter = rjb < dist_cutoff
+            filter = (rjb < dist_cutoff) & (m >= m_min)
         else:
             rjb = empty_array
                 
@@ -98,7 +98,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, gmms):
         for i, ni in enumerate(node_index):
             dist_temp[ni] = np.sqrt((points[i,0] - p_xyz[0])**2 + (points[i,1] - p_xyz[1])**2 + (points[i,2] - p_xyz[2])**2)
         dist = dist_temp[ruptures['node_index'].values]
-        filter = dist < dist_cutoff
+        filter = (dist < dist_cutoff) & (m >= m_min)
         dip = np.empty(len(m), dtype=float)
 
         # using Kaklamanos et al. 2011 guidance fro unknown dip, ztor, and zbor
@@ -235,6 +235,7 @@ def get_hazard(config_file):
     elevation = config['geometry']['elevation']
     point = np.asarray([latitude, longitude, elevation])
     dist_cutoff = config['geometry']['dist_cutoff']
+    m_min = config['geometry']['m_min']
     p_xyz = geometry.point_to_xyz(point)
 
     # Read output properties
@@ -283,7 +284,7 @@ def get_hazard(config_file):
     # Loop over source models. We have fault_source_models and point_source_models, so there are two loops
     for source_model in config['source_models'].keys():
        for fault_source_model in config['source_models'][source_model].keys():
-            m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = get_source_data(source_model, fault_source_model, p_xyz, dist_cutoff, gmms)
+            m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = get_source_data(source_model, fault_source_model, p_xyz, dist_cutoff, m_min, gmms)
             source_model_weight = config['source_models'][source_model][fault_source_model]['weight']
             # Loop over ground motion models.
             for ground_motion_model in config['ground_motion_models'].keys():
