@@ -133,11 +133,14 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
         z1 = kwargs.get('z1p0')
     else:
         z1 = z1ref
-    f10 = np.empty(len(m), dtype=float)
-    f10[vs30 <= 200] = a43 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    f10[(200 < vs30) & (vs30 <= 300)] = np.log((z1 + 0.01) / (z1ref + 0.01))
-    f10[(300 < vs30) & (vs30 <= 500)] = a45 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    f10[vs30 > 500] = a46 * np.log((z1 + 0.01) / (z1ref + 0.01))
+    if(vs30 <= 200):
+        f10 = a43 * np.log((z1 + 0.01) / (z1ref + 0.01))
+    elif((200 < vs30) & (vs30 <= 300)):
+        f10 = np.log((z1 + 0.01) / (z1ref + 0.01))
+    elif((300 < vs30) & (vs30 <= 500)):
+        f10 = a45 * np.log((z1 + 0.01) / (z1ref + 0.01))
+    else:
+        f10 = a46 * np.log((z1 + 0.01) / (z1ref + 0.01))
     
     # Aftershock scaling (assume all earthquakes are mainshocks here)
     FAs = 0.0
@@ -151,14 +154,16 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     f5 = np.zeros(len(m), dtype=float)
     vs30star = np.empty(len(m), dtype=float)
     v1 = 1500
-    vs30star[vs30 < v1] = vs30
-    vs30star[vs30 >= v1] = v1
-    f5[vs30 >= vlin] = (a10 + b * n) * np.log(vs30star[vs30 >= vlin] / vlin)
+    if(vs30 < v1):
+        vs30star = vs30
+    else:
+        vs30star = v1
+    f5 = (a10 + b * n) * np.log(vs30star / vlin)
     
     # Now compute the rock motion amplitude and then do site response
     f5_1180 = (a10 + b * n) * np.log(1180 / vlin)
     sa1180 = np.exp(f1 + f5_1180 + FRV * f7 + FN * f8 + FAs * f11 + FHW * f4 + f6 + f10 + regional)
-    f5[vs30 < vlin] = a10 * np.log(vs30star[vs30 < vlin] / vlin) - b * np.log(sa1180[vs30 < vlin] + c) + b * np.log(sa1180[vs30 < vlin] + c * (vs30star[vs30 < vlin] / vlin) ** n)
+    f5 = a10 * np.log(vs30star / vlin) - b * np.log(sa1180 + c) + b * np.log(sa1180 + c * (vs30star / vlin) ** n)
     
     # Standard deviation
     phi_al = np.empty(len(m), dtype=float)
@@ -173,9 +178,10 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
 
     phi_amp = 0.4
     phi_b = np.sqrt(phi_al**2 + phi_amp**2)
-    dlnamp_dlnsa1180 = np.empty(len(m), dtype=float)
-    dlnamp_dlnsa1180[vs30 < vlin] = -b * sa1180[vs30 < vlin] / (sa1180[vs30 < vlin] + c) + b * sa1180[vs30 < vlin] / (sa1180[vs30 < vlin] + c * (vs30 / vlin) ** n)
-    dlnamp_dlnsa1180[vs30 >= vlin] = 0.0
+    if(vs30 < vlin):
+        dlnamp_dlnsa1180 = -b * sa1180 / (sa1180 + c) + b * sa1180 / (sa1180 + c * (vs30 / vlin) ** n)
+    else:
+        dlnamp_dlnsa1180 = 0.0
     phi = np.sqrt(phi_b ** 2 * (1.0 + dlnamp_dlnsa1180) ** 2 + phi_amp**2)
     tau = tau_al * (1 + dlnamp_dlnsa1180)
     mu = f1 + FRV * f7 + FN * f8 + FAs * f11 + f5 + FHW * f4 + f6 + f10 + regional
