@@ -104,7 +104,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     h2 = 1.5
     h3 = -0.75
     ry1 = rx * np.tan(20 * np.pi / 180.0)
-    T1[dip>30] = (90 - dip) / 45
+    T1[dip>30] = (90 - dip[dip>30]) / 45
     T1[dip<=30] = 60 / 45
     T2 = np.zeros(len(m), dtype=float)
     T2[m >= 6.5] = 1 + a2HW * (m[m >= 6.5] - 6.5)
