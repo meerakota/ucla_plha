@@ -130,7 +130,10 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     # Soil depth model. Assume z1 = z1ref if it is not specified
     z1ref = 1/1000 * np.exp(-7.67 / 4 * np.log((vs30**4 + 610**4) / (1360**4 + 610**4)))
     if('z1p0' in kwargs):
-        z1 = kwargs.get('z1p0')
+        if(z1p0 is not None):
+            z1 = kwargs.get('z1p0')
+        else:
+            z1 = z1ref
     else:
         z1 = z1ref
     if(vs30 <= 200):
