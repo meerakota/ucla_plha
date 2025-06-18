@@ -115,7 +115,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     T3[(r1 <= rx) & (rx <= r2) & (r1 != r2)] = 1 - (rx[(r1 <= rx) & (rx <= r2) & (r1 != r2)] - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)]) / (r2[(r1 <= rx) & (rx <= r2) & (r1 != r2)] - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)])
     T3[rx > r2] = 0.0
     T4 = np.zeros(len(m), dtype=float)
-    T4[ztor <= 10] = 1 - ztor**2 / 100
+    T4[ztor <= 10] = 1 - ztor[ztor <= 10]**2 / 100
     T4[ztor > 10] = 0.0
     T5 = np.zeros(len(m), dtype=float)
     T5[0.0 >= ry0 - ry1] = 1.0
@@ -134,14 +134,10 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     else:
         z1 = z1ref
     f10 = np.empty(len(m), dtype=float)
-    if(vs30 <= 200):
-        f10 = a43 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    elif((200 < vs30) & (vs30 <= 300)):
-        f10 = np.log((z1 + 0.01) / (z1ref + 0.01))
-    elif((300 < vs30) & (vs30 <= 500)):
-        f10 = a45 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    else:
-        f10 = a46 * np.log((z1 + 0.01) / (z1ref + 0.01))
+    f10[vs30 <= 200] = a43 * np.log((z1 + 0.01) / (z1ref + 0.01))
+    f10[(200 < vs30) & (vs30 <= 300)] = np.log((z1 + 0.01) / (z1ref + 0.01))
+    f10[(300 < vs30) & (vs30 <= 500)] = a45 * np.log((z1 + 0.01) / (z1ref + 0.01))
+    f10[vs30 > 500] = a46 * np.log((z1 + 0.01) / (z1ref + 0.01))
     
     # Aftershock scaling (assume all earthquakes are mainshocks here)
     FAs = 0.0
@@ -178,10 +174,8 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     phi_amp = 0.4
     phi_b = np.sqrt(phi_al**2 + phi_amp**2)
     dlnamp_dlnsa1180 = np.empty(len(m), dtype=float)
-    if(vs30 >= vlin):
-        dlnamp_dlnsa1180 = 0.0
-    else:
-        dlnamp_dlnsa1180 = -b * sa1180 / (sa1180 + c) + b * sa1180 / (sa1180 + c * (vs30 / vlin) ** n)
+    dlnamp_dlnsa1180[vs30 < vlin] = -b * sa1180 / (sa1180 + c) + b * sa1180 / (sa1180 + c * (vs30 / vlin) ** n)
+    dlnamp_dlnsa1180[vs30 >= vlin] = 0.0
     phi = np.sqrt(phi_b ** 2 * (1.0 + dlnamp_dlnsa1180) ** 2 + phi_amp**2)
     tau = tau_al * (1 + dlnamp_dlnsa1180)
     mu = f1 + FRV * f7 + FN * f8 + FAs * f11 + f5 + FHW * f4 + f6 + f10 + regional
