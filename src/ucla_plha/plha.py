@@ -127,7 +127,7 @@ def get_ground_motion_data(gmm, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, zt
     elif(gmm == 'cy14'):
         mu_ln_pga, sigma_ln_pga = cy14.get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,z1p0)
     elif(gmm == 'ask14'):
-        mu_ln_pga, sigma_ln_pga = ask14.get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, dip, ztor, measured_vs30, z1p0)
+        mu_ln_pga, sigma_ln_pga = ask14.get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, z1p0=z1p0)
     else:
         print('incorrect ground motion model')
     return([mu_ln_pga, sigma_ln_pga])
