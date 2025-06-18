@@ -124,7 +124,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     
     # Depth to rupture model
     f6 = np.empty(len(m), dtype=float)
-    f6[ztor < 20] = a15 * ztor / 20.0
+    f6[ztor < 20] = a15 * ztor[ztor < 20] / 20.0
     f6[ztor >= 20] = a15
 
     # Soil depth model. Assume z1 = z1ref if it is not specified
@@ -174,7 +174,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     phi_amp = 0.4
     phi_b = np.sqrt(phi_al**2 + phi_amp**2)
     dlnamp_dlnsa1180 = np.empty(len(m), dtype=float)
-    dlnamp_dlnsa1180[vs30 < vlin] = -b * sa1180 / (sa1180 + c) + b * sa1180 / (sa1180 + c * (vs30 / vlin) ** n)
+    dlnamp_dlnsa1180[vs30 < vlin] = -b * sa1180[vs30 < vlin] / (sa1180[vs30 < vlin] + c) + b * sa1180[vs30 < vlin] / (sa1180[vs30 < vlin] + c * (vs30 / vlin) ** n)
     dlnamp_dlnsa1180[vs30 >= vlin] = 0.0
     phi = np.sqrt(phi_b ** 2 * (1.0 + dlnamp_dlnsa1180) ** 2 + phi_amp**2)
     tau = tau_al * (1 + dlnamp_dlnsa1180)
