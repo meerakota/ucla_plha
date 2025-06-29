@@ -38,11 +38,17 @@ def point_triangle_distance(tri_xyz, p_xyz, tri_segment_id):
     fault_id = N x 1 Numpy array of integers defining the fault id for each triangle
     '''
     # Perform checks that all three points are different. Add 1m to elevation for points that have the same coordinates.
-    for i in range(len(tri_xyz)):
-        if((tri_xyz[i,0] == tri_xyz[i,1]).all() or (tri_xyz[i,0] == tri_xyz[i,2]).all()):
-            tri_xyz[i,0,2] = tri_xyz[i,0,2] + 0.001
-        if(tri_xyz[i,1] == tri_xyz[i,2]).all():
-            tri_xyz[i,1,2] = tri_xyz[i,1,2] + 0.001
+    filt1 = (tri_xyz[:,0] == tri_xyz[:,1]).all(axis=1)
+    filt2 = (tri_xyz[:,0] == tri_xyz[:,2]).all(axis=1)
+    filt3 = (tri_xyz[:,1] == tri_xyz[:,2]).all(axis=1)
+    tri_xyz[filt1,0,2] += 0.001
+    tri_xyz[filt2,0,2] += 0.001
+    tri_xyz[filt3,1,2] += 0.001
+    # for i in range(len(tri_xyz)):
+    #     if((tri_xyz[i,0] == tri_xyz[i,1]).all() or (tri_xyz[i,0] == tri_xyz[i,2]).all()):
+    #         tri_xyz[i,0,2] = tri_xyz[i,0,2] + 0.001
+    #     if(tri_xyz[i,1] == tri_xyz[i,2]).all():
+    #         tri_xyz[i,1,2] = tri_xyz[i,1,2] + 0.001
 
     e0 = tri_xyz[:, 1] - tri_xyz[:, 0]
     e1 = tri_xyz[:, 2] - tri_xyz[:, 0]
