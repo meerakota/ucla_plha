@@ -50,9 +50,9 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     sigma1 = 0.4912
     sigma2 = 0.3762
     sigma3 = 0.8000
-
-    if('z1p0' in kwargs):
-        z1p0 = kwargs.get('z1p0')
+    n_check = kwargs.get('z1p0', None)
+    if n_check is not None:
+        z1p0 = n_check
     else:
         z1p0 = np.exp(-7.15 / 4.0 * np.log((vs30 ** 4.0 + 571.0 ** 4.0) / (1360.0 ** 4.0 + 571.0 ** 4.0)))
     deltaz1p0 = z1p0 - np.exp(-7.15 / 4.0 * np.log((vs30 ** 4.0 + 571.0 ** 4.0) / (1360.0 ** 4.0 + 571.0 ** 4.0)))
@@ -64,7 +64,7 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     # Equation 6
     fhw = c9 * np.cos(dip * np.pi / 180.0) * (c9a + (1 - c9a) * np.tanh(rx / c9b)) * (1.0 - np.sqrt(rjb ** 2 + ztor ** 2) / (rrup + 1.0))
 
-    e_ztor = np.empty(len(m), dtype=float)
+    e_ztor = np.zeros(len(m), dtype=float)
     e_ztor[(m > 5.849) & (fault_type == 1)] = 2.704 - 1.226 * (m[(m > 5.849) & (fault_type == 1)] - 5.849)
     e_ztor[(m > 5.849) & (fault_type == 1) & (e_ztor < 0.0)] = 0.0
     e_ztor[(m > 4.970) & (fault_type != 1)] = 2.673 - 1.136 * (m[(m > 4.970) & (fault_type != 1)] - 4.970)
@@ -117,8 +117,9 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     yrefij = np.exp(lnyrefij)
 
     # Equation 12. Assume mean event term and within event residual is zero
-    lnyij = lnyrefij + phi1 * np.min([np.log(vs30 / 1130.0), 0.0])
-    lnyij += phi2 * (np.exp(np.min([vs30, 1130] - 360.0)) - np.exp(1130.0 - 360.0)) * np.log((yrefij + phi4) / phi4)
+    lnyij = lnyrefij + phi1 * np.minimum(np.log(vs30 / 1130.0), 0.0)
+    lnyij += phi2 * (np.exp(phi3 * (np.minimum(vs30, 1130.0) - 360.0))- np.exp(phi3 * (1130.0 - 360.0))) * np.log((yrefij + phi4) / phi4)
+    # lnyij += phi2 * (np.exp(np.minimum(vs30, 1130.0) - 360.0)  - np.exp(1130.0 - 360.0)) * np.log((yrefij + phi4) / phi4)
     lnyij += phi5 * (1.0 - np.exp(-deltaz1p0/phi6))
     mu = np.exp(lnyij)
 
@@ -128,8 +129,9 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     ml6p5[ml6p5 > 6.5] = 6.5
     tau = tau1 + (tau2 - tau1) / 1.5 * (ml6p5 - 6.0)
     
-    vs30_lt_1130 = vs30
-    vs30_lt_1130[vs30_lt_1130 > 1130] = 1130
+    # vs30_lt_1130 = vs30
+    # vs30_lt_1130[vs30_lt_1130 > 1130] = 1130
+    vs30_lt_1130 = np.minimum(vs30, 1130.0)
     nl0 = phi2 * (np.exp(phi3 * (vs30_lt_1130 - 360)) - np.exp(phi3 * (1130 - 360))) * (yrefij / (yrefij + phi4))
     if(measured_vs30):
         finferred = 0.0
