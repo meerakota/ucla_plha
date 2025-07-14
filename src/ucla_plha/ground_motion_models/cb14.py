@@ -50,10 +50,21 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     phi_ln_af = 0.300
     sigma_m_lt_4p5 = 0.840
     sigma_m_gt_5p5 = 0.588
-    if('z2p5' in kwargs):
-        z2p5 = kwargs.get('z2p5')
+    # m = np.atleast_1d(m)
+    n_check= kwargs.get('z2p5', None)
+    if n_check is not None:
+        z2p5 = n_check
     else:
-        z2p5 = np.exp(7.089 - 1.144 * np.log(vs30))  # Default value for California (Equation 33)
+        z2p5=np.exp(7.089 - 1.144 * np.log(vs30))
+   
+    # z2p5 = np.broadcast_to(np.atleast_1d(z2p5), m.shape)
+    # sj = np.broadcast_to(np.atleast_1d(sj), m.shape)
+
+
+    # if('z2p5' in kwargs):
+    #     z2p5 = kwargs.get('z2p5')
+    # else:
+    #     z2p5 = np.exp(7.089 - 1.144 * np.log(vs30))  # Default value for California (Equation 33)
 
     ##############################################################
     # Magnitude term. Equation 2 in CB14
@@ -132,12 +143,15 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     ####################################################################
     # Basin Response Term
     ####################################################################
-    
+
     # Equation 20
-    fsed = np.empty(len(m), dtype=float)
-    fsed[z2p5 <= 1.0] = (c14 + c15 * sj) * (z2p5 - 1.0)
-    fsed[(1.0 < z2p5) & (z2p5 <= 3.0)] = 0.0
-    fsed[z2p5 > 3.0] = c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5 - 3.0)))
+    # fsed = np.empty(len(m), dtype=float)
+    if z2p5<= 1.0:
+        fsed=(c14 + c15 * sj) * (z2p5 - 1.0)
+    elif z2p5 > 3.0:
+        fsed=c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5  - 3.0)))
+    else:
+        fsed=0
 
     ####################################################################
     # Hypocentral Depth Term
@@ -160,7 +174,7 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     # Equation 22
     fhyp_h = np.empty(len(m), dtype=float)
     fhyp_h[zhyp <= 7.0] = 0.0
-    fhyp_h[(7.0 < zhyp) & (zhyp <= 20.0)] = zhyp - 7.0
+    fhyp_h[(7.0 < zhyp) & (zhyp <= 20.0)] = zhyp[(7.0 < zhyp) & (zhyp <= 20.0)] - 7.0
     fhyp_h[zhyp > 20] = 13.0
 
     # Equation 23
