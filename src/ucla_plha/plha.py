@@ -46,12 +46,12 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         # cb14: rjb,rrup,rx
         # cy14: rjb,rrup,rx
         empty_array = np.empty(len(m))
-        if(any(gmm in ['bssa14', 'cb14', 'cy14'] for gmm in gmms)):
+        if(any(gmm in ['ask14','bssa14', 'cb14', 'cy14'] for gmm in gmms)):
             tri_segment_id = np.load(str(path.joinpath('tri_segment_id.npy')))
+        if(any(gmm in ['bssa14', 'cb14', 'cy14'] for gmm in gmms)):
             tri_rjb = np.load(str(path.joinpath('tri_rjb.npy')))
             rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
             ruptures_segments['rjb_all'] = rjb_all[segment_index]
-            
         if(any(gmm in ['ask14', 'cb14', 'cy14'] for gmm in gmms)):
             rect_segment_id = np.load(str(path.joinpath('rect_segment_id.npy')))
             tri_rrup = np.load(str(path.joinpath('tri_rrup.npy')))
@@ -353,3 +353,4 @@ def get_hazard(config_file):
             json.dump(output, outputfile, indent=4)
     
     return output
+
