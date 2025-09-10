@@ -123,9 +123,9 @@ def get_ground_motion_data(gmm, vs30, fault_type, rjb, rrup, rx, rx1, ry0, m, zt
     if(gmm == 'bssa14'):
         mu_ln_pga, sigma_ln_pga = bssa14.get_im(vs30, rjb, m, fault_type)
     elif(gmm == 'cb14'):
-        mu_ln_pga, sigma_ln_pga = cb14.get_im(vs30,rjb,rrup,rx,m,fault_type,ztor,zbor,dip,z2p5)
+        mu_ln_pga, sigma_ln_pga = cb14.get_im(vs30,rjb,rrup,rx,m,fault_type,ztor,zbor,dip,z2p5=z2p5)
     elif(gmm == 'cy14'):
-        mu_ln_pga, sigma_ln_pga = cy14.get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,z1p0)
+        mu_ln_pga, sigma_ln_pga = cy14.get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,z1p0=z1p0)
     elif(gmm == 'ask14'):
         mu_ln_pga, sigma_ln_pga = ask14.get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, z1p0=z1p0)
     else:
@@ -353,4 +353,5 @@ def get_hazard(config_file):
             json.dump(output, outputfile, indent=4)
     
     return output
+
 
