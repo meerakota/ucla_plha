@@ -121,7 +121,7 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     lnyij += phi2 * (np.exp(phi3 * (np.minimum(vs30, 1130.0) - 360.0))- np.exp(phi3 * (1130.0 - 360.0))) * np.log((yrefij + phi4) / phi4)
     # lnyij += phi2 * (np.exp(np.minimum(vs30, 1130.0) - 360.0)  - np.exp(1130.0 - 360.0)) * np.log((yrefij + phi4) / phi4)
     lnyij += phi5 * (1.0 - np.exp(-deltaz1p0/phi6))
-    mu = np.exp(lnyij)
+    mu = lnyij
 
     mg5 = m
     mg5[m < 5.0] = 5.0
