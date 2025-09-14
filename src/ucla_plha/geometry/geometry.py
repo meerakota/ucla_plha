@@ -177,3 +177,53 @@ def point_triangle_distance(tri_xyz, p_xyz, fault_id):
 
     # return distance array
     return np.sqrt(sqrdistance_out).T
+    
+def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
+    """
+    rect_points is an Nx4x3 Numpy array with the x, y, z coordinates of four points on the surface projection of the fault, and N is the number of faults
+    point is a 1x3 numpy array with the x, y, z coordinates of the point
+    top edge of fault is defined by (x1,y1,z1) (x2,y2,z2), and bottom edge by (x3,y3,z3) (x4,y4,z4)
+    
+                         Rx            point
+              |<---------------------->o(x0,y0,z0)
+              |                        ^
+              |               Rx1      |
+              |        |<------------->| Ry0
+              |        |               |
+              |        |               v
+    (x2,y2,z2)o--------o(x4,y4,z4)-------
+              |////////|
+              |////////|<--Surface projection of fault
+        top-->|////////|<--bottom
+              |////////|
+              |////////|
+    (x1,y1,z1)o--------o(x3,y3,z3)
+    
+    """
+    width = np.sqrt(np.sum((rect_points[:,2] - rect_points[:,0])**2, axis=1))
+    length = np.sqrt(np.sum((rect_points[:,1] - rect_points[:,0])**2, axis=1))
+    Rx = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,0], rect_points[:,0] - point))**2, axis=1)) / length
+    Rx1 = np.sqrt(np.sum((np.cross(rect_points[:,3] - rect_points[:,2], rect_points[:,2] - point))**2, axis=1)) / length
+    rx_filt = Rx < Rx1
+    Rx[rx_filt] = -Rx[rx_filt]
+    Rx1[rx_filt] = -Rx1[rx_filt]
+    Ry0a = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,3], rect_points[:,1] - point))**2, axis=1)) / width
+    Ry0b = np.sqrt(np.sum((np.cross(rect_points[:,0] - rect_points[:,2], rect_points[:,0] - point))**2, axis=1)) / width
+    Ry0 = np.empty(len(rect_points), dtype=float)
+    Ry0[Ry0a < Ry0b] = Ry0a[Ry0a < Ry0b]
+    Ry0[Ry0b <= Ry0a] = Ry0b[Ry0b <= Ry0a]
+    Ry0[(Ry0a < length) & (Ry0b < length)] = 0
+
+    # A "segment" in the UCERF3 model sometimes consists of multiple geometric objects, so we need to 
+    # compute the shortest distance between each geometric object and the point to find the shortest distance 
+    # to the "segment"
+    df = pd.DataFrame()
+    df['rect_segment_id'] = rect_segment_id
+    df['Rx'] = Rx
+    df['Rx1'] = Rx1
+    df['Ry0'] = Ry0
+    Rx_out = df.groupby('rect_segment_id')['Rx'].min().values
+    Rx1_out = df.groupby('rect_segment_id')['Rx1'].min().values
+    Ry0_out = df.groupby('rect_segment_id')['Ry0'].min().values
+
+    return (Rx_out, Rx1_out, Ry0_out)
