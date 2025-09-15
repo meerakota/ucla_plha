@@ -206,16 +206,30 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
     (x1,y1,z1)o--------o(x3,y3,z3)
     
     """
-    width = np.sqrt(np.sum((rect_points[:,1] - rect_points[:,0])**2, axis=1))
-    length = np.sqrt(np.sum((rect_points[:,0] - rect_points[:,3])**2, axis=1))
-    Rx = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,0], rect_points[:,0] - point))**2, axis=1)) / width
-    Rx1 = np.sqrt(np.sum((np.cross(rect_points[:,2] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / width 
-    Ry1 = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / length
-    Ry2 = np.sqrt(np.sum((np.cross(rect_points[:,0] - rect_points[:,2], rect_points[:,2] - point))**2, axis=1)) / length
+    # width = np.sqrt(np.sum((rect_points[:,1] - rect_points[:,0])**2, axis=1))
+    # length = np.sqrt(np.sum((rect_points[:,0] - rect_points[:,3])**2, axis=1))
+    # Rx = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,0], rect_points[:,0] - point))**2, axis=1)) / width
+    # Rx1 = np.sqrt(np.sum((np.cross(rect_points[:,2] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / width 
+    # Ry1 = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / length
+    # Ry2 = np.sqrt(np.sum((np.cross(rect_points[:,0] - rect_points[:,2], rect_points[:,2] - point))**2, axis=1)) / length
+    # Ry0 = np.empty(len(rect_points), dtype=float)
+    # Ry0[Ry1 < Ry2] = Ry1[Ry1 < Ry2]
+    # Ry0[Ry2 < Ry1] = Ry2[Ry2 < Ry1]
+    # Ry0[(Ry1 < width) & (Ry2 < width)] = 0
+
+    width = np.sqrt(np.sum((rect_points[:,2] - rect_points[:,0])**2, axis=1))
+    length = np.sqrt(np.sum((rect_points[:,1] - rect_points[:,0])**2, axis=1))
+    Rx = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,0], rect_points[:,0] - point))**2, axis=1)) / length
+    Rx1 = np.sqrt(np.sum((np.cross(rect_points[:,3] - rect_points[:,2], rect_points[:,2] - point))**2, axis=1)) / length
+    rx_filt = Rx < Rx1
+    Rx[rx_filt] = -Rx[rx_filt]
+    Rx1[rx_filt] = -Rx1[rx_filt]
+    Ry0a = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,3], rect_points[:,1] - point))**2, axis=1)) / width
+    Ry0b = np.sqrt(np.sum((np.cross(rect_points[:,0] - rect_points[:,2], rect_points[:,0] - point))**2, axis=1)) / width
     Ry0 = np.empty(len(rect_points), dtype=float)
-    Ry0[Ry1 < Ry2] = Ry1[Ry1 < Ry2]
-    Ry0[Ry2 < Ry1] = Ry2[Ry2 < Ry1]
-    Ry0[(Ry1 < width) & (Ry2 < width)] = 0
+    Ry0[Ry0a < Ry0b] = Ry0a[Ry0a < Ry0b]
+    Ry0[Ry0b <= Ry0a] = Ry0b[Ry0b <= Ry0a]
+    Ry0[(Ry0a < length) & (Ry0b < length)] = 0
 
     # A "segment" in the UCERF3 model sometimes consists of multiple geometric objects, so we need to 
     # compute the shortest distance between each geometric object and the point to find the shortest distance 
