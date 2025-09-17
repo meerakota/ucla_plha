@@ -138,7 +138,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     if(vs30 <= 200):
         f10 = a43 * np.log((z1 + 0.01) / (z1ref + 0.01))
     elif((200 < vs30) & (vs30 <= 300)):
-        f10 = np.log((z1 + 0.01) / (z1ref + 0.01))
+        f10 = a44 * np.log((z1 + 0.01) / (z1ref + 0.01))
     elif((300 < vs30) & (vs30 <= 500)):
         f10 = a45 * np.log((z1 + 0.01) / (z1ref + 0.01))
     else:
