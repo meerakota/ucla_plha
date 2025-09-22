@@ -28,7 +28,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     FN = np.zeros(len(m), dtype=float)
     FN[fault_type == 2] = 1.0
     FHW = np.zeros(len(m), dtype=float)
-    FHW[(dip != 90) & (rx > rx1)] = 1.0
+    FHW[(dip != 90) & (rx > 0.0)] = 1.0
 
     # Define z1.0
     z1 = kwargs.get('z1', None)
