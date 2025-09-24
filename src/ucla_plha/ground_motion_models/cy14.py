@@ -76,16 +76,16 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     # Equation 11. This equation is very long, so it's broken down here into different components
     # corresponding to each row in which the equation is organized
     lnyrefij = np.empty(len(m), dtype=float)
-    lnyrefij[m > 4.5] = c1 + (c1a + c1c / (np.cosh(2.0 * m[m > 4.5]))) * frv[m > 4.5]
+    lnyrefij[m > 4.5] = c1 + (c1a + c1c / (np.cosh(2.0 * (m[m > 4.5] - 4.5)))) * frv[m > 4.5]
     lnyrefij[m <= 4.5] = c1 + (c1a + c1c) * frv[m <= 4.5]
 
-    lnyrefij[m > 4.5] += (c1b + c1d / np.cosh(2.0 * m[m > 4.5]) * fnm[m > 4.5])
+    lnyrefij[m > 4.5] += (c1b + c1d / np.cosh(2.0 * (m[m > 4.5] - 4.5)) * fnm[m > 4.5])
     lnyrefij[m <= 4.5] += (c1b + c1d) * fnm[m <= 4.5]
 
-    lnyrefij[m > 4.5] += (c7 + c7b / np.cosh(2.0 * m[m > 4.5])) * delta_ztor[m > 4.5]
+    lnyrefij[m > 4.5] += (c7 + c7b / np.cosh(2.0 * (m[m > 4.5] - 4.5))) * delta_ztor[m > 4.5]
     lnyrefij[m <= 4.5] += (c7 + c7b / np.cosh(2.0 * 0)) * delta_ztor[m <= 4.5]
 
-    lnyrefij[m > 4.5] += (c11 + c11b / np.cosh(2.0 * m[m > 4.5])) * np.cos(dip[m > 4.5] * np.pi / 180.0) ** 2
+    lnyrefij[m > 4.5] += (c11 + c11b / np.cosh(2.0 * (m[m > 4.5] - 4.5))) * np.cos(dip[m > 4.5] * np.pi / 180.0) ** 2
     lnyrefij[m <= 4.5] += (c11 + c11b) * np.cos(dip[m <= 4.5] * np.pi / 180.0) ** 2
 
     lnyrefij += c2 * (m - 6.0) + (c2 - c3) / cn * np.log(1.0 + np.exp(cn * (cm - m)))
