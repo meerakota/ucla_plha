@@ -139,7 +139,7 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     else:
         finferred = 1.0
         fmeasured = 0.0
-    sigmanl0 = (sigma1 + (sigma2 - sigma1) / 1.5 * (ml6p5 - 5.0)) * (sigma3 * finferred + 0.7 * fmeasured + (1 + nl0) ** 2)
+    sigmanl0 = (sigma1 + (sigma2 - sigma1) / 1.5 * (ml6p5 - 5.0)) * np.sqrt(sigma3 * finferred + 0.7 * fmeasured + (1 + nl0) ** 2)
 
     sigma = np.sqrt((1 + nl0) ** 2 * tau ** 2 + sigmanl0 ** 2)
     
