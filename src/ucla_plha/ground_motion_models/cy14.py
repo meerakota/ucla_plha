@@ -129,7 +129,7 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     mg5[m < 5.0] = 5.0
     ml6p5 = copy.deepcopy(mg5)
     ml6p5[ml6p5 > 6.5] = 6.5
-    tau = tau1 + (tau2 - tau1) / 1.5 * (ml6p5 - 6.0)
+    tau = tau1 + (tau2 - tau1) / 1.5 * (ml6p5 - 5.0)
     
     # vs30_lt_1130 = vs30
     # vs30_lt_1130[vs30_lt_1130 > 1130] = 1130

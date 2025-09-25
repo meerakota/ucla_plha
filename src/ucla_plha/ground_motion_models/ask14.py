@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.interpolate import interp1d
 
 def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     '''
@@ -155,7 +156,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     # Site response model (do this one last because we need to know the ground motion for VS30 = 1180 m/s to compute it)
     f5 = np.zeros(len(m), dtype=float)
     vs30star = np.empty(len(m), dtype=float)
-    v1 = 1500
+    v1 = 1500.0
     if(vs30 < v1):
         vs30star = vs30
     else:
@@ -164,9 +165,17 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     
     # Now compute the rock motion amplitude and then do site response
     f5_1180 = (a10 + b * n) * np.log(1180 / vlin)
-    sa1180 = np.exp(f1 + f5_1180 + FRV * f7 + FN * f8 + FAs * f11 + FHW * f4 + f6 + f10 + regional)
-    f5 = a10 * np.log(vs30star / vlin) - b * np.log(sa1180 + c) + b * np.log(sa1180 + c * (vs30star / vlin) ** n)
-    
+    z1ref_1180 = 1/1000 * np.exp(-7.67 / 4 * np.log((1180**4 + 610**4) / (1360**4 + 610**4)))
+    if('z1p0' in kwargs):
+        z1_1180 = kwargs.get('z1p0')
+        if(z1 is None):
+            z1_1180 = z1ref_1180
+    else:
+        z1_1180 = z1ref_1180
+    f10_1180 = a46 * np.log((z1_1180 + 0.01) / (z1ref_1180 + 0.01))
+    sa1180 = np.exp(f1 + f5_1180 + FRV * f7 + FN * f8 + FAs * f11 + FHW * f4 + f6 + f10_1180 + regional)
+    if(vs30star / vlin < 1):
+        f5 = a10 * np.log(vs30star / vlin) - b * np.log(sa1180 + c) + b * np.log(sa1180 + c * (vs30star / vlin) ** n)
     # Standard deviation
     phi_al = np.empty(len(m), dtype=float)
     phi_al[m < 4.0] = s1

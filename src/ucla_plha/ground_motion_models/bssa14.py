@@ -56,7 +56,7 @@ def get_im(vs30,rjb,m,fault_type):
         
     fe = e1 * ss + e2 * ns + e3 * rs + e4 * (m - mh) + e5 * (m - mh) ** 2
     fe[m > mh] = e1 * ss[m > mh] + e2 * ns[m > mh] + e3 * rs[m > mh] + e6 * (m[m > mh] - mh)
-    print(rs, ns, ss)
+   
     # path function
     r = np.sqrt(rjb ** 2 + h ** 2)  # Equation 4
     fpath= (c1 + c2 * (m - mref)) * np.log(r / rref) + (c3 + deltac3) * (r - rref) # Equation 3

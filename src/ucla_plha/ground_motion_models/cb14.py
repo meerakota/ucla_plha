@@ -54,18 +54,11 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     n_check= kwargs.get('z2p5', None)
     if n_check is not None:
         z2p5 = n_check
+        z2p5_ref = n_check
     else:
         z2p5=np.exp(7.089 - 1.144 * np.log(vs30))
+        z2p5_ref = np.exp(7.089 - 1.144 * np.log(1100.0))
    
-    # z2p5 = np.broadcast_to(np.atleast_1d(z2p5), m.shape)
-    # sj = np.broadcast_to(np.atleast_1d(sj), m.shape)
-
-
-    # if('z2p5' in kwargs):
-    #     z2p5 = kwargs.get('z2p5')
-    # else:
-    #     z2p5 = np.exp(7.089 - 1.144 * np.log(vs30))  # Default value for California (Equation 33)
-
     ##############################################################
     # Magnitude term. Equation 2 in CB14
     ##############################################################
@@ -99,7 +92,7 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     ###############################################################
     # Hanging wall term
     ###############################################################
-    r1 = (zbor - ztor) * np.cos(dip * np.pi / 180.0)
+    r1 = (zbor - ztor) * np.radians(dip)
     r2 = 62.0 * m - 350.0    # Equation 12
     
     # Equation 16
@@ -152,6 +145,13 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
         fsed=c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5  - 3.0)))
     else:
         fsed=0
+
+    if z2p5_ref <= 1.0:
+        fsed_ref = (c14 + c15 * sj) * (z2p5_ref - 1.0)
+    elif z2p5_ref > 3.0:
+        fsed_ref = c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5_ref  - 3.0)))
+    else:
+        fsed_ref = 0
 
     ####################################################################
     # Hypocentral Depth Term
@@ -209,7 +209,7 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     ####################################################################
     
     # A1100 is the value of PGA for VS30 = 1100 m/s, which can be obtained by summing all other terms with site term = 1.0
-    a1100 = np.exp(fmag + fdis + fflt + fhng + fsed + fhyp + fdip + fatn)
+    a1100 = np.exp(fmag + fdis + fflt + fhng + fsed_ref + fhyp + fdip + fatn)
 
     # Equation 18
     if(vs30 <= k1):
@@ -232,27 +232,23 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     tau_lny[m <= 4.5] = tau1
     tau_lny[(4.5 < m) & (m < 5.5)] = tau2 + (tau1 - tau2) * (5.5 - m[(4.5 < m) & (m < 5.5)])
     tau_lny[m >= 5.5] = tau2
-
     # Equation 28
     phi_lny = np.empty(len(m), dtype=float)
     phi_lny[m <= 4.5] = phi1
     phi_lny[(4.5 < m) & (m < 5.5)] = phi2 + (phi1 - phi2) * (5.5 - m[(4.5 < m) & (m < 5.5)])
     phi_lny[m >= 5.5] = phi2
-
     # Equation 31
     if(vs30 >= k1):
         alpha = np.zeros(len(m), dtype=float)
     else:
-        alpha = k2 * a1100 * (a1100 + c * (vs30 / k1) ** n) ** -1 - (a1100 + c) ** -1
-
+        alpha = k2 * a1100 * ((a1100 + c * (vs30 / k1) ** n) ** (-1) - (a1100 + c) ** (-1))
     # Equation 29
     tau_lnyb = tau_lny   # Our IM is PGA, so these are the same
     tau_lnpgab = tau_lny
-    phi_lnyb = np.sqrt(phi_lny ** 2 + phi_ln_af **2)
+    phi_lnyb = np.sqrt(phi_lny ** 2 - phi_ln_af ** 2)
     phi_lnpgab = np.sqrt(phi_lny**2 - phi_ln_af**2)
     tau = np.sqrt(tau_lnyb ** 2 + alpha ** 2 * tau_lnpgab ** 2 + 2 * alpha * tau_lnyb * tau_lnpgab)
-    phi = np.sqrt(phi_lnyb ** 2 + phi_ln_af**2 + alpha ** 2 * phi_lnyb ** 2 + 2 * alpha * phi_lnyb * phi_lnpgab)
-
+    phi = np.sqrt(phi_lnyb ** 2 + phi_ln_af**2 + alpha ** 2 * (phi_lnyb ** 2 - phi_ln_af ** 2) + 2 * alpha * phi_lnyb * phi_lnpgab)
     # Equation 32
     sigma = np.sqrt(tau ** 2 + phi ** 2)
 
