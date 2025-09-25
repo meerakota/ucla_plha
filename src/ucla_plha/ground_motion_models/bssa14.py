@@ -21,7 +21,7 @@ def get_im(vs30,rjb,m,fault_type):
     mh = 5.5
     c1 = -1.134
     c2 = 0.1917
-    c3 = -0.00809
+    c3 = -0.008088
     mref = 4.5
     rref = 1
     h = 4.5
@@ -47,24 +47,23 @@ def get_im(vs30,rjb,m,fault_type):
     tau1 = 0.398
     tau2 = 0.348
 
-    rs = np.zeros(len(fault_type), dtype=int)
-    ss = np.zeros(len(fault_type), dtype=int)
-    ns = np.zeros(len(fault_type), dtype=int)
+    rs = np.zeros(len(fault_type), dtype=float)
+    ss = np.zeros(len(fault_type), dtype=float)
+    ns = np.zeros(len(fault_type), dtype=float)
     rs[fault_type == 1] = 1
     ns[fault_type == 2] = 1
     ss[fault_type == 3] = 1
         
     fe = e1 * ss + e2 * ns + e3 * rs + e4 * (m - mh) + e5 * (m - mh) ** 2
     fe[m > mh] = e1 * ss[m > mh] + e2 * ns[m > mh] + e3 * rs[m > mh] + e6 * (m[m > mh] - mh)
-   
-    
+    print(rs, ns, ss)
     # path function
     r = np.sqrt(rjb ** 2 + h ** 2)  # Equation 4
     fpath= (c1 + c2 * (m - mref)) * np.log(r / rref) + (c3 + deltac3) * (r - rref) # Equation 3
 
     # site term 
     # Compute PGA for rock conditions, which corresponds to VS30 = 760 m/s (i.e., Flin = 0.0)
-    pgar= np.exp(fe + fpath)
+    pgar = np.exp(fe + fpath)
     
     # Nonlinear site response term Equation 6
     if vs30 < vc:

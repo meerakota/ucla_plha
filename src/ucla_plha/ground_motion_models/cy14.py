@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     '''
@@ -60,17 +61,19 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     fnm = np.zeros(len(fault_type), dtype=float)
     frv[fault_type == 1] = 1.0
     fnm[fault_type == 2] = 1.0
-        
+    
     # Equation 6
     fhw = c9 * np.cos(dip * np.pi / 180.0) * (c9a + (1 - c9a) * np.tanh(rx / c9b)) * (1.0 - np.sqrt(rjb ** 2 + ztor ** 2) / (rrup + 1.0))
 
     e_ztor = np.zeros(len(m), dtype=float)
-    e_ztor[(m > 5.849) & (fault_type == 1)] = 2.704 - 1.226 * (m[(m > 5.849) & (fault_type == 1)] - 5.849)
-    e_ztor[(m > 5.849) & (fault_type == 1) & (e_ztor < 0.0)] = 0.0
-    e_ztor[(m > 4.970) & (fault_type != 1)] = 2.673 - 1.136 * (m[(m > 4.970) & (fault_type != 1)] - 4.970)
-    e_ztor[(m > 4.970) & (fault_type != 1) & (e_ztor < 0.0)] = 0.0
+    filt = (m > 5.849) & (fault_type == 1)
+    e_ztor[filt] = 2.704 - 1.226 * (m[filt] - 5.849)
+    e_ztor[(m <= 5.849) & (fault_type == 1)] = 2.704
+    filt = (m > 4.970) & (fault_type != 1)
+    e_ztor[filt] = 2.673 - 1.136 * (m[filt] - 4.970)
+    e_ztor[(m <= 4.970) & (fault_type != 1)] = 2.673
+    e_ztor[e_ztor < 0.0] = 0.0    
     e_ztor = e_ztor ** 2
-
     delta_ztor = ztor - e_ztor
 
     # Equation 11. This equation is very long, so it's broken down here into different components
@@ -95,7 +98,7 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
 
     lnyrefij += (c4a - c4) * np.log(np.sqrt(rrup ** 2 + crb ** 2))
 
-    lnyrefij[m > cg3] += (cg1 + cg2 / np.cosh(m[m > cg3])) * rrup[m > cg3]
+    lnyrefij[m > cg3] += (cg1 + cg2 / np.cosh(m[m > cg3] - cg3)) * rrup[m > cg3]
     lnyrefij[m <= cg3] += (cg1 + cg2) * rrup[m <= cg3]
 
     # It is unclear from the paper how to compute the direct point parameter (DPP) centered  on 
@@ -113,26 +116,25 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
 
     # lnyrefij += c8 * onemrrupijm40 * mm5p5d0p8 * np.exp(-c8a * (m - c8b) ** 2) * deltadppij
     
-    lnyrefij += c9 * fhw * np.cos(dip * np.pi / 180.0) * (c9a + (1 - c9a) * np.tanh(rx / c9b)) * (1.0 - np.sqrt(rjb ** 2 + ztor ** 2) / (rrup + 1.0))
+    lnyrefij[rx > 0.0] += c9 * fhw[rx > 0] * np.cos(dip[rx > 0] * np.pi / 180.0) * (c9a + (1 - c9a) * np.tanh(rx[rx > 0.0] / c9b)) * (1.0 - np.sqrt(rjb[rx > 0.0] ** 2 + ztor[rx > 0.0] ** 2) / (rrup[rx > 0.0] + 1.0))
     yrefij = np.exp(lnyrefij)
 
     # Equation 12. Assume mean event term and within event residual is zero
     lnyij = lnyrefij + phi1 * np.minimum(np.log(vs30 / 1130.0), 0.0)
     lnyij += phi2 * (np.exp(phi3 * (np.minimum(vs30, 1130.0) - 360.0))- np.exp(phi3 * (1130.0 - 360.0))) * np.log((yrefij + phi4) / phi4)
-    # lnyij += phi2 * (np.exp(np.minimum(vs30, 1130.0) - 360.0)  - np.exp(1130.0 - 360.0)) * np.log((yrefij + phi4) / phi4)
-    lnyij += phi5 * (1.0 - np.exp(-deltaz1p0/phi6))
-    mu = lnyij
+    lnyij += phi5 * (1.0 - np.exp(-deltaz1p0 / phi6))
+    mu = copy.deepcopy(lnyij)
 
-    mg5 = m
+    mg5 = copy.deepcopy(m)
     mg5[m < 5.0] = 5.0
-    ml6p5 = mg5
+    ml6p5 = copy.deepcopy(mg5)
     ml6p5[ml6p5 > 6.5] = 6.5
     tau = tau1 + (tau2 - tau1) / 1.5 * (ml6p5 - 6.0)
     
     # vs30_lt_1130 = vs30
     # vs30_lt_1130[vs30_lt_1130 > 1130] = 1130
     vs30_lt_1130 = np.minimum(vs30, 1130.0)
-    nl0 = phi2 * (np.exp(phi3 * (vs30_lt_1130 - 360)) - np.exp(phi3 * (1130 - 360))) * (yrefij / (yrefij + phi4))
+    nl0 = phi2 * (np.exp(phi3 * (vs30_lt_1130 - 360.0)) - np.exp(phi3 * (1130.0 - 360.0))) * (yrefij / (yrefij + phi4))
     if(measured_vs30):
         finferred = 0.0
         fmeasured = 1.0
@@ -142,5 +144,5 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     sigmanl0 = (sigma1 + (sigma2 - sigma1) / 1.5 * (ml6p5 - 5.0)) * np.sqrt(sigma3 * finferred + 0.7 * fmeasured + (1 + nl0) ** 2)
 
     sigma = np.sqrt((1 + nl0) ** 2 * tau ** 2 + sigmanl0 ** 2)
-    
+
     return (mu, sigma)

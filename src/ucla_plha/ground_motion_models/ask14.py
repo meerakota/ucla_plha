@@ -179,7 +179,8 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     tau_al[(m > 7)] = s4
 
     phi_amp = 0.4
-    phi_b = np.sqrt(phi_al**2 + phi_amp**2)
+    phi_b = np.sqrt(phi_al**2 - phi_amp**2)
+    phi_b[phi_b < 0.0] = 0.0
     if(vs30 < vlin):
         dlnamp_dlnsa1180 = -b * sa1180 / (sa1180 + c) + b * sa1180 / (sa1180 + c * (vs30 / vlin) ** n)
     else:
