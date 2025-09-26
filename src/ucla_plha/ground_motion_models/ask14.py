@@ -165,10 +165,10 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     
     # Now compute the rock motion amplitude and then do site response
     f5_1180 = (a10 + b * n) * np.log(1180 / vlin)
-    z1ref_1180 = 1/1000 * np.exp(-7.67 / 4 * np.log((1180**4 + 610**4) / (1360**4 + 610**4)))
+    z1ref_1180 = 0.002808692671351688
     if('z1p0' in kwargs):
         z1_1180 = kwargs.get('z1p0')
-        if(z1 is None):
+        if(z1_1180 is None):
             z1_1180 = z1ref_1180
     else:
         z1_1180 = z1ref_1180
