@@ -247,9 +247,15 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     tau_lnyb = tau_lny   # Our IM is PGA, so these are the same
     tau_lnpgab = tau_lny
     phi_lnyb = np.sqrt(phi_lny ** 2 - phi_ln_af ** 2)
-    phi_lnpgab = np.sqrt(phi_lny**2 - phi_ln_af**2)
+    phi_lnpgab = np.sqrt(phi_lny ** 2 - phi_ln_af ** 2)
     tau = np.sqrt(tau_lnyb ** 2 + alpha ** 2 * tau_lnpgab ** 2 + 2 * alpha * tau_lnyb * tau_lnpgab)
-    phi = np.sqrt(phi_lnyb ** 2 + phi_ln_af**2 + alpha ** 2 * (phi_lnyb ** 2 - phi_ln_af ** 2) + 2 * alpha * phi_lnyb * phi_lnpgab)
+    phi = np.sqrt(
+        phi_lnyb ** 2
+        + phi_ln_af ** 2
+        + alpha ** 2 * (phi_lny ** 2 - phi_ln_af ** 2)
+        + 2 * alpha * phi_lnyb * phi_lnpgab
+    )
+    
     # Equation 32
     sigma = np.sqrt(tau ** 2 + phi ** 2)
 
