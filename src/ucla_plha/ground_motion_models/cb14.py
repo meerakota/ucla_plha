@@ -132,7 +132,7 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     
     # Equation 7
     fhng = c10 * fhng_rx * fhng_rrup * fhng_m * fhng_z * fhng_delta
-    
+
     ####################################################################
     # Basin Response Term
     ####################################################################
@@ -209,8 +209,9 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     ####################################################################
     
     # A1100 is the value of PGA for VS30 = 1100 m/s, which can be obtained by summing all other terms with site term = 1.0
-    a1100 = np.exp(fmag + fdis + fflt + fhng + fsed_ref + fhyp + fdip + fatn)
-
+    fsite_ref = (c11 + k2 * n) * np.log(1100.0 / k1)
+    a1100 = np.exp(fmag + fdis + fflt + fhng + fsed_ref + fsite_ref + fhyp + fdip + fatn)
+    
     # Equation 18
     if(vs30 <= k1):
         f_site_g = c11 * np.log(vs30 / k1) + k2 * (np.log(a1100 + c * (vs30 / k1) ** n) - np.log(a1100 + c))
