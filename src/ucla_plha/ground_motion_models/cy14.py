@@ -54,9 +54,12 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     n_check = kwargs.get('z1p0', None)
     if n_check is not None:
         z1p0 = n_check
+        z1p0_ref = n_check
     else:
         z1p0 = np.exp(-7.15 / 4.0 * np.log((vs30 ** 4.0 + 571.0 ** 4.0) / (1360.0 ** 4.0 + 571.0 ** 4.0)))
+        z1p0_ref = np.exp(-7.15 / 4.0 * np.log((1130.0 ** 4.0 + 571.0 ** 4.0) / (1360.0 ** 4.0 + 571.0 ** 4.0)))
     deltaz1p0 = z1p0 - np.exp(-7.15 / 4.0 * np.log((vs30 ** 4.0 + 571.0 ** 4.0) / (1360.0 ** 4.0 + 571.0 ** 4.0)))
+    deltaz1p0_ref = z1p0_ref - np.exp(-7.15 / 4.0 * np.log((1130.0 ** 4.0 + 571.0 ** 4.0) / (1360.0 ** 4.0 + 571.0 ** 4.0)))
     frv = np.zeros(len(fault_type), dtype=float)
     fnm = np.zeros(len(fault_type), dtype=float)
     frv[fault_type == 1] = 1.0
@@ -82,13 +85,13 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     lnyrefij[m > 4.5] = c1 + (c1a + c1c / (np.cosh(2.0 * (m[m > 4.5] - 4.5)))) * frv[m > 4.5]
     lnyrefij[m <= 4.5] = c1 + (c1a + c1c) * frv[m <= 4.5]
 
-    lnyrefij[m > 4.5] += (c1b + c1d / np.cosh(2.0 * (m[m > 4.5] - 4.5)) * fnm[m > 4.5])
+    lnyrefij[m > 4.5] += (c1b + c1d / (np.cosh(2.0 * (m[m > 4.5] - 4.5)))) * fnm[m > 4.5]
     lnyrefij[m <= 4.5] += (c1b + c1d) * fnm[m <= 4.5]
 
-    lnyrefij[m > 4.5] += (c7 + c7b / np.cosh(2.0 * (m[m > 4.5] - 4.5))) * delta_ztor[m > 4.5]
+    lnyrefij[m > 4.5] += (c7 + c7b / (np.cosh(2.0 * (m[m > 4.5] - 4.5)))) * delta_ztor[m > 4.5]
     lnyrefij[m <= 4.5] += (c7 + c7b / np.cosh(2.0 * 0)) * delta_ztor[m <= 4.5]
 
-    lnyrefij[m > 4.5] += (c11 + c11b / np.cosh(2.0 * (m[m > 4.5] - 4.5))) * np.cos(dip[m > 4.5] * np.pi / 180.0) ** 2
+    lnyrefij[m > 4.5] += (c11 + c11b / (np.cosh(2.0 * (m[m > 4.5] - 4.5)))) * np.cos(dip[m > 4.5] * np.pi / 180.0) ** 2
     lnyrefij[m <= 4.5] += (c11 + c11b) * np.cos(dip[m <= 4.5] * np.pi / 180.0) ** 2
 
     lnyrefij += c2 * (m - 6.0) + (c2 - c3) / cn * np.log(1.0 + np.exp(cn * (cm - m)))
@@ -123,6 +126,7 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     lnyij = lnyrefij + phi1 * np.minimum(np.log(vs30 / 1130.0), 0.0)
     lnyij += phi2 * (np.exp(phi3 * (np.minimum(vs30, 1130.0) - 360.0))- np.exp(phi3 * (1130.0 - 360.0))) * np.log((yrefij + phi4) / phi4)
     lnyij += phi5 * (1.0 - np.exp(-deltaz1p0 / phi6))
+    print('lnyij', lnyij)
     mu = copy.deepcopy(lnyij)
 
     mg5 = copy.deepcopy(m)
