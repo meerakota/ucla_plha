@@ -126,7 +126,6 @@ def get_im(vs30,rjb,rrup,rx,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     lnyij = lnyrefij + phi1 * np.minimum(np.log(vs30 / 1130.0), 0.0)
     lnyij += phi2 * (np.exp(phi3 * (np.minimum(vs30, 1130.0) - 360.0))- np.exp(phi3 * (1130.0 - 360.0))) * np.log((yrefij + phi4) / phi4)
     lnyij += phi5 * (1.0 - np.exp(-deltaz1p0 / phi6))
-    print('lnyij', lnyij)
     mu = copy.deepcopy(lnyij)
 
     mg5 = copy.deepcopy(m)
