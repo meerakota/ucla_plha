@@ -4,7 +4,7 @@ import scipy as sp
 from scipy.stats import norm
 from scipy.special import ndtr
 import json, jsonschema
-from ucla_plha.liquefaction_models import cetin_et_al_2018, idriss_boulanger_2012, ngl_smt_2024
+from ucla_plha.liquefaction_models import cetin_et_al_2018, idriss_boulanger_2012, ngl_smt_2024, moss_et_al_2006, boulanger_idriss_2016
 from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14
 from ucla_plha.geometry import geometry
 from importlib_resources import files
@@ -136,6 +136,12 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
     if(liquefaction_model=='cetin_et_al_2018'):
         c = config['liquefaction_models']['cetin_et_al_2018']
         return cetin_et_al_2018.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, c['sigmav'], c['sigmavp'], c['vs12'], c['depth'], c['n160'], c['fc'], fsl, c['pa'])
+    elif(liquefaction_model=='moss_et_al_2006'):
+        c= config['liquefaction_models']['moss_et_al_2006']
+        return moss_et_al_2006.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, c['sigmav'], c['sigmavp'], c['d'], c['qc'], c['fs'], fsl, c['pa'])
+    elif(liquefaction_model=='boulanger_idriss_2016'):
+        c= config['liquefaction_models']['boulanger_idriss_2016']
+        return boulanger_idriss_2016.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, c['sigmav'], c['sigmavp'], c['d'], c['qc1ncs'], fsl, c['pa'])
     elif(liquefaction_model=='idriss_boulanger_2012'):
         c = config['liquefaction_models']['idriss_boulanger_2012']
         return idriss_boulanger_2012.get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, c['sigmav'], c['sigmavp'], c['depth'], c['n160'], c['fc'], fsl, c['pa'])
@@ -353,6 +359,3 @@ def get_hazard(config_file):
             json.dump(output, outputfile, indent=4)
     
     return output
-
-
-
