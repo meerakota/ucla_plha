@@ -1,14 +1,14 @@
 import numpy as np
 from scipy.special import ndtr
 
-def get_ln_crr(m, qc, fs, sigmavp, pa):
+def get_ln_crr(m, qc, fs, sigmavp,pa):
     '''
     Inputs:
     m = magnitude, Numpy array, dtype=float, length = N
-    qc = cone penetration test tip resistance in same units as pa, scalar
-    fs = cone penetration test sleeve friction in same units as pa, scalar
-    sigmavp = vertical effective stress in same units as pa, scalar
-    pa = atmospheric pressure, scalar
+    qc = cone penetration tip resistance in MPa 
+    fs = sleeve resistance in MPa
+    sigmavp = vertical effective stress in kPa
+    pa = atmospheric pressure in kPa, 101.325 kPa
 
     Outputs:
     mu_ln_crr = mean of natural logs of cyclic resistance ratio, Numpy array, dtype=float, length = N
@@ -16,7 +16,7 @@ def get_ln_crr(m, qc, fs, sigmavp, pa):
 
     Notes:
     N = number of earthquake events.
-    '''
+    # '''
     rf = fs / qc
     f1 = 0.78 * qc ** -0.33
     f2 = -(-0.32 * qc ** -0.35 + 0.49)
@@ -84,7 +84,7 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
 
     return mu_ln_csr, sigma_ln_csr
 
-def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc1, fs, fsl, pa):
+def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc, fs, fsl, pa):
     '''
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
@@ -102,7 +102,7 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc1, fs, fsl, p
     fsl_cdfs = cumulative distribution functions for factor of safety against profile manfiestation, Numpy ndarray, dtype=float, shape = N x L
     eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L
     '''
-    mu_ln_crr, sigma_ln_crr = get_ln_crr(m, qc1, fs, sigmavp, pa)
+    mu_ln_crr, sigma_ln_crr = get_ln_crr(m, qc, fs, sigmavp, pa)
     mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d)
     mu_ln_fsl = mu_ln_crr - mu_ln_csr
     sigma_ln_fsl = np.sqrt(sigma_ln_crr**2 + sigma_ln_csr**2)
