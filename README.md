@@ -1,8 +1,5 @@
-# ucla_plha
-Probabilistic Liquefaction Hazard Assessment (PLHA) Python package 
-
-## Installation
+# Installation
 > pip install ucla_plha
 
-## Documentation
+# Documentation
 > https://github.com/meerakota/ucla_plha/wiki
