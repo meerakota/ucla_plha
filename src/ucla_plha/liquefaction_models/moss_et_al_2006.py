@@ -17,16 +17,18 @@ def get_ln_crr(m, qc, fs, sigmavp,pa):
     Notes:
     N = number of earthquake events.
     # '''
-    rf = fs / qc
+    rf = fs / qc *100
     f1 = 0.78 * qc ** -0.33
     f2 = -(-0.32 * qc ** -0.35 + 0.49)
     f3 = np.abs(np.log10(10.0 + qc)) ** 1.21
     c = f1 * (rf / f3) ** f2
     Cq = (pa / sigmavp) ** c
+    Cq = np.minimum(Cq,1.7)
     qc1 = Cq * qc
-    mu_ln_crr = qc1 ** 1.045 + qc1 * (0.110 * rf) + (0.001 * rf) + c * (1.0 + 0.850 * rf) - 0.848 * np.log(m) - 0.002 * np.log(sigmavp) - 20.923
-    sigma_ln_crr = np.full(len(m), 1.632 / 7.177)
+    mu_ln_crr = (qc1 ** 1.045 + qc1 * (0.110 * rf) + (0.001 * rf) + c * (1.0 + 0.850 * rf) - 0.848 * np.log(m) - 0.002 * np.log(sigmavp) - 20.923)/7.177
+    sigma_ln_crr = (np.full(len(m), 1.632 / 7.177))
     
+
     return mu_ln_crr, sigma_ln_crr
 
 def get_rd(mu_ln_pga, m, d):
@@ -48,13 +50,14 @@ def get_rd(mu_ln_pga, m, d):
     amax = np.exp(mu_ln_pga)
     if(d < 20):
         rd_num = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (10.567 + 0.089 * np.exp(0.089 * (-d * 3.28 - 7.760 * amax + 78.576)))
-        rd_den = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (10.567 + 0.089 * np.exp(0.089 * (- 7.760 * amax + 78.576)))
+        rd_den = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (10.567 + 0.089 * np.exp(0.089 * (-7.760 * amax + 78.576)))
         rd = rd_num / rd_den
     else:
         rd_num = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (10.567 + 0.089 * np.exp(0.089 * (-d * 3.28 - 7.760 * amax + 78.576)))
-        rd_den = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (10.567 + 0.089 * np.exp(0.089 * (- 7.760 * amax + 78.576)))
+        rd_den = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (10.567 + 0.089 * np.exp(0.089 * (-7.760 * amax + 78.576)))
         rd = rd_num / rd_den - 0.0014 * (d * 3.28 - 65.0)
     
+
     return rd
 
 def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
