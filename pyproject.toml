@@ -11,12 +11,14 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
-numpy = ">=1.22"
+python = "^3.11"
+numpy = "^1.24"
+scipy = "^1.12"
 ngl_tools = ">0"
 importlib_resources = ">0"
 scikit_learn = ">0"
-
+jsonschema = ">0"
+setuptools = ">0"
 
 [tool.poetry.group.test.dependencies]
 pytest = ">=7.4.3"
