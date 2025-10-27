@@ -107,21 +107,6 @@ files = [
 referencing = ">=0.31.0"
 
 [[package]]
-name = "ngl-tools"
-version = "1.0.6"
-description = "A collection of software tools developed by the Next Generation Liquefaction modeling teams"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "ngl_tools-1.0.6-py3-none-any.whl", hash = "sha256:a80e861143025f43677415cef1024638711bac3457c4cb0463e568499443a276"},
-    {file = "ngl_tools-1.0.6.tar.gz", hash = "sha256:2f52d57449cc6cf27cdc630bdcdb3623b07e51c829c0046142200a24a4a86ed7"},
-]
-
-[package.dependencies]
-numpy = ">=1.22"
-
-[[package]]
 name = "numpy"
 version = "1.26.4"
 description = "Fundamental package for array computing in Python"
@@ -597,4 +582,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "0f40b57f120823d4160d0f919f7f87198a3d6397e2acdaf6986f8d0af3bcac85"
+content-hash = "32303709cddbc75343d2d8d9057ffdabd27642deff36e3a0ff3feb893d830369"
