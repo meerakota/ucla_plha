@@ -130,20 +130,6 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     lnyrefij[m > cg3] += (cg1 + cg2 / np.cosh(m[m > cg3] - cg3)) * rrup[m > cg3]
     lnyrefij[m <= cg3] += (cg1 + cg2) * rrup[m <= cg3]
 
-    # It is unclear from the paper how to compute the direct point parameter (DPP) centered  on
-    # site- and earthquake-specific average DPP. So this is commented out for now
-    # rrupijm40 = rrup - 40
-    # rrupijm40[rrupijm40 < 0] = 0.0
-    # onemrrupijm40 = 1.0 - rrupijm40 / 30.0
-    # onemrrupijm40[onemrrupijm40 < 0.0] = 0.0
-
-    # mm5p5 = m - 5.5
-    # mm5p5[mm5p5 < 0] = 0
-    # mm5p5d0p8 = mm5p5 / 0.8
-    # mm5p5d0p8[mm5p5d0p8 > 1.0] = 1.0
-
-    # lnyrefij += c8 * onemrrupijm40 * mm5p5d0p8 * np.exp(-c8a * (m - c8b) ** 2) * deltadppij
-
     lnyrefij[rx > 0.0] += (
         c9
         * fhw[rx > 0]
@@ -175,8 +161,6 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     ml6p5[ml6p5 > 6.5] = 6.5
     tau = tau1 + (tau2 - tau1) / 1.5 * (ml6p5 - 5.0)
 
-    # vs30_lt_1130 = vs30
-    # vs30_lt_1130[vs30_lt_1130 > 1130] = 1130
     vs30_lt_1130 = np.minimum(vs30, 1130.0)
     nl0 = (
         phi2

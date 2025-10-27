@@ -51,7 +51,6 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     phi_ln_af = 0.300
     sigma_m_lt_4p5 = 0.840
     sigma_m_gt_5p5 = 0.588
-    # m = np.atleast_1d(m)
     n_check = kwargs.get("z2p5", None)
     if n_check is not None:
         z2p5 = n_check

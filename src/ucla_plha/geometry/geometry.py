@@ -41,11 +41,6 @@ def point_triangle_distance(tri_xyz, p_xyz, tri_segment_id):
     tri_xyz[filt1, 0, 2] += 0.001
     tri_xyz[filt2, 0, 2] += 0.001
     tri_xyz[filt3, 1, 2] += 0.001
-    # for i in range(len(tri_xyz)):
-    #     if((tri_xyz[i,0] == tri_xyz[i,1]).all() or (tri_xyz[i,0] == tri_xyz[i,2]).all()):
-    #         tri_xyz[i,0,2] = tri_xyz[i,0,2] + 0.001
-    #     if(tri_xyz[i,1] == tri_xyz[i,2]).all():
-    #         tri_xyz[i,1,2] = tri_xyz[i,1,2] + 0.001
 
     e0 = tri_xyz[:, 1] - tri_xyz[:, 0]
     e1 = tri_xyz[:, 2] - tri_xyz[:, 0]
@@ -204,16 +199,6 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
     (x1,y1,z1)o--------o(x3,y3,z3)
 
     """
-    # width = np.sqrt(np.sum((rect_points[:,1] - rect_points[:,0])**2, axis=1))
-    # length = np.sqrt(np.sum((rect_points[:,0] - rect_points[:,3])**2, axis=1))
-    # Rx = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,0], rect_points[:,0] - point))**2, axis=1)) / width
-    # Rx1 = np.sqrt(np.sum((np.cross(rect_points[:,2] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / width
-    # Ry1 = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,3], rect_points[:,3] - point))**2, axis=1)) / length
-    # Ry2 = np.sqrt(np.sum((np.cross(rect_points[:,0] - rect_points[:,2], rect_points[:,2] - point))**2, axis=1)) / length
-    # Ry0 = np.empty(len(rect_points), dtype=float)
-    # Ry0[Ry1 < Ry2] = Ry1[Ry1 < Ry2]
-    # Ry0[Ry2 < Ry1] = Ry2[Ry2 < Ry1]
-    # Ry0[(Ry1 < width) & (Ry2 < width)] = 0
 
     width = np.sqrt(np.sum((rect_points[:, 2] - rect_points[:, 0]) ** 2, axis=1))
     width[width < 0.001] = 0.001
