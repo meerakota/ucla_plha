@@ -1,8 +1,9 @@
 import numpy as np
 from scipy.special import ndtr
 
+
 def get_ln_crr(m, n160, fc, sigmavp, pa):
-    '''
+    """
     Inputs:
     m = magnitude, Numpy array, dtype=float, length = N
     n160 = energy- and overburden-corrected standard penetration test blow count [-], scalar
@@ -16,24 +17,33 @@ def get_ln_crr(m, n160, fc, sigmavp, pa):
 
     Notes:
     N = number of earthquake events.
-    '''
-    delta_n160 = np.exp(1.63 + 9.7/(fc + 0.01) - (15.7 / (fc + 0.01))**2)
+    """
+    delta_n160 = np.exp(1.63 + 9.7 / (fc + 0.01) - (15.7 / (fc + 0.01)) ** 2)
     n160cs = n160 + delta_n160
     c_sigma = 1.0 / (18.9 - 2.55 * np.sqrt(n160cs))
     c_sigma = np.min([0.3, c_sigma])
     k_sigma = 1.0 - c_sigma * np.log(sigmavp / pa)
     msf = 6.9 * np.exp(-m / 4.0) - 0.058
     k_sigma = np.min([1.1, k_sigma])
-    msf[msf>1.8] = 1.8
+    msf[msf > 1.8] = 1.8
     n160cs = np.full(len(m), n160cs)
     k_sigma = np.full(len(m), k_sigma)
-    mu_ln_crr = n160cs / 14.1 + (n160cs / 126)**2.0 - (n160cs / 23.6)**3.0 + (n160cs / 25.4)**4 - 2.67 + np.log(k_sigma) + np.log(msf)
+    mu_ln_crr = (
+        n160cs / 14.1
+        + (n160cs / 126) ** 2.0
+        - (n160cs / 23.6) ** 3.0
+        + (n160cs / 25.4) ** 4
+        - 2.67
+        + np.log(k_sigma)
+        + np.log(msf)
+    )
     sigma_ln_crr = np.full(len(m), 0.13)
-    
+
     return mu_ln_crr, sigma_ln_crr
 
+
 def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
-    '''
+    """
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
     sigma_ln_pga = standard deviation of natural logs of peak acceleration [-], Numpy array, dtype=float, length = N
@@ -48,17 +58,18 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
 
     Notes:
     N = number of earthquake events
-    '''
-    alpha = -1.012 - 1.126 * np.sin(d/11.73 + 5.133)
-    beta = 0.106 + 0.118 * np.sin(d/11.28 + 5.142)
+    """
+    alpha = -1.012 - 1.126 * np.sin(d / 11.73 + 5.133)
+    beta = 0.106 + 0.118 * np.sin(d / 11.28 + 5.142)
     rd = np.exp(alpha + beta * m)
     mu_ln_csr = mu_ln_pga + np.log(0.65 * sigmav / sigmavp * rd)
     sigma_ln_csr = sigma_ln_pga
-    
+
     return mu_ln_csr, sigma_ln_csr
 
+
 def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, n160, fc, fsl, pa):
-    '''
+    """
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
     sigma_ln_pga = standard deviation of natural logs of peak acceleration [-], Numpy array, dtype=float, length = N
@@ -74,7 +85,7 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, n160, fc, fsl, 
     Outputs:
     fsl_cdfs = cumulative distribution functions for factor of safety against profile manfiestation, Numpy ndarray, dtype=float, shape = N x L
     eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L
-    '''
+    """
     mu_ln_crr, sigma_ln_crr = get_ln_crr(m, n160, fc, sigmavp, pa)
     mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d)
     mu_ln_fsl = mu_ln_crr - mu_ln_csr

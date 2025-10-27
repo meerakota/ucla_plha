@@ -1,8 +1,9 @@
 import numpy as np
 from scipy.interpolate import interp1d
 
-def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
-    '''
+
+def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **kwargs):
+    """
     Output an array of mean and standard deviation values of the natural log of peak horizontal acceleration.
     vs30 = time-averaged shear wave velocity in upper 30m [m/s]
     rjb = Joyner-Boore source-to-site distance [km]
@@ -11,7 +12,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     rx1 = closest distance to vertical projection of bottom of fault, measured perpendicular to strike
     ry0 = closest distance to rupture, measured parallel to strike
     m = moment magnitude
-    fault_type = style of faulting based on rake. 1 = reverse, 2 = normal, 3 = strike slip 
+    fault_type = style of faulting based on rake. 1 = reverse, 2 = normal, 3 = strike slip
     measured_vs30 = boolean field indicating whether vs30 is measured or inferred
     dip = dip angle in degrees
     ztor = depth to top of rupture [km]
@@ -21,7 +22,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
 
     Note: We have assumed all earthquakes are mainshocks, and have not included regionalization terms since
     sites are all in California
-    '''
+    """
 
     # Define flags
     FRV = np.zeros(len(m), dtype=float)
@@ -32,7 +33,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     FHW[(dip != 90) & (rx > 0.0)] = 1.0
 
     # Define z1.0
-    z1 = kwargs.get('z1', None)
+    z1 = kwargs.get("z1", None)
     c4 = 4.5
     M1 = 6.75
     M2 = 5.0
@@ -58,8 +59,8 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     a44 = 0.05
     a45 = 0.0
     a46 = -0.05
-    
-    if(measured_vs30):
+
+    if measured_vs30:
         s1 = 0.741
         s2 = 0.501
     else:
@@ -80,11 +81,31 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     c4m[m_filt1] = c4
     c4m[m_filt2] = c4 - (c4 - 1) * (5 - m[m_filt2])
     c4m[m_filt3] = 1.0
-    R = np.sqrt(rrup ** 2 + c4m ** 2)
-    f1[f1_filt1] = a1 + a5 * (m[f1_filt1] - M1) + a8 * (8.5 - m[f1_filt1]) ** 2 + (a2 + a3 * (m[f1_filt1] - M1)) * np.log(R[f1_filt1]) + a17 * rrup[f1_filt1]
-    f1[f1_filt2] = a1 + a4 * (m[f1_filt2] - M1) + a8 * (8.5 - m[f1_filt2]) ** 2 + (a2 + a3 * (m[f1_filt2] - M1)) * np.log(R[f1_filt2]) + a17 * rrup[f1_filt2]
-    f1[f1_filt3] = a1 + a4 * (M2 - M1) + a8 * (8.5 - M2) ** 2 + a6 * (m[f1_filt3] - M2) + a7 * (m[f1_filt3] - M2) ** 2 + (a2 + a3 * (M2 - M1)) * np.log(R[f1_filt3]) + a17 * rrup[f1_filt3]
-    
+    R = np.sqrt(rrup**2 + c4m**2)
+    f1[f1_filt1] = (
+        a1
+        + a5 * (m[f1_filt1] - M1)
+        + a8 * (8.5 - m[f1_filt1]) ** 2
+        + (a2 + a3 * (m[f1_filt1] - M1)) * np.log(R[f1_filt1])
+        + a17 * rrup[f1_filt1]
+    )
+    f1[f1_filt2] = (
+        a1
+        + a4 * (m[f1_filt2] - M1)
+        + a8 * (8.5 - m[f1_filt2]) ** 2
+        + (a2 + a3 * (m[f1_filt2] - M1)) * np.log(R[f1_filt2])
+        + a17 * rrup[f1_filt2]
+    )
+    f1[f1_filt3] = (
+        a1
+        + a4 * (M2 - M1)
+        + a8 * (8.5 - M2) ** 2
+        + a6 * (m[f1_filt3] - M2)
+        + a7 * (m[f1_filt3] - M2) ** 2
+        + (a2 + a3 * (M2 - M1)) * np.log(R[f1_filt3])
+        + a17 * rrup[f1_filt3]
+    )
+
     # Style of faulting model
     f7 = np.empty(len(m), dtype=float)
     f7[m_filt1] = a11
@@ -95,7 +116,7 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     f8[m_filt1] = a12
     f8[m_filt2] = a12 * (m[m_filt2] - 4.0)
     f8[m_filt3] = 0.0
-    
+
     # Hanging wall model
     T1 = np.zeros(len(m), dtype=float)
     a2HW = 0.2
@@ -105,46 +126,67 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     h2 = 1.5
     h3 = -0.75
     ry1 = rx * np.tan(20 * np.pi / 180.0)
-    T1[dip>30] = (90 - dip[dip>30]) / 45
-    T1[dip<=30] = 60 / 45
+    T1[dip > 30] = (90 - dip[dip > 30]) / 45
+    T1[dip <= 30] = 60 / 45
     T2 = np.zeros(len(m), dtype=float)
     T2[m >= 6.5] = 1 + a2HW * (m[m >= 6.5] - 6.5)
-    T2[(5.5 < m) & (m < 6.5)] = 1 + a2HW * (m[(5.5 < m) & (m < 6.5)] - 6.5) - (1 - a2HW) * (m[(5.5 < m) & (m < 6.5)] - 6.5) ** 2.0
+    T2[(5.5 < m) & (m < 6.5)] = (
+        1
+        + a2HW * (m[(5.5 < m) & (m < 6.5)] - 6.5)
+        - (1 - a2HW) * (m[(5.5 < m) & (m < 6.5)] - 6.5) ** 2.0
+    )
     T2[m >= 5.5] = 0
     T3 = np.zeros(len(m), dtype=float)
-    T3[rx < r1] = h1 + h2 * (rx[rx < r1] / r1[rx < r1]) + h3 * (rx[rx < r1] / r1[rx < r1]) **2
-    T3[(r1 <= rx) & (rx <= r2) & (r1 != r2)] = 1 - (rx[(r1 <= rx) & (rx <= r2) & (r1 != r2)] - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)]) / (r2[(r1 <= rx) & (rx <= r2) & (r1 != r2)] - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)])
+    T3[rx < r1] = (
+        h1 + h2 * (rx[rx < r1] / r1[rx < r1]) + h3 * (rx[rx < r1] / r1[rx < r1]) ** 2
+    )
+    T3[(r1 <= rx) & (rx <= r2) & (r1 != r2)] = 1 - (
+        rx[(r1 <= rx) & (rx <= r2) & (r1 != r2)]
+        - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)]
+    ) / (
+        r2[(r1 <= rx) & (rx <= r2) & (r1 != r2)]
+        - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)]
+    )
     T3[rx > r2] = 0.0
     T4 = np.zeros(len(m), dtype=float)
-    T4[ztor <= 10] = 1 - ztor[ztor <= 10]**2 / 100
+    T4[ztor <= 10] = 1 - ztor[ztor <= 10] ** 2 / 100
     T4[ztor > 10] = 0.0
     T5 = np.zeros(len(m), dtype=float)
     T5[0.0 >= ry0 - ry1] = 1.0
-    T5[(0.0 < ry0 - ry1) & (ry0 - ry1 < 5)] = 1 - (ry0[(0.0 < ry0 - ry1) & (ry0 - ry1 < 5)] - ry1[(0.0 < ry0 - ry1) & (ry0 - ry1 < 5)]) / 5.0
+    T5[(0.0 < ry0 - ry1) & (ry0 - ry1 < 5)] = (
+        1
+        - (
+            ry0[(0.0 < ry0 - ry1) & (ry0 - ry1 < 5)]
+            - ry1[(0.0 < ry0 - ry1) & (ry0 - ry1 < 5)]
+        )
+        / 5.0
+    )
     f4 = a13 * T1 * T2 * T3 * T4 * T5
-    
+
     # Depth to rupture model
     f6 = np.empty(len(m), dtype=float)
     f6[ztor < 20] = a15 * ztor[ztor < 20] / 20.0
     f6[ztor >= 20] = a15
 
     # Soil depth model. Assume z1 = z1ref if it is not specified
-    z1ref = 1/1000 * np.exp(-7.67 / 4 * np.log((vs30**4 + 610**4) / (1360**4 + 610**4)))
-    if('z1p0' in kwargs):
-        z1 = kwargs.get('z1p0')
-        if(z1 is None):
+    z1ref = (
+        1 / 1000 * np.exp(-7.67 / 4 * np.log((vs30**4 + 610**4) / (1360**4 + 610**4)))
+    )
+    if "z1p0" in kwargs:
+        z1 = kwargs.get("z1p0")
+        if z1 is None:
             z1 = z1ref
     else:
         z1 = z1ref
-    if(vs30 <= 200):
+    if vs30 <= 200:
         f10 = a43 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    elif((200 < vs30) & (vs30 <= 300)):
+    elif (200 < vs30) & (vs30 <= 300):
         f10 = a44 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    elif((300 < vs30) & (vs30 <= 500)):
+    elif (300 < vs30) & (vs30 <= 500):
         f10 = a45 * np.log((z1 + 0.01) / (z1ref + 0.01))
     else:
         f10 = a46 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    
+
     # Aftershock scaling (assume all earthquakes are mainshocks here)
     FAs = 0.0
     f11 = 0.0
@@ -152,30 +194,43 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     # Regionalization (assume regional term is zero since we are in California)
     regional = 0.0
 
-   
     # Site response model (do this one last because we need to know the ground motion for VS30 = 1180 m/s to compute it)
     f5 = np.zeros(len(m), dtype=float)
     vs30star = np.empty(len(m), dtype=float)
     v1 = 1500.0
-    if(vs30 < v1):
+    if vs30 < v1:
         vs30star = vs30
     else:
         vs30star = v1
     f5 = (a10 + b * n) * np.log(vs30star / vlin)
-    
+
     # Now compute the rock motion amplitude and then do site response
     f5_1180 = (a10 + b * n) * np.log(1180 / vlin)
     z1ref_1180 = 0.002808692671351688
-    if('z1p0' in kwargs):
-        z1_1180 = kwargs.get('z1p0')
-        if(z1_1180 is None):
+    if "z1p0" in kwargs:
+        z1_1180 = kwargs.get("z1p0")
+        if z1_1180 is None:
             z1_1180 = z1ref_1180
     else:
         z1_1180 = z1ref_1180
     f10_1180 = a46 * np.log((z1_1180 + 0.01) / (z1ref_1180 + 0.01))
-    sa1180 = np.exp(f1 + f5_1180 + FRV * f7 + FN * f8 + FAs * f11 + FHW * f4 + f6 + f10_1180 + regional)
-    if(vs30star / vlin < 1):
-        f5 = a10 * np.log(vs30star / vlin) - b * np.log(sa1180 + c) + b * np.log(sa1180 + c * (vs30star / vlin) ** n)
+    sa1180 = np.exp(
+        f1
+        + f5_1180
+        + FRV * f7
+        + FN * f8
+        + FAs * f11
+        + FHW * f4
+        + f6
+        + f10_1180
+        + regional
+    )
+    if vs30star / vlin < 1:
+        f5 = (
+            a10 * np.log(vs30star / vlin)
+            - b * np.log(sa1180 + c)
+            + b * np.log(sa1180 + c * (vs30star / vlin) ** n)
+        )
     # Standard deviation
     phi_al = np.empty(len(m), dtype=float)
     phi_al[m < 4.0] = s1
@@ -190,11 +245,13 @@ def get_im(vs30,rrup,rx,rx1,ry0,m,fault_type,measured_vs30,dip,ztor,**kwargs):
     phi_amp = 0.4
     phi_b = np.sqrt(phi_al**2 - phi_amp**2)
     phi_b[phi_b < 0.0] = 0.0
-    if(vs30 < vlin):
-        dlnamp_dlnsa1180 = -b * sa1180 / (sa1180 + c) + b * sa1180 / (sa1180 + c * (vs30 / vlin) ** n)
+    if vs30 < vlin:
+        dlnamp_dlnsa1180 = -b * sa1180 / (sa1180 + c) + b * sa1180 / (
+            sa1180 + c * (vs30 / vlin) ** n
+        )
     else:
         dlnamp_dlnsa1180 = 0.0
-    phi = np.sqrt(phi_b ** 2 * (1.0 + dlnamp_dlnsa1180) ** 2 + phi_amp**2)
+    phi = np.sqrt(phi_b**2 * (1.0 + dlnamp_dlnsa1180) ** 2 + phi_amp**2)
     tau = tau_al * (1 + dlnamp_dlnsa1180)
     mu = f1 + FRV * f7 + FN * f8 + FAs * f11 + f5 + FHW * f4 + f6 + f10 + regional
     sigma = np.sqrt(phi**2 + tau**2)

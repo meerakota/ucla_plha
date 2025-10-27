@@ -1,13 +1,14 @@
 import numpy as np
 
-def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
-    '''
+
+def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
+    """
     Output an array of mean and standard deviation values of the natural log of peak horizontal acceleration.
     vs30 = time-averaged shear wave velocity in upper 30m [m/s]
     rjb = Joyner-Boore source-to-site distance [km]
     m = moment magnitude
     fault_type = style of faulting based on rake
-    '''
+    """
     c = 1.88
     n = 1.18
     h4 = 1.0
@@ -51,27 +52,40 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     sigma_m_lt_4p5 = 0.840
     sigma_m_gt_5p5 = 0.588
     # m = np.atleast_1d(m)
-    n_check= kwargs.get('z2p5', None)
+    n_check = kwargs.get("z2p5", None)
     if n_check is not None:
         z2p5 = n_check
         z2p5_ref = n_check
     else:
-        z2p5=np.exp(7.089 - 1.144 * np.log(vs30))
+        z2p5 = np.exp(7.089 - 1.144 * np.log(vs30))
         z2p5_ref = np.exp(7.089 - 1.144 * np.log(1100.0))
-   
+
     ##############################################################
     # Magnitude term. Equation 2 in CB14
     ##############################################################
     fmag = np.empty(len(m))
     fmag[m <= 4.5] = c0 + c1 * m[m <= 4.5]
-    fmag[(4.5 < m) & (m <= 5.5)] = c0 + c1 * m[(4.5 < m) & (m <= 5.5)] + c2 * (m[(4.5 < m) & (m <= 5.5)] - 4.5)
-    fmag[(5.5 < m) & (m <= 6.5)] = c0 + c1 * m[(5.5 < m) & (m <= 6.5)] + c2 * (m[(5.5 < m) & (m <= 6.5)] - 4.5) + c3 * (m[(5.5 < m) & (m <= 6.5)] - 5.5)
-    fmag[m > 6.5] = c0 + c1 * m[m > 6.5] + c2 * (m[m > 6.5] - 4.5) + c3 * (m[m > 6.5] - 5.5) + c4 * (m[m > 6.5] - 6.5)
+    fmag[(4.5 < m) & (m <= 5.5)] = (
+        c0 + c1 * m[(4.5 < m) & (m <= 5.5)] + c2 * (m[(4.5 < m) & (m <= 5.5)] - 4.5)
+    )
+    fmag[(5.5 < m) & (m <= 6.5)] = (
+        c0
+        + c1 * m[(5.5 < m) & (m <= 6.5)]
+        + c2 * (m[(5.5 < m) & (m <= 6.5)] - 4.5)
+        + c3 * (m[(5.5 < m) & (m <= 6.5)] - 5.5)
+    )
+    fmag[m > 6.5] = (
+        c0
+        + c1 * m[m > 6.5]
+        + c2 * (m[m > 6.5] - 4.5)
+        + c3 * (m[m > 6.5] - 5.5)
+        + c4 * (m[m > 6.5] - 6.5)
+    )
 
     ###############################################################
     # Geometric attenuation term. Equation 3 in CB14
     ###############################################################
-    fdis = (c5 + c6 * m) * np.log(np.sqrt(rrup ** 2 + c7 ** 2))
+    fdis = (c5 + c6 * m) * np.log(np.sqrt(rrup**2 + c7**2))
 
     ###############################################################
     # Style of faulting term. Equations 4, 5, and 6 in CB 14
@@ -80,12 +94,12 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     fnm = np.zeros(len(fault_type), dtype=float)
     frv[fault_type == 1] = 1.0
     fnm[fault_type == 2] = 1.0
-    
-    fflt_m = np.empty(len(m), dtype = float)
+
+    fflt_m = np.empty(len(m), dtype=float)
     fflt_m[m <= 4.5] = 0.0
     fflt_m[(4.5 < m) & (m <= 5.5)] = m[(4.5 < m) & (m <= 5.5)] - 4.5
     fflt_m[m > 5.5] = 1.0
-    
+
     fflt_f = c8 * frv + c9 * fnm
     fflt = fflt_f * fflt_m
 
@@ -93,8 +107,8 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     # Hanging wall term
     ###############################################################
     r1 = (zbor - ztor) * np.radians(dip)
-    r2 = 62.0 * m - 350.0    # Equation 12
-    
+    r2 = 62.0 * m - 350.0  # Equation 12
+
     # Equation 16
     f_hng_delta = (90 - dip) / 45
 
@@ -102,7 +116,7 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     f1_rx = h1 + h2 * (rx / r1) + h3 * (rx / r1) ** 2
 
     # Equation 10
-    f2_rx = h4 + h5 * (rx - r1) / (r2 - r1) + h6 * ((rx - r1)/(r2 - r1)) ** 2
+    f2_rx = h4 + h5 * (rx - r1) / (r2 - r1) + h6 * ((rx - r1) / (r2 - r1)) ** 2
 
     # Equation 8
     fhng_rx = np.empty(len(m), dtype=float)
@@ -119,8 +133,10 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     # Equation 14
     fhng_m = np.empty(len(m), dtype=float)
     fhng_m[m <= 5.5] = 0.0
-    fhng_m[(5.5 <= m) & (m <= 6.5)] = (m[(5.5 <= m) & (m <= 6.5)] - 5.5) * (1.0 + a2 * (m[(5.5 <= m) & (m <= 6.5)] - 6.5))
-    fhng_m[m > 6.5] = 1.0 + a2 * (m[m > 6.5] - 6.5)    
+    fhng_m[(5.5 <= m) & (m <= 6.5)] = (m[(5.5 <= m) & (m <= 6.5)] - 5.5) * (
+        1.0 + a2 * (m[(5.5 <= m) & (m <= 6.5)] - 6.5)
+    )
+    fhng_m[m > 6.5] = 1.0 + a2 * (m[m > 6.5] - 6.5)
 
     # Equation 15
     fhng_z = np.empty(len(m), dtype=float)
@@ -129,7 +145,7 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
 
     # Equation 16
     fhng_delta = (90 - dip) / 45.0
-    
+
     # Equation 7
     fhng = c10 * fhng_rx * fhng_rrup * fhng_m * fhng_z * fhng_delta
 
@@ -139,17 +155,17 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
 
     # Equation 20
     # fsed = np.empty(len(m), dtype=float)
-    if z2p5<= 1.0:
-        fsed=(c14 + c15 * sj) * (z2p5 - 1.0)
+    if z2p5 <= 1.0:
+        fsed = (c14 + c15 * sj) * (z2p5 - 1.0)
     elif z2p5 > 3.0:
-        fsed=c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5  - 3.0)))
+        fsed = c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5 - 3.0)))
     else:
-        fsed=0
+        fsed = 0
 
     if z2p5_ref <= 1.0:
         fsed_ref = (c14 + c15 * sj) * (z2p5_ref - 1.0)
     elif z2p5_ref > 3.0:
-        fsed_ref = c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5_ref  - 3.0)))
+        fsed_ref = c16 * k3 * np.exp(-0.75) * (1.0 - np.exp(-0.25 * (z2p5_ref - 3.0)))
     else:
         fsed_ref = 0
 
@@ -168,9 +184,15 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
 
     # Equation 35
     lndz = fdz_m + fdz_delta
-    lndz[lndz > np.log(0.9 * (zbor - ztor))] = np.log(0.9 * (zbor[lndz > np.log(0.9 * (zbor - ztor))] - ztor[lndz > np.log(0.9 * (zbor - ztor))]))
+    lndz[lndz > np.log(0.9 * (zbor - ztor))] = np.log(
+        0.9
+        * (
+            zbor[lndz > np.log(0.9 * (zbor - ztor))]
+            - ztor[lndz > np.log(0.9 * (zbor - ztor))]
+        )
+    )
     zhyp = ztor + np.exp(lndz)
-    
+
     # Equation 22
     fhyp_h = np.empty(len(m), dtype=float)
     fhyp_h[zhyp <= 7.0] = 0.0
@@ -180,7 +202,9 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     # Equation 23
     fhyp_m = np.empty(len(m), dtype=float)
     fhyp_m[m <= 5.5] = c17
-    fhyp_m[(5.5 < m) & (m <= 6.5)] = c17 + (c18 - c17) * (m[(5.5 < m) & (m <= 6.5)] - 5.5)
+    fhyp_m[(5.5 < m) & (m <= 6.5)] = c17 + (c18 - c17) * (
+        m[(5.5 < m) & (m <= 6.5)] - 5.5
+    )
     fhyp_m[m > 6.5] = c18
 
     # Equation 21
@@ -193,7 +217,9 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     # Equation 24
     fdip = np.empty(len(m), dtype=float)
     fdip[m <= 4.5] = c19 * dip[m <= 4.5]
-    fdip[(4.5 <= m) & (m <= 5.5)] = c19 * (5.5 - m[(4.5 <= m) & (m <= 5.5)]) * dip[(4.5 <= m) & (m <= 5.5)]
+    fdip[(4.5 <= m) & (m <= 5.5)] = (
+        c19 * (5.5 - m[(4.5 <= m) & (m <= 5.5)]) * dip[(4.5 <= m) & (m <= 5.5)]
+    )
     fdip[m > 5.5] = 0.0
 
     ####################################################################
@@ -207,19 +233,23 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     ####################################################################
     # Shallow Site Response Term (do this last because we need A1100)
     ####################################################################
-    
+
     # A1100 is the value of PGA for VS30 = 1100 m/s, which can be obtained by summing all other terms with site term = 1.0
     fsite_ref = (c11 + k2 * n) * np.log(1100.0 / k1)
-    a1100 = np.exp(fmag + fdis + fflt + fhng + fsed_ref + fsite_ref + fhyp + fdip + fatn)
-    
+    a1100 = np.exp(
+        fmag + fdis + fflt + fhng + fsed_ref + fsite_ref + fhyp + fdip + fatn
+    )
+
     # Equation 18
-    if(vs30 <= k1):
-        f_site_g = c11 * np.log(vs30 / k1) + k2 * (np.log(a1100 + c * (vs30 / k1) ** n) - np.log(a1100 + c))
+    if vs30 <= k1:
+        f_site_g = c11 * np.log(vs30 / k1) + k2 * (
+            np.log(a1100 + c * (vs30 / k1) ** n) - np.log(a1100 + c)
+        )
     else:
         f_site_g = (c11 + k2 * n) * np.log(vs30 / k1)
 
     # Equation 17 (No Japan term here because we are in California)
-    fsite = f_site_g  
+    fsite = f_site_g
 
     # Equation 1
     mu = fmag + fdis + fflt + fhng + fsite + fsed + fhyp + fdip + fatn
@@ -231,32 +261,40 @@ def get_im(vs30,rjb,rrup,rx,rx1,m,fault_type,ztor,zbor,dip,**kwargs):
     # Equation 27
     tau_lny = np.empty(len(m), dtype=float)
     tau_lny[m <= 4.5] = tau1
-    tau_lny[(4.5 < m) & (m < 5.5)] = tau2 + (tau1 - tau2) * (5.5 - m[(4.5 < m) & (m < 5.5)])
+    tau_lny[(4.5 < m) & (m < 5.5)] = tau2 + (tau1 - tau2) * (
+        5.5 - m[(4.5 < m) & (m < 5.5)]
+    )
     tau_lny[m >= 5.5] = tau2
     # Equation 28
     phi_lny = np.empty(len(m), dtype=float)
     phi_lny[m <= 4.5] = phi1
-    phi_lny[(4.5 < m) & (m < 5.5)] = phi2 + (phi1 - phi2) * (5.5 - m[(4.5 < m) & (m < 5.5)])
+    phi_lny[(4.5 < m) & (m < 5.5)] = phi2 + (phi1 - phi2) * (
+        5.5 - m[(4.5 < m) & (m < 5.5)]
+    )
     phi_lny[m >= 5.5] = phi2
     # Equation 31
-    if(vs30 >= k1):
+    if vs30 >= k1:
         alpha = np.zeros(len(m), dtype=float)
     else:
-        alpha = k2 * a1100 * ((a1100 + c * (vs30 / k1) ** n) ** (-1) - (a1100 + c) ** (-1))
+        alpha = (
+            k2 * a1100 * ((a1100 + c * (vs30 / k1) ** n) ** (-1) - (a1100 + c) ** (-1))
+        )
     # Equation 29
-    tau_lnyb = tau_lny   # Our IM is PGA, so these are the same
+    tau_lnyb = tau_lny  # Our IM is PGA, so these are the same
     tau_lnpgab = tau_lny
-    phi_lnyb = np.sqrt(phi_lny ** 2 - phi_ln_af ** 2)
-    phi_lnpgab = np.sqrt(phi_lny ** 2 - phi_ln_af ** 2)
-    tau = np.sqrt(tau_lnyb ** 2 + alpha ** 2 * tau_lnpgab ** 2 + 2 * alpha * tau_lnyb * tau_lnpgab)
+    phi_lnyb = np.sqrt(phi_lny**2 - phi_ln_af**2)
+    phi_lnpgab = np.sqrt(phi_lny**2 - phi_ln_af**2)
+    tau = np.sqrt(
+        tau_lnyb**2 + alpha**2 * tau_lnpgab**2 + 2 * alpha * tau_lnyb * tau_lnpgab
+    )
     phi = np.sqrt(
-        phi_lnyb ** 2
-        + phi_ln_af ** 2
-        + alpha ** 2 * (phi_lny ** 2 - phi_ln_af ** 2)
+        phi_lnyb**2
+        + phi_ln_af**2
+        + alpha**2 * (phi_lny**2 - phi_ln_af**2)
         + 2 * alpha * phi_lnyb * phi_lnpgab
     )
-    
+
     # Equation 32
-    sigma = np.sqrt(tau ** 2 + phi ** 2)
+    sigma = np.sqrt(tau**2 + phi**2)
 
     return (mu, sigma)
