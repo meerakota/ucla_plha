@@ -7,43 +7,6 @@ from scipy.special import ndtr
 def pdf(x, mu, sigma):
     return 1.0 / np.sqrt(2.0*np.pi) / sigma * np.exp(-0.5 * ((x - mu)/sigma)**2)
 
-def process_cpt(depth, qt, fs, dGWT, **kwargs):
-    gammaw = kwargs.get('gammaw', 9.81)
-    Ksat = np.zeros(len(depth))
-    Ksat[depth > dGWT] = 1.0
-    if('gamma' in kwargs):
-        gamma = kwargs.get('gamma')
-        sigmav = gamma * depth
-        if(dGWT < 0):
-            dGWT = 0.0
-        u = gammaw * (depth - dGWT)
-        sigmavp = sigmav - u
-    elif('sigmav' in kwargs):
-        sigmav = kwargs.get('sigmav')
-        sigmavp = kwargs.get('sigmavp')
-    # apply inverse-filter algorithm
-    qt_inv, fs_inv, Ic_inv = smt.cpt_inverse_filter(qt, depth, fs=fs, sigmav=sigmav, sigmavp=sigmavp, low_pass=True, smooth=True, remove_interface=True)
-    Ic_inv, Qtn_inv, Fr_inv = smt.get_Ic_Qtn_Fr(qt_inv, fs_inv, sigmav, sigmavp)
-
-    # Compute fines content and overburden- and fines-corrected tip resistance for inverse-filtered CPT data
-    FC = smt.get_FC_from_Ic(Ic_inv, 0.0)
-    qc1N_inv, qc1Ncs_inv = smt.get_qc1N_qc1Ncs(qt_inv, fs_inv, sigmav, sigmavp, FC)
-
-    # apply layering algorithm
-    ztop, zbot, qc1Ncs_lay, Ic_lay = smt.cpt_layering(qc1Ncs_inv, Ic_inv, depth, dGWT=dGWT, Nmin=1, Nmax=None)
-    # insert layer break at groundwater table depth if needed
-    if((dGWT not in ztop) and (dGWT not in zbot) and (dGWT > np.min(ztop)) and (dGWT < np.max(zbot))):
-        Ic_dGWT = Ic_lay[ztop<dGWT][-1]
-        qc1Ncs_dGWT = qc1Ncs_lay[ztop<dGWT][-1]
-        Ic_lay = np.hstack((Ic_lay[zbot<dGWT], Ic_dGWT, Ic_lay[zbot>dGWT]))
-        qc1Ncs_lay = np.hstack((qc1Ncs_lay[zbot<dGWT], qc1Ncs_dGWT, qc1Ncs_lay[zbot>dGWT]))
-        ztop = np.hstack((ztop[ztop<dGWT], dGWT, ztop[ztop>dGWT]))
-        zbot = np.hstack((zbot[zbot<dGWT], dGWT, zbot[zbot>dGWT]))
-    sigmav_lay = np.interp(0.5 * (ztop + zbot), depth, sigmav)
-    sigmavp_lay = np.interp(0.5 * (ztop + zbot), depth, sigmavp)
-    Ksat_lay = np.interp(0.5 * (ztop + zbot), depth, Ksat)
-    return (ztop, zbot, qc1Ncs_lay, Ic_lay, sigmav_lay, sigmavp_lay, Ksat_lay)
-
 def get_ln_crr(mu_ln_pga, m, qc1Ncs, sigmavp, pa):
     '''
     Inputs:

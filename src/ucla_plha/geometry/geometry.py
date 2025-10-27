@@ -216,12 +216,9 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
     # Ry0[Ry1 < Ry2] = Ry1[Ry1 < Ry2]
     # Ry0[Ry2 < Ry1] = Ry2[Ry2 < Ry1]
     # Ry0[(Ry1 < width) & (Ry2 < width)] = 0
-    dist1 = np.sum((rect_points[:,2] - rect_points[:,0])**2)
-    dist2 = np.sum((rect_points[:,3] - rect_points[:,1])**2)
-    rect_points[:,2][(dist1 <= 0.0) or (dist2 <= 0)] += np.asarray([0.001, 0.0, 0.0])
-    rect_points[:,3][(dist1 <= 0.0) or (dist2 <= 0.0)] += np.asarray([0.001, 0.0, 0.0])
 
     width = np.sqrt(np.sum((rect_points[:,2] - rect_points[:,0])**2, axis=1))
+    width[width < 0.001] = 0.001
     length = np.sqrt(np.sum((rect_points[:,1] - rect_points[:,0])**2, axis=1))
     Rx = np.sqrt(np.sum((np.cross(rect_points[:,1] - rect_points[:,0], rect_points[:,0] - point))**2, axis=1)) / length
     Rx1 = np.sqrt(np.sum((np.cross(rect_points[:,3] - rect_points[:,2], rect_points[:,2] - point))**2, axis=1)) / length

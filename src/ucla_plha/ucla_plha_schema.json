@@ -161,15 +161,17 @@
                 "ngl_smt_2024": {
                     "type": "object",
                     "properties": {
-                        "process_cpt": {"type": "boolean"},
-                        "dGWT": {"type": "number"},
-                        "gamma": {"type": "number"},
-                        "gammaw": {"type": "number"},
-                        "cpt_data": {"type": "string"},
-                        "N": {"type": "integer"},
+                        "ztop": {"type": "array", "items": {"type": "number"}},
+                        "zbot": {"type": "array", "items": {"type": "number"}},
+                        "qc1Ncs": {"type": "array", "items": {"type": "number"}},
+                        "Ic":{"type": "array", "items": {"type": "number"}},
+                        "sigmav": {"type": "array", "items": {"type": "number"}},
+                        "sigmavp": {"type": "array", "items": {"type": "number"}},
+                        "Ksat": {"type": "array", "items": {"type": "number"}},
+                        "pa": {"type": "number"},
                         "weight": {"type": "number"}
                     },
-                    "required": ["process_cpt", "cpt_data", "weight"],
+                    "required": ["ztop","zbot","qc1Ncs","Ic","sigmav","sigmavp","Ksat", "pa", "weight"],
                     "additionalProperties": false
                 }
             }
