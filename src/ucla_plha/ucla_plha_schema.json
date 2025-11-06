@@ -144,7 +144,7 @@
                     "required": ["n160", "fc", "vs12", "sigmav", "sigmavp", "depth", "pa", "weight"],
                     "additionalProperties": false
                 },
-                "idriss_boulanger_2012": {
+                "boulanger_idriss_2012": {
                     "type": "object",
                     "properties": {
                         "n160": {"type": "number"},

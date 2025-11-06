@@ -5,8 +5,8 @@ from scipy.stats import norm
 from scipy.special import ndtr
 import json, jsonschema
 from ucla_plha.liquefaction_models import (
+    boulanger_idriss_2012,
     cetin_et_al_2018,
-    idriss_boulanger_2012,
     ngl_smt_2024,
     moss_et_al_2006,
     boulanger_idriss_2016,
@@ -18,6 +18,14 @@ import os
 
 
 def decompress_ucerf3_source_data():
+    '''Decompresses ruptures.gz and ruptures_segments.gz in source_models/fault_source_models/ucerf3_fm31
+    and source_models/fault_source_models/ucerf3_fm32. These files are compressed to reduce the
+    size of the ucla_plha package, but decompressing the files each time the code is run is inefficient.
+    This function decompresses them within the installation directory. The get_source_data() function
+    checks for .pkl versions of the files, and uses them if they exist. Otherwise it uses the 
+    .gz versions of the files and decompresses them at runtime. This function needs to be run only
+    once.
+    '''
     branches = ["ucerf3_fm31", "ucerf3_fm32"]
     for branch in branches:
         path = files("ucla_plha").joinpath(
@@ -32,6 +40,37 @@ def decompress_ucerf3_source_data():
 
 
 def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
+    '''Returns magnitude, fault type, rate, distance, and fault geometry terms.
+    
+    Args:
+        source_type (string): Either "fault_source_models" or "point_source_models"
+        source_model (string): Directory for source_model within the source_type directory.
+            Currently either "ucerf3_fm31" or "ucerf3_fm32"
+        p_xyz (numpy array, dtype=float): Array containing x, y, z coordinates for point of interest, length = 3
+        dist_cutoff (float): maximum distance to consider in seismic hazard analysis
+        m_min (float): minimum magnitude to consider in seismic hazard analysis
+        gmms (array, dtype=string): An array of strings defining ground motion models to use in seismic
+            hazard analysis. Currently one or more of "ask14", "bssa14", "cb14", "cy14"
+
+    Returns: A tuple containing the following arrays
+        m (array, dtype=float): Numpy array of magnitudes, length = N
+        fault_type (array, dtype=int): Numpy array of fault types. 1 = reverse, 2 = normal, 3 = strike slip, length = N
+        rate (array, dtype=float): Numpy array of the rate of occurrence of each event, length = N
+        rjb (array, dtype=float): Numpy array of Joyner-Boore distances between the site and each rupture, length = N
+        rrup (array, dtype=float): Numpy array of rupture distance between the site and each rupture, length = N
+        rx (array, dtype=float): Numpy array of distance from site to the surface projection of the top of each
+            rupture, measured perpendicular to the strike, length = N
+        rx1 (array, dtype=float): Numpy array of distance from site to the surface projection of the bottom of each
+            rupture, measured perpendicular to the strike, length = N
+        ry0 (array, dtype=float): Numpy array of the distance from the site to the surface projection of each
+            rupture, measured parallel to the strike, length = N
+        dip (array, dtype=float): Numpy array of dip angle for each rupture in degrees, length = N
+        ztor (array, dtype=float): Numpy array of depth to the top of each rupture in km, length = N
+        zbor (array, dtype=float): Numpy array of depth to the bottom of each rupture in km, length = N
+
+    Notes:
+        N = number of events
+    '''
     if source_type == "fault_source_models":
         # Read files required by all ground motion models
         path = files("ucla_plha").joinpath(
@@ -177,6 +216,9 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
 def get_ground_motion_data(
     gmm,
     vs30,
+    measured_vs30,
+    z1p0,
+    z2p5,
     fault_type,
     rjb,
     rrup,
@@ -187,10 +229,34 @@ def get_ground_motion_data(
     ztor,
     zbor,
     dip,
-    z1p0,
-    z2p5,
-    measured_vs30,
 ):
+    '''Computes arrays containing mean and standard deviation of the natural log of a ground
+    motion intensity measure.
+
+    Inputs:
+        gmm (string): Ground motion model. One of "ask14", "bssa14", "cb14", "cy14"
+        vs30 (float): Time-averaged shear wave velocity in the upper 30m in m/s
+        measured_vs30 (bool): boolean field indicating whether vs30 is measured (True) or inferred (False)
+        z1p0 (float): Isosurface depth to a shear wave velocity of 1.0 km/s in km, length = N
+        z2p5 (float): Isosurface depth to a shear wave velocity of 2.5 km/s in km, length = N
+        fault_type (array, dtype=int): Numpy array of fault type. 1 = reverse, 2 = normal, 3 = strike slip, length = N
+        rjb (array, dtype=float): Numpy array of Joyner-Boore distances between the site and each rupture, length = N
+        rrup (array, dtype=float): Numpy array of rupture distance between the site and each rupture, length = N
+        rx (array, dtype=float): Numpy array of distance from site to the surface projection of the top of each 
+            rupture, measured perpendicular to the strike, length = N
+        rx1 (array, dtype=float): Numpy array of distance from site to the surface projection of the bottom of each
+            rupture, measured perpendicular to the strike, length = N
+        ry0 (array, dtype=float): Numpy array of the distance from the site to the surface projection of each
+            rupture, measured parallel to the strike, length = N
+        m (array, dtype=float): Numpy array of magnitudes, length = N
+        ztor (array, dtype=float): Numpy array of depth to the top of each rupture in km, length = N
+        zbor (array, dtype=float): Numpy array of depth to the bottom of each rupture in km, length = N
+        dip (array, dtype=float): Numpy array of dip angle for each rupture in degrees, length = N
+
+    Returns:
+        mu_ln_pga (array, dtype=float): array of the mean of the natural logs of the ground motion intensity measure, IM
+        sigma_ln_pga (array, dtype=float): array of the standard deviation of the natural logs of the IM
+    '''
     if gmm == "bssa14":
         mu_ln_pga, sigma_ln_pga = bssa14.get_im(vs30, rjb, m, fault_type)
     elif gmm == "cb14":
@@ -211,6 +277,26 @@ def get_ground_motion_data(
 
 
 def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config):
+    '''Computes log-normal cumulative distribution functions for factor of safety of liquefaction
+
+    Inputs:
+        m (array, dtype=float): Numpy array of magnitudes
+        mu_ln_pga (array, dtype=float): Numpy array of the mean of the natural logs of the earthquake
+            ground motion intensity measure
+        sigma_ln_pga (array, dtype=float): Numpy array of the standard deviation of the natural logs
+            of the ground motion intensity measure
+        fsl (array, dtype=float): Numpy array of factor of safety values at which to compute the 
+            liquefaction hazard curve
+        liquefaction_model (string): Liquefaction model to use. One of "cetin_et_al_2018", "moss_et_al_2006",
+            "boulanger_idriss_2016", "boulanger_idriss_2012", "ngl_smt_2024".
+        config (dict): A Python dictionary read from the config file
+    
+    Returns:
+        fsl_cdfs (2-D array, dtype=float): Numpy array of cumulative distribution functions representing
+            down-crossing rate of fsl for each event
+        eps (2-D array, dtype=float): Numpy array of epsilon values, representing number of standard deviations
+            of the natural log of fsl relative to the mean of the natural log of fsl
+    '''
     if liquefaction_model == "cetin_et_al_2018":
         c = config["liquefaction_models"]["cetin_et_al_2018"]
         return cetin_et_al_2018.get_fsl_cdfs(
@@ -253,9 +339,9 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             fsl,
             c["pa"],
         )
-    elif liquefaction_model == "idriss_boulanger_2012":
-        c = config["liquefaction_models"]["idriss_boulanger_2012"]
-        return idriss_boulanger_2012.get_fsl_cdfs(
+    elif liquefaction_model == "boulanger_idriss_2012":
+        c = config["liquefaction_models"]["boulanger_idriss_2012"]
+        return boulanger_idriss_2012.get_fsl_cdfs(
             mu_ln_pga,
             sigma_ln_pga,
             m,
@@ -286,14 +372,20 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
 
 
 def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
-    """
-    hazards = N x M Numpy array of hazard values, dtype = float, N = number of intensity measure values, M = number of events
-    m = 1d Numpy array of length M of magnitude values, dtype = float
-    r = 1d Numpy array of length M of distance values, dtype = float
-    eps = N x M Numpy array of epsilon values, dtype = float
-    m_bin_edges = 1d Numpy array of magnitude bin edges
-    r_bin_edges = 1d Numpy array of distance bin edges
-    eps_bin_edges = 1d Numpy array of distance bin edges
+    """Computes disaggregation for seismic hazard and/or liquefaction hazard
+
+    Inputs:
+        hazards = N x M Numpy array of hazard values, dtype = float, N = number of intensity measure values, M = number of events
+        m = 1d Numpy array of length M of magnitude values, dtype = float
+        r = 1d Numpy array of length M of distance values, dtype = float
+        eps = N x M Numpy array of epsilon values, dtype = float
+        m_bin_edges = 1d Numpy array of magnitude bin edges
+        r_bin_edges = 1d Numpy array of distance bin edges
+        eps_bin_edges = 1d Numpy array of distance bin edges
+    
+    Returns:
+        disagg (4-D Numpy array, dtype=float) = Numpy array of contribution to hazard within each 
+            magnitude, distance, and epsilon bin for each pga (PSHA) or fsl (PLHA) value
     """
     m_hazard = np.digitize(m, m_bin_edges)
     r_hazard = np.digitize(r, r_bin_edges)
@@ -327,10 +419,29 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
 
 
 def get_hazard(config_file):
+    '''Reads config file and runs PSHA and PLHA
+
+    Inputs:
+        config_file (string): Filename, including path, of config file. Must follow the schema
+            defined by ucla_plha_schema.json. See documentation for more thorough documentation
+            of the config file.
+    
+    Returns:
+        output (dict): Python dictionary containing output of analysis. The output contains all
+            of the inputs for preservation, along with the hazard curve(s) and any requested
+            disaggregation data. See documentation for more thorough description of output.
+    '''
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is
     # validated in the get_liquefaction_hazards function.
     schema = json.load(open(files("ucla_plha").joinpath("ucla_plha_schema.json")))
     config = json.load(open(config_file))
+
+    # Replace "idriss_boulanger_2012" with "boulanger_idriss_2012" to preserve backward compatibility
+    if ("idriss_boulanger_2012" in config['liquefaction_models'].keys()):
+        value = config['liquefaction_models'].pop('idriss_boulanger_2012')
+        config['liquefaction_models']['boulanger_idriss_2012'] = value
+
+    # validate config file and return messageg if errors are encountered
     try:
         jsonschema.validate(config, schema)
     except jsonschema.ValidationError as e:
@@ -483,6 +594,9 @@ def get_hazard(config_file):
                 mu_ln_pga, sigma_ln_pga = get_ground_motion_data(
                     ground_motion_model,
                     vs30,
+                    measured_vs30,
+                    z1p0,
+                    z2p5,
                     fault_type,
                     rjb,
                     rrup,
@@ -493,9 +607,6 @@ def get_hazard(config_file):
                     ztor,
                     zbor,
                     dip,
-                    z1p0,
-                    z2p5,
-                    measured_vs30,
                 )
                 # Compute seismic hazard if requested in config file
                 if output_psha:
