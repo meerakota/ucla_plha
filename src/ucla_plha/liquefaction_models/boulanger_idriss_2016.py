@@ -38,7 +38,7 @@ def get_ln_crr(m, qc1ncs, sigmavp, pa):
     return mu_ln_crr, sigma_ln_crr
 
 
-def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
+def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth):
     """
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
@@ -46,7 +46,7 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
     m = magnitude, Numpy array, dtype=float, length = N
     sigmav = vertical total stress, scalar
     sigmavp = vertical effective stress, scalar
-    d = depth [m]
+    depth = depth [m]
 
     Outputs:
     mu_ln_csr = mean of natural logs of cyclic stress ratio, Numpy ndarray, dtype=float, shape = N x M
@@ -55,8 +55,8 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
     Notes:
     N = number of earthquake events
     """
-    alpha = -1.012 - 1.126 * np.sin(d / 11.73 + 5.133)
-    beta = 0.106 + 0.118 * np.sin(d / 11.28 + 5.142)
+    alpha = -1.012 - 1.126 * np.sin(depth / 11.73 + 5.133)
+    beta = 0.106 + 0.118 * np.sin(depth / 11.28 + 5.142)
     rd = np.exp(alpha + beta * m)
     mu_ln_csr = mu_ln_pga + np.log(0.65 * sigmav / sigmavp * rd)
     sigma_ln_csr = sigma_ln_pga
@@ -64,7 +64,7 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
     return mu_ln_csr, sigma_ln_csr
 
 
-def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc1ncs, fsl, pa):
+def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth, qc1ncs, fsl, pa):
     """
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
@@ -72,7 +72,7 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc1ncs, fsl, pa
     m = magnitude, Numpy array, dtype=float, length = N
     sigmav = vertical total stress at center of layer, scalar
     sigmavp = vertical effective stress, Numpy array, scalar
-    d = depth [m]
+    depth = depth [m]
     n160 = energy- and overburden-corrected standard penetration test blow count [-], scalar
     fc = fines content [%], scalar
     fsl = factor of safety values for which we want to compute liquefaction hazard, Numpy array, dtype=float, length = L
@@ -83,7 +83,7 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc1ncs, fsl, pa
     eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L
     """
     mu_ln_crr, sigma_ln_crr = get_ln_crr(m, qc1ncs, sigmavp, pa)
-    mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d)
+    mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth)
     mu_ln_fsl = mu_ln_crr - mu_ln_csr
     std_ln_fsl = np.sqrt(sigma_ln_csr**2 + sigma_ln_crr**2)
     eps = (np.log(fsl) - mu_ln_fsl[:, np.newaxis]) / std_ln_fsl[:, np.newaxis]

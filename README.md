@@ -16,25 +16,211 @@ Currently, the code uses the Uniform California Earthquake Rupture Forecast, Ver
 
 ## Config File Format
 
-The ucla_plha code uses a [Javascript Object Notation (JSON)](https://www.json.org/json-en.html) input file to configure the analysis, and uses [JSON Schema](https://json-schema.org/) to validate user inputs. Example config files are provided in the examples directory, and the schema is defined by ucla_plha_schema.json located in the src/ucla_plha directory. This documents the inputs to the config file.
+The ucla_plha code uses a [Javascript Object Notation (JSON)](https://www.json.org/json-en.html) input file to configure the analysis, and uses [JSON Schema](https://json-schema.org/) to validate user inputs. Example config files are provided in the examples directory, and the schema is defined by ucla_plha_schema.json located in the src/ucla_plha directory.
 
-### Required Keys
+The structure of the config file is provided below. Note that the keys are all lowercase in the example below, which follows the PEP 8 convention for Python variable names. It may seem counter-intuitive to use "n160" instead of "N160" because the PEP 8 convention does not align with geotechnical convention. We have opted to stick with PEP 8 convention here.
 
-The config file must contain the the following keys: "site", "source_models", "ground_motion_models", and "output". Optionally, the config file may also contain the following key: "liquefaction_models". If the "liquefaction_models" key is omitted from the config file, the code will only perform a PSHA without performing a PLHA.
+```json
+{
+    "site": {
+        "latitude": latitude,
+        "longitude": longitude,
+        "elevation": elevation,
+        "dist_cutoff": dist_cutoff,
+        "m_min": m_min
+    },
+    "source_models": {
+        "fault_source_models": {
+            "ucerf3_fm31": {
+                "weight": weight
+            },
+            "ucerf3_fm32": {
+                "weight": weight
+            }
+        },
+        "point_source_models": {
+            "ucerf3_fm31": {
+                "weight": weight
+            },
+            "ucerf3_fm32": {
+                "weight": weight
+            }
+        }
+    },
+    "ground_motion_models": {
+        "ask14": {
+            "vs30": vs30,
+            "measured_vs30": measured_vs30,
+            "z1p0": z1p0,
+            "weight": weight
+        },
+        "bssa14": {
+            "vs30": vs30,
+            "weight": weight
+        },
+        "cb14": {
+            "vs30": vs30,
+            "measured_vs30": measured_vs30,
+            "z2p5": z2p5,
+            "weight": weight
+        },
+        "cy14": {
+            "vs30": vs30,
+            "measured_vs30": measured_vs30,
+            "weight": weight
+        }
+    },
+    "liquefaction_models": {
+        "boulanger_idriss_2012": {
+            "n160": n160,
+            "fc": fc,
+            "sigmav": sigmav,
+            "sigmavp": sigmavp,
+            "depth": depth,
+            "pa": pa,
+            "weight": weight
+        },
+        "boulanger_idriss_2016": {
+            "qc1Ncs": qc1Ncs,
+            "sigmav": sigmav,
+            "sigmavp": sigmavp,
+            "depth": depth,
+            "pa": pa,
+            "weight": weight
+        },
+        "cetin_et_al_2018": {
+            "n160": n160,
+            "fc": fc,
+            "vs12": vs12,
+            "sigmav": sigmav,
+            "sigmavp": sigmavp,
+            "depth": depth,
+            "pa": pa,
+            "weight": weight
+        },
+        "moss_et_al_2006": {
+            "qc": qc,
+            "fs": fs,
+            "sigmav": sigmav,
+            "sigmavp": sigmavp,
+            "depth": depth,
+            "pa": pa,
+            "weight": weight
+        },
+        "ngl_smt_2024": {
+            "ztop": [ztop_array],
+            "zbot": [zbot_array],
+            "qc1Ncs": [qc1Ncs_array],
+            "Ic": [Ic_array],
+            "sigmav": [sigmav_array],
+            "sigmavp": [sigmavp_array],
+            "Ksat": [Ksat_array],
+            "pa": pa,
+            "weight": weight
+        }
+    },
+    "output": {
+        "psha": {
+            "pga": [pga_array],
+            "disaggregation": {
+                "magnitude_bin_edges": [magnitude_bin_edges_array],
+                "distance_bin_edges": [distance_bin_edges_array],
+                "epsilon_bin_edges": [espilon_bin_edges_array]
+            }
+        },
+        "plha": {
+            "fsl": [fsl_array],
+            "disaggregation": {
+                "magnitude_bin_edges": [magnitude_bin_edges_array],
+                "distance_bin_edges": [distance_bin_edges_array],
+                "epsilon_bin_edges": [espilon_bin_edges_array]
+            }
+        },
+        "outputfile": outputfile
+    }
+}
+```
 
-### The "site" key
-The "site" key defines fields related to the site of interst, and must include the following keys: "latitude", "longitude", and "elevation". Optionally, the "site" key may also include the following keys: "dist_cutoff" and "m_min". All of these inputs must be numbers. 
+### Top Level Keys
 
-Fields:  
-* latitude (float) = latitude in decimal degrees, required
-* longitude (float) = longitude in decimal degrees, required
-* elevation (float) = elevation in km, required
-* dist_cutoff (float) = maximum distance to use in PSHA in km, optional
-* m_min (float) = minimum magnitude to use in PSHA, dimensionless, optional
+The top level keys are all JSON objects. If the "liquefaction_models" key and its associated JSON objects are excluded from the config file, the code will perform only a PSHA without performing a PLHA.  
 
-### The "source_models" key
+| key | required |
+| --- | ---------- |
+| "site" | x|
+| "source_models" | x |
+| "ground_motion_models" | x |
+| "liquefaction_models" |  |
+| "output" | x |
 
-The "source_models" key defines which source models to use in the PSHA. The following keys are valid for the "source_models" object: "fault_source_models" and "point_source_models". 
+### "site" Keys  
+
+| key | definition | units | required |
+| --- | ---------- | ----- | -------- |
+| "latitude" | latitude | decimal degrees | x |
+| "longitude" | longitude | decimal degrees | x |
+| "elevation" | elevation | km | x |
+| "dist_cutoff" | maximum distance to use in PSHA | km |   |
+| "m_min" | minimum magnitude to use in PSHA | - | |
+
+### "source_models" Keys
+
+The "source_model" JSON object is not well suited to representation in tabular form because it has a high nesting level, but only a single variable. The 2nd nesting level contains two keys "fault_source_models" and "point_source_models". The 3rd nesting level contains two keys "ucerf3_fm31" and "ucerf3_fm32". The 4th nesting level contains a single key "weight". The weights are applied to the hazard curves computed using each source model, and summed together. The weights within the "fault_source_models" object should sum to unity, and the weights within the "point_source_models" object should sum to unity.
+
+### "ground_motion_models" Keys
+
+The 2nd nesting level keys define the ground motion model, and must be one of "ask14", "bssa14", "cb14", and/or "cy14". The 3rd nesting level keys define the variables indicated in the table below. Note that $z_{1.0}$ is used in the BSSA14 model, but has no influence on PGA. For that reason, it is not allowed as an input here. Isosurface depths $z_{1.0}$ and $z_{2.5}$ are optional. When they are not specified, the "centered" value corresponding to the specified $V_{S30}$ is used.
+
+| key | definition | units | notes |
+| --- | ---------- | ----- | ----- |
+| "vs30" | time-averaged shear wave velocity in upper 30m. | m/s | required for all models |
+| "measured_vs30" | boolean indicator of whether vs30 was measured or inferred | - | only for "ask14" and "cy14". default = false |
+| "z1p0" | depth to isosurface where $V_S$ = 1.0 km/s | km | only permitted for "ask14" and "cy14". optional. |
+| "z2p5" | depth to isosurface where $V_S$ = 2.5 km/s | km | only permitted for "cb14". optional. |
+| "weight" | weight to assign to ground motion model | - | required for all models |
+
+### "liquefaction_model" Keys
+
+The 2nd nesting level keys define the liquefaction model, and must be one of "boulanger_idriss_2012", "boulanger_idriss_2016", "cetin_et_al_2018", "moss_et_al_2006", "ngl_smt_2024". The 3rd nesting level keys define the variables used by the liquefaction model.
+
+| key | definition | units | notes |
+| --- | ---------- | ----- | ----- |
+| "n160" | overburden- and energy-corrected SPT blow count | - | required for "boulanger_idriss_2012" and "cetin_et_al_2018" |
+| "fc" | fines content | % | required for "boulanger_idriss_2012" and "cetin_et_al_2018" |
+| "vs12" | time-averaged shear wave velocity in upper 12 m | m/s | required for "cetin_et_al_2018" |
+| "qc1Ncs" | overburden- and fines-corrected dimensionless cone tip resistance | - | required for "boulanger_and_idriss_2016" and "ngl_smt_2024" |
+| "qc" | cone tip resistance | MPa | required for "moss_et_al_2006" |
+| "fs" | cone sleeve friction | MPa | required for "moss_et_al_2006" |
+| "Ic" | soil behavior type index | - | required for "ngl_smt_2024" |
+| "Ksat" | saturation factor applied to probability of triggering | - | required for "ngl_smt_2024" |
+| "sigmav" | vertical total stress at center of layer | kPa | required for all models |
+| "sigmavp" | vertical effective stress at center of layer | kPa | required for all models |
+| "depth" | depth to center of layer | m | required for all models |
+| "pa" | atmospheric pressure | kPa | required for all models |
+| "weight" | weight to assign to liquefaction model | - | required for all models |
+
+Note, you cannot include keys if they are not required by a liquefaction model. For example, you cannot include "n160" in one of the cone penetration test models.
+
+### "output" Keys
+
+The "output" JSON object specifies whether to output PSHA and / or PLHA results, and if so, whether to output disaggregation data. Disaggregation is computationally demanding. If you do not want disaggregation data, simply leave out the "disaggregation" key and associated objects from your config file, and the analysis will run more quickly.
+
+| key | definition | notes |
+| --- | ---------- | ----- |
+| "psha" | include this key to output a PSHA hazard curve | optional |
+| "plha" | include this key to output a PLHA hazard curve | optional |
+| "disaggregation" | include this key under "psha" or "plha" to output disaggregation data | optional |
+| "magnitude_bin_edges" | edges of magnitude bins for disaggregation | required if "disaggregation" is included |
+| "distance_bin_edges" | edges of distance bins for disaggregation | required if "disaggregation" is included |
+| "epsilon_bin_edges" |edges of epsilon bins for disaggregation | required if "disaggregation" is included |
+| "outputfile" | name of file for saving output | optional |
+
+Notes:
+* You can specify the "plha" key and its "disaggregation" object without also including the "psha" key. In this case, the PSHA will still be performed, but the results will not be output. 
+* Whether or not you specify the "outputfile" key, the code will return a Python dictionary containing the data.
+* The input JSON object will be saved to the outputfile so that the inputs and outputs are always together. This will prevent inconsistent results if, for example, an analysis is run on an input file that is subsequently modified. Simply saving the input and output files in the same directory does not guard against this inconsistency.
+
+
 ## Functions
 
 Functions available in the ucla_plha package are divided into subpackages

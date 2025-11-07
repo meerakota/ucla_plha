@@ -97,6 +97,7 @@
                     "properties": {
                         "vs30": {"type": "number"},
                         "measured_vs30": {"type": "number"},
+                        "z1p0": {"type": "number"},
                         "weight": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
@@ -106,7 +107,7 @@
                     "type": "object",
                     "properties": {
                         "vs30": {"type": "number"},
-                        "measured_vs30": {"type": "number"},
+                        "z2p5": {"type": "number"},
                         "weight": {"type": "number"}
                     },
                     "required": ["vs30", "weight"],
@@ -129,6 +130,33 @@
         "liquefaction_models": {
             "type": "object",
             "properties": {
+                "boulanger_idriss_2012": {
+                    "type": "object",
+                    "properties": {
+                        "n160": {"type": "number"},
+                        "fc": {"type": "number"},
+                        "sigmav": {"type": "number"},
+                        "sigmavp": {"type": "number"},
+                        "depth": {"type": "number"},
+                        "pa": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["n160", "fc", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "additionalProperties": false
+                },
+                "boulanger_idriss_2016": {
+                    "type": "object",
+                    "properties": {
+                        "qc1Ncs": {"type": "number"},
+                        "sigmav": {"type": "number"},
+                        "sigmavp": {"type": "number"},
+                        "depth": {"type": "number"},
+                        "pa": {"type": "number"},
+                        "weight": {"type": "number"}
+                    },
+                    "required": ["qc1Ncs", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "additionalProperties": false
+                },
                 "cetin_et_al_2018": {
                     "type": "object",
                     "properties": {
@@ -144,18 +172,17 @@
                     "required": ["n160", "fc", "vs12", "sigmav", "sigmavp", "depth", "pa", "weight"],
                     "additionalProperties": false
                 },
-                "boulanger_idriss_2012": {
-                    "type": "object",
+                "moss_et_al_2006": {
                     "properties": {
-                        "n160": {"type": "number"},
-                        "fc": {"type": "number"},
+                        "qc": {"type": "number"},
+                        "fs": {"type": "number"},
                         "sigmav": {"type": "number"},
                         "sigmavp": {"type": "number"},
                         "depth": {"type": "number"},
                         "pa": {"type": "number"},
                         "weight": {"type": "number"}
                     },
-                    "required": ["n160", "fc", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "required": ["qc", "fs", "sigmav", "sigmavp", "depth", "pa", "weight"],
                     "additionalProperties": false
                 },
                 "ngl_smt_2024": {

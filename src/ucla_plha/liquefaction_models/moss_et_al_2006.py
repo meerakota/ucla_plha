@@ -2,10 +2,11 @@ import numpy as np
 from scipy.special import ndtr
 
 
-def get_ln_crr(m, qc, fs, sigmavp, pa):
+def get_ln_crr(m, mu_ln_csr, qc, fs, sigmavp, pa):
     """
     Inputs:
     m = magnitude, Numpy array, dtype=float, length = N
+    mu_ln_csr = mean of natural logs of cyclic stress ratio, Numpy array, dtype=float, length = N
     qc = cone penetration tip resistance in MPa
     fs = sleeve resistance in MPa
     sigmavp = vertical effective stress in kPa
@@ -19,16 +20,20 @@ def get_ln_crr(m, qc, fs, sigmavp, pa):
     N = number of earthquake events.
     #"""
     rf = fs / qc * 100
-    f1 = 0.78 * qc**-0.33
-    f2 = -(-0.32 * qc**-0.35 + 0.49)
+    f1 = 0.78 * qc ** -0.33
+    f2 = -(-0.32 * qc ** -0.35 + 0.49)
     f3 = np.abs(np.log10(10.0 + qc)) ** 1.21
     c = f1 * (rf / f3) ** f2
     Cq = (pa / sigmavp) ** c
     Cq = np.minimum(Cq, 1.7)
     qc1 = Cq * qc
+    x1 = 0.38 * rf - 0.19
+    x2 = 1.48 * rf - 0.73
+    delta_qc = x1 * mu_ln_csr + x2
+    qc1_mod = qc1 + delta_qc
     mu_ln_crr = (
-        qc1**1.045
-        + qc1 * (0.110 * rf)
+        qc1_mod ** 1.045
+        + qc1_mod * (0.110 * rf)
         + (0.001 * rf)
         + c * (1.0 + 0.850 * rf)
         - 0.848 * np.log(m)
@@ -40,7 +45,7 @@ def get_ln_crr(m, qc, fs, sigmavp, pa):
     return mu_ln_crr, sigma_ln_crr
 
 
-def get_rd(mu_ln_pga, m, d):
+def get_rd(mu_ln_pga, m, depth):
     """
     Inputs:
     m = magnitude, Numpy array, dtype=float, length = N
@@ -57,9 +62,9 @@ def get_rd(mu_ln_pga, m, d):
     N = number of earthquake events.
     """
     amax = np.exp(mu_ln_pga)
-    if d < 20:
+    if depth < 20:
         rd_num = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (
-            10.567 + 0.089 * np.exp(0.089 * (-d * 3.28 - 7.760 * amax + 78.576))
+            10.567 + 0.089 * np.exp(0.089 * (-depth * 3.28 - 7.760 * amax + 78.576))
         )
         rd_den = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (
             10.567 + 0.089 * np.exp(0.089 * (-7.760 * amax + 78.576))
@@ -67,17 +72,17 @@ def get_rd(mu_ln_pga, m, d):
         rd = rd_num / rd_den
     else:
         rd_num = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (
-            10.567 + 0.089 * np.exp(0.089 * (-d * 3.28 - 7.760 * amax + 78.576))
+            10.567 + 0.089 * np.exp(0.089 * (-depth * 3.28 - 7.760 * amax + 78.576))
         )
         rd_den = 1.0 + (-9.147 - 4.173 * amax + 0.652 * m) / (
             10.567 + 0.089 * np.exp(0.089 * (-7.760 * amax + 78.576))
         )
-        rd = rd_num / rd_den - 0.0014 * (d * 3.28 - 65.0)
+        rd = rd_num / rd_den - 0.0014 * (depth * 3.28 - 65.0)
 
     return rd
 
 
-def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
+def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth):
     """
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
@@ -85,7 +90,7 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
     m = magnitude, Numpy array, dtype=float, length = N
     sigmav = vertical total stress, scalar
     sigmavp = vertical effective stress, scalar
-    d = depth [m]
+    depth = depth [m]
 
     Outputs:
     mu_ln_csr = mean of natural logs of cyclic stress ratio, Numpy ndarray, dtype=float, shape = N x M
@@ -98,14 +103,14 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d):
     m_adjusted[m_adjusted < 5.5] = 5.5
     m_adjusted[m_adjusted > 8.5] = 8.5
     dwfm = 17.84 * m_adjusted**-1.43
-    rd = get_rd(mu_ln_pga, m, d)
+    rd = get_rd(mu_ln_pga, m, depth)
     mu_ln_csr = mu_ln_pga + np.log(0.65 * sigmav / sigmavp * rd) - np.log(dwfm)
     sigma_ln_csr = sigma_ln_pga
 
     return mu_ln_csr, sigma_ln_csr
 
 
-def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc, fs, fsl, pa):
+def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth, qc, fs, fsl, pa):
     """
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
@@ -123,8 +128,8 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d, qc, fs, fsl, pa
     fsl_cdfs = cumulative distribution functions for factor of safety against profile manfiestation, Numpy ndarray, dtype=float, shape = N x L
     eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L
     """
-    mu_ln_crr, sigma_ln_crr = get_ln_crr(m, qc, fs, sigmavp, pa)
-    mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, d)
+    mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth)
+    mu_ln_crr, sigma_ln_crr = get_ln_crr(m, mu_ln_csr, qc, fs, sigmavp, pa)
     mu_ln_fsl = mu_ln_crr - mu_ln_csr
     sigma_ln_fsl = np.sqrt(sigma_ln_crr**2 + sigma_ln_csr**2)
     eps = (np.log(fsl) - mu_ln_fsl[:, np.newaxis]) / sigma_ln_fsl[:, np.newaxis]

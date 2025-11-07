@@ -239,23 +239,26 @@ def get_ground_motion_data(
         measured_vs30 (bool): boolean field indicating whether vs30 is measured (True) or inferred (False)
         z1p0 (float): Isosurface depth to a shear wave velocity of 1.0 km/s in km, length = N
         z2p5 (float): Isosurface depth to a shear wave velocity of 2.5 km/s in km, length = N
-        fault_type (array, dtype=int): Numpy array of fault type. 1 = reverse, 2 = normal, 3 = strike slip, length = N
-        rjb (array, dtype=float): Numpy array of Joyner-Boore distances between the site and each rupture, length = N
-        rrup (array, dtype=float): Numpy array of rupture distance between the site and each rupture, length = N
-        rx (array, dtype=float): Numpy array of distance from site to the surface projection of the top of each 
+        fault_type (Numpy array, dtype=int): Numpy array of fault type. 1 = reverse, 2 = normal, 3 = strike slip, length = N
+        rjb (Numpy array, dtype=float): Numpy array of Joyner-Boore distances between the site and each rupture, length = N
+        rrup (Numpy array, dtype=float): Numpy array of rupture distance between the site and each rupture, length = N
+        rx (Numpy array, dtype=float): Numpy array of distance from site to the surface projection of the top of each 
             rupture, measured perpendicular to the strike, length = N
-        rx1 (array, dtype=float): Numpy array of distance from site to the surface projection of the bottom of each
+        rx1 (Numpy array, dtype=float): Numpy array of distance from site to the surface projection of the bottom of each
             rupture, measured perpendicular to the strike, length = N
-        ry0 (array, dtype=float): Numpy array of the distance from the site to the surface projection of each
+        ry0 (Numpy array, dtype=float): Numpy array of the distance from the site to the surface projection of each
             rupture, measured parallel to the strike, length = N
-        m (array, dtype=float): Numpy array of magnitudes, length = N
-        ztor (array, dtype=float): Numpy array of depth to the top of each rupture in km, length = N
-        zbor (array, dtype=float): Numpy array of depth to the bottom of each rupture in km, length = N
-        dip (array, dtype=float): Numpy array of dip angle for each rupture in degrees, length = N
+        m (Numpy array, dtype=float): Numpy array of magnitudes, length = N
+        ztor (Numpy array, dtype=float): Numpy array of depth to the top of each rupture in km, length = N
+        zbor (Numpy array, dtype=float): Numpy array of depth to the bottom of each rupture in km, length = N
+        dip (Numpy array, dtype=float): Numpy array of dip angle for each rupture in degrees, length = N
 
     Returns:
-        mu_ln_pga (array, dtype=float): array of the mean of the natural logs of the ground motion intensity measure, IM
-        sigma_ln_pga (array, dtype=float): array of the standard deviation of the natural logs of the IM
+        mu_ln_pga (Numpy array, dtype=float): array of the mean of the natural logs of the ground motion intensity measure, IM
+        sigma_ln_pga (Numpy array, dtype=float): array of the standard deviation of the natural logs of the IM
+    
+    Note:
+        N = number of events
     '''
     if gmm == "bssa14":
         mu_ln_pga, sigma_ln_pga = bssa14.get_im(vs30, rjb, m, fault_type)
@@ -280,22 +283,26 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
     '''Computes log-normal cumulative distribution functions for factor of safety of liquefaction
 
     Inputs:
-        m (array, dtype=float): Numpy array of magnitudes
+        m (array, dtype=float): Numpy array of magnitudes, length = N
         mu_ln_pga (array, dtype=float): Numpy array of the mean of the natural logs of the earthquake
-            ground motion intensity measure
+            ground motion intensity measure, length = N
         sigma_ln_pga (array, dtype=float): Numpy array of the standard deviation of the natural logs
-            of the ground motion intensity measure
+            of the ground motion intensity measure, length = N
         fsl (array, dtype=float): Numpy array of factor of safety values at which to compute the 
-            liquefaction hazard curve
+            liquefaction hazard curve, length = L
         liquefaction_model (string): Liquefaction model to use. One of "cetin_et_al_2018", "moss_et_al_2006",
             "boulanger_idriss_2016", "boulanger_idriss_2012", "ngl_smt_2024".
         config (dict): A Python dictionary read from the config file
     
     Returns:
-        fsl_cdfs (2-D array, dtype=float): Numpy array of cumulative distribution functions representing
-            down-crossing rate of fsl for each event
-        eps (2-D array, dtype=float): Numpy array of epsilon values, representing number of standard deviations
-            of the natural log of fsl relative to the mean of the natural log of fsl
+        fsl_cdfs (Numpy ndarray, dtype=float): Numpy array of cumulative distribution functions representing
+            down-crossing rate of fsl for each event, length = N x L
+        eps (Numpy ndarray, dtype=float): Numpy array of epsilon values, representing number of standard deviations
+            of the natural log of fsl relative to the mean of the natural log of fsl, length = N x L
+        
+    Notes:
+        N = number of events
+        L = number of fsl values at which to compute hazard
     '''
     if liquefaction_model == "cetin_et_al_2018":
         c = config["liquefaction_models"]["cetin_et_al_2018"]
@@ -320,7 +327,7 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             m,
             c["sigmav"],
             c["sigmavp"],
-            c["d"],
+            c["depth"],
             c["qc"],
             c["fs"],
             fsl,
@@ -334,7 +341,7 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             m,
             c["sigmav"],
             c["sigmavp"],
-            c["d"],
+            c["depth"],
             c["qc1ncs"],
             fsl,
             c["pa"],
@@ -375,17 +382,24 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
     """Computes disaggregation for seismic hazard and/or liquefaction hazard
 
     Inputs:
-        hazards = N x M Numpy array of hazard values, dtype = float, N = number of intensity measure values, M = number of events
-        m = 1d Numpy array of length M of magnitude values, dtype = float
-        r = 1d Numpy array of length M of distance values, dtype = float
-        eps = N x M Numpy array of epsilon values, dtype = float
-        m_bin_edges = 1d Numpy array of magnitude bin edges
-        r_bin_edges = 1d Numpy array of distance bin edges
-        eps_bin_edges = 1d Numpy array of distance bin edges
+        hazards (Numpy ndarray, dtype = float) = array of hazard values, shape = L x N.
+        m (Numpy array, dtype = float) = array of magnitude values, length = N
+        r (Numpy array, dtype = float) = array of distance values, length = N
+        eps (Numpy ndarray, dtype = float) = array of epsilon values, shape = L x N
+        m_bin_edges (Numpy array, dtype = float) = array defining magnitude bin edges, length = M + 1
+        r_bin_edges (Numpy array, dtype = float) = array defining distance bin edges, length = R + 1
+        eps_bin_edges (Numpy array, dtype = float) = array defining epsilon bin edges, length = E + 1
     
     Returns:
-        disagg (4-D Numpy array, dtype=float) = Numpy array of contribution to hazard within each 
-            magnitude, distance, and epsilon bin for each pga (PSHA) or fsl (PLHA) value
+        disagg (Numpy ndarray, dtype=float) = Numpy array of contribution to hazard within each 
+            magnitude, distance, and epsilon bin for each pga (PSHA) or fsl (PLHA) value, shape = L x M x R x E
+
+    Notes:
+        N = number of events
+        L = number of intensity measure values
+        M = number of magnitude bins (note that m_bin_edges has a length of M + 1)
+        R = number of distance bins (note that r_bin_edges has a length of R + 1)
+        E = number of epsilon bins (note that eps_bin_edges has a length of E + 1)
     """
     m_hazard = np.digitize(m, m_bin_edges)
     r_hazard = np.digitize(r, r_bin_edges)
@@ -563,6 +577,9 @@ def get_hazard(config_file):
                 ground_motion_model_weight = config["ground_motion_models"][
                     ground_motion_model
                 ]["weight"]
+                # move on to next ground motion model if weight is less than or equal to zero
+                if (ground_motion_model_weight <= 0):
+                    continue
                 vs30 = config["ground_motion_models"][ground_motion_model]["vs30"]
                 z1p0 = None
                 z2p5 = None
@@ -573,9 +590,9 @@ def get_hazard(config_file):
                         "measured_vs30"
                         in config["ground_motion_models"][ground_motion_model].keys()
                     ):
-                        measured_vs30 = config["ground_motion_models"][
-                            ground_motion_model
-                        ]["measured_vs30"]
+                        measured_vs30 = config["ground_motion_models"][ground_motion_model][
+                            "measured_vs30"
+                        ]
                     if (
                         "z1p0"
                         in config["ground_motion_models"][ground_motion_model].keys()
@@ -638,6 +655,8 @@ def get_hazard(config_file):
                         liquefaction_model_weight = config["liquefaction_models"][
                             liquefaction_model
                         ]["weight"]
+                        if (liquefaction_model_weight <= 0):
+                            continue
                         if output_plha:
                             liquefaction_hazards, eps = get_liquefaction_cdfs(
                                 m,
