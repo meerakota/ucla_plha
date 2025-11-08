@@ -132,7 +132,6 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
 
     lnyrefij[rx > 0.0] += (
         c9
-        * fhw[rx > 0]
         * np.cos(dip[rx > 0] * np.pi / 180.0)
         * (c9a + (1 - c9a) * np.tanh(rx[rx > 0.0] / c9b))
         * (
