@@ -130,13 +130,15 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     lnyrefij[m > cg3] += (cg1 + cg2 / np.cosh(m[m > cg3] - cg3)) * rrup[m > cg3]
     lnyrefij[m <= cg3] += (cg1 + cg2) * rrup[m <= cg3]
 
+    FHW = np.zeros(len(m), dtype = float)
+    FHW[rx > 0.0] = 1.0
     lnyrefij[rx > 0.0] += (
-        c9
-        * np.cos(dip[rx > 0] * np.pi / 180.0)
-        * (c9a + (1 - c9a) * np.tanh(rx[rx > 0.0] / c9b))
+        c9 * FHW
+        * np.cos(dip * np.pi / 180.0)
+        * (c9a + (1 - c9a) * np.tanh(rx / c9b))
         * (
             1.0
-            - np.sqrt(rjb[rx > 0.0] ** 2 + ztor[rx > 0.0] ** 2) / (rrup[rx > 0.0] + 1.0)
+            - np.sqrt(rjb ** 2 + ztor ** 2) / (rrup + 1.0)
         )
     )
     yrefij = np.exp(lnyrefij)
