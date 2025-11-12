@@ -27,9 +27,12 @@ def get_ln_crr(m, mu_ln_csr, qc, fs, sigmavp, pa):
     Cq = (pa / sigmavp) ** c
     Cq = np.minimum(Cq, 1.7)
     qc1 = Cq * qc
-    x1 = 0.38 * rf - 0.19
-    x2 = 1.48 * rf - 0.73
-    delta_qc = x1 * mu_ln_csr + x2
+    x1 = 0.38 * np.min([rf, 5.0]) - 0.19
+    x2 = 1.48 * np.min([rf, 5.0]) - 0.73
+    if(rf < 0.5):
+        delta_qc = 0.0
+    else:
+        delta_qc = x1 * mu_ln_csr + x2
     qc1_mod = qc1 + delta_qc
     mu_ln_crr = (
         qc1_mod ** 1.045
