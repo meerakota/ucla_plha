@@ -169,15 +169,19 @@ The "source_model" JSON object is not well suited to representation in tabular f
 
 ### "ground_motion_models" Keys
 
-The 2nd nesting level keys define the ground motion model, and must be one of "ask14", "bssa14", "cb14", and/or "cy14". The 3rd nesting level keys define the variables indicated in the table below. Note that $z_{1.0}$ is used in the BSSA14 model, but has no influence on PGA. For that reason, it is not allowed as an input here. Isosurface depths $z_{1.0}$ and $z_{2.5}$ are optional. When they are not specified, the "centered" value corresponding to the specified $V_{S30}$ is used.
+The 2nd nesting level keys define the ground motion model, and must be one of "ask14", "bssa14", "cb14", and/or "cy14". The 3rd nesting level keys define the variables indicated in the table below. 
 
 | key | definition | units | notes |
 | --- | ---------- | ----- | ----- |
 | "vs30" | time-averaged shear wave velocity in upper 30m. | m/s | required for all models |
-| "measured_vs30" | boolean indicator of whether vs30 was measured or inferred | - | only for "ask14" and "cy14". default = false |
-| "z1p0" | depth to isosurface where $V_S$ = 1.0 km/s | km | only permitted for "ask14" and "cy14". optional. |
-| "z2p5" | depth to isosurface where $V_S$ = 2.5 km/s | km | only permitted for "cb14". optional. |
+| "measured_vs30" | boolean indicator of whether vs30 was measured or inferred | - | optional for "ask14" and "cy14". default = false |
+| "z1p0" | depth to isosurface where $V_S$ = 1.0 km/s | km | optional for "ask14" and "cy14" |
+| "z2p5" | depth to isosurface where $V_S$ = 2.5 km/s | km | optional for "cb14" |
 | "weight" | weight to assign to ground motion model | - | required for all models |
+
+Notes: 
+* $z_{1.0}$ is used in the BSSA14 model, but has no influence on PGA. For that reason, it is not allowed as an input here. 
+* Isosurface depths $z_{1.0}$ and $z_{2.5}$ are optional. When they are not specified, the "centered" value corresponding to the specified $V_{S30}$ is used. This is equivalent to using $\delta z$ = 0.
 
 ### "liquefaction_model" Keys
 

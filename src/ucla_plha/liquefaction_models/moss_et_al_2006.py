@@ -20,6 +20,8 @@ def get_ln_crr(m, mu_ln_csr, qc, fs, sigmavp, pa):
     N = number of earthquake events.
     #"""
     rf = fs / qc * 100
+    rf = np.min([rf, 5.0])
+    rf = np.max([rf, 0.5])
     f1 = 0.78 * qc ** -0.33
     f2 = -(-0.32 * qc ** -0.35 + 0.49)
     f3 = np.abs(np.log10(10.0 + qc)) ** 1.21
@@ -29,10 +31,7 @@ def get_ln_crr(m, mu_ln_csr, qc, fs, sigmavp, pa):
     qc1 = Cq * qc
     x1 = 0.38 * np.min([rf, 5.0]) - 0.19
     x2 = 1.48 * np.min([rf, 5.0]) - 0.73
-    if(rf < 0.5):
-        delta_qc = 0.0
-    else:
-        delta_qc = x1 * mu_ln_csr + x2
+    delta_qc = x1 * mu_ln_csr + x2
     qc1_mod = qc1 + delta_qc
     mu_ln_crr = (
         qc1_mod ** 1.045
