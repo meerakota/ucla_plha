@@ -1,0 +1,53 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  ucla_plha: A Probabilistic Liquefaction Hazard Assessment
+  Python Package
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Meera
+    family-names: Kota
+    email: meerakota@g.ucla.edu
+    affiliation: 'University of California, Los Angeles '
+  - given-names: Scott
+    family-names: Brandenberg
+    email: sjbrandenberg@g.ucla.edu
+    affiliation: 'University of California, Los Angeles'
+    orcid: 'https://orcid.org/0000-0003-2493-592X'
+identifiers:
+  - type: doi
+    value: 10.17603/ds2-x569-qv57
+repository-code: 'https://github.com/meerakota/ucla_plha'
+abstract: >-
+  The ucla_plha Python package performs probabilistic
+  liquefaction hazard analysis (PLHA) to quantify the annual
+  down-crossing rate (also called the rate of
+  non-exceedance) of factor of safety against liquefaction.
+  The code performs the probabilistic liquefaction
+  evaluation inside the hazard integral, which is
+  computationally efficient, but requires the probabilistic
+  seismic hazard analysis (PSHA) and liquefaction hazard
+  analysis to be performed together within the same code.
+  Our code currently uses the Uniform California Earthquake
+  Rupture Forecast, Version 3 (UCERF3, Field et al. 2013)
+  source model, and is therefore valid for shallow crustal
+  earthquakes in California. We use ground motion models
+  from the NGAWest2 project (Abrahamson et al. 2014, Boore
+  et al. 2014, Campbell and Bozorgnia 2014, and Chiou and
+  Youngs 2014), which can be combined as a weighted sum, or
+  run independently. We have implemented five probabilistic
+  liquefaction models, two of which use standard penetration
+  test resistance (Idriss and Boulanger 2012, Cetin et al.
+  2018), and three of which use cone penetration test
+  resistance (Moss et al. 2006, Boulanger and Idriss 2016,
+  and Ulmer et al. 2024). 
+keywords:
+  - 'Liquefaction '
+  - Hazard Analysis
+license: BSD-3-Clause
+date-released: '2025-10-30'
