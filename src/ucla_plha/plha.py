@@ -453,11 +453,6 @@ def get_hazard(config_file):
     schema = json.load(open(files("ucla_plha").joinpath("ucla_plha_schema.json")))
     config = json.load(open(config_file))
 
-    # Replace "idriss_boulanger_2012" with "boulanger_idriss_2012" to preserve backward compatibility
-    if ("idriss_boulanger_2012" in config['liquefaction_models'].keys()):
-        value = config['liquefaction_models'].pop('idriss_boulanger_2012')
-        config['liquefaction_models']['boulanger_idriss_2012'] = value
-
     # validate config file and return messageg if errors are encountered
     try:
         jsonschema.validate(config, schema)
