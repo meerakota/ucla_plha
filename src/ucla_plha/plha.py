@@ -185,7 +185,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         filter = (rjb < dist_cutoff) & (m >= m_min)
         dip = np.empty(len(m), dtype=float)
         
-        # using Kaklamanos et al. 2011 guidance fro unknown dip, ztor, and zbor
+        # using Kaklamanos et al. 2011 guidance for unknown dip, ztor, and zbor
         # Note fault_type = 1 reverse, 2 normal, 3 strike slip
         dip[fault_type == 1] = 40.0
         dip[fault_type == 2] = 50.0
@@ -200,7 +200,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ztor[ztor < 0.0] = 0.0
         zbor = ztor + w * np.sin(dip * np.pi / 180.0)
         
-        rrup = np.sqrt(rjb**2 + zhyp**2)
+        rrup = repi * (1.99 - 0.202 *m) * np.sqrt(1 + zhyp**2 / repi**2)
 
         # For point sources, use same distance for Rx, Rx1, Ry0, which will turn off the hanging wall term
         return (
