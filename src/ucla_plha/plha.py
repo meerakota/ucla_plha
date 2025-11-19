@@ -172,14 +172,16 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         node_index = np.load(str(path.joinpath("node_index.npy")))
         points = np.load(str(path.joinpath("points.npy")))
         
-        dist_temp = np.empty(np.max(node_index) + 1, dtype=float)
+        repi_temp = np.empty(np.max(node_index) + 1, dtype=float)
         for i, ni in enumerate(node_index):
-            dist_temp[ni] = np.sqrt(
+            repi_temp[ni] = np.sqrt(
                 (points[i, 0] - p_xyz[0]) ** 2
                 + (points[i, 1] - p_xyz[1]) ** 2
                 + (points[i, 2] - p_xyz[2]) ** 2
             )
-        rjb = dist_temp[ruptures["node_index"].values]
+        repi = repi_temp[ruptures["node_index"].values]
+        rjb = repi / (1.0 + np.exp(-1.05 * (np.log(repi) - 1.037 * m + 4.2776)))
+
         filter = (rjb < dist_cutoff) & (m >= m_min)
         dip = np.empty(len(m), dtype=float)
         
