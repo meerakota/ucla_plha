@@ -21,7 +21,7 @@ def get_ln_crr(mu_ln_pga, m, qc1Ncs, sigmavp, pa):
     mu_ln_crr = mean of natural logs of cyclic resistance ratio, Numpy array, dtype=float, length = N x M
     sigma_ln_crr = standard deviation of natural logs of cyclic resistance ratio, Numpy array, dtype=float, length = N x M
 
-    Notes:
+    Notes: 
     N = number of earthquake events.
     M = number of soil layers in profile.
     We are using the mean value of pga to compute msf, but pga is actually a random variable.
