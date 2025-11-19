@@ -76,14 +76,6 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     frv[fault_type == 1] = 1.0
     fnm[fault_type == 2] = 1.0
 
-    # Equation 6
-    fhw = (
-        c9
-        * np.cos(dip * np.pi / 180.0)
-        * (c9a + (1 - c9a) * np.tanh(rx / c9b))
-        * (1.0 - np.sqrt(rjb**2 + ztor**2) / (rrup + 1.0))
-    )
-
     e_ztor = np.zeros(len(m), dtype=float)
     filt = (m > 5.849) & (fault_type == 1)
     e_ztor[filt] = 2.704 - 1.226 * (m[filt] - 5.849)
@@ -133,7 +125,11 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     FHW = np.zeros(len(m), dtype = float)
     FHW[rx >= 0.0] = 1.0
     lnyrefij += (
-        c9 * FHW * frv * fhw
+        FHW
+        * c9
+        * np.cos(dip * np.pi / 180.0)
+        * (c9a + (1 - c9a) * np.tanh(rx / c9b))
+        * (1.0 - np.sqrt(rjb**2 + ztor**2) / (rrup + 1.0))
     )
     yrefij = np.exp(lnyrefij)
 
