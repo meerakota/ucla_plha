@@ -2,10 +2,7 @@
 name = "ucla_plha"
 version = "1.2.0"
 description = "A code for performing probabilistic liquefaction hazard analysis inside the hazard integral"
-authors = [
-    {name = "Meera L. Kota"},
-    {name = "Scott J. Brandenberg"}
-    ]
+authors = [{ name = "Meera L. Kota" }, { name = "Scott J. Brandenberg" }]
 license = "LICENSE"
 readme = "README.md"
 
@@ -19,3 +16,4 @@ numpy = "^2.3.5"
 scipy = "^1.16.3"
 importlib-resources = "^6.5.2"
 jsonschema = "^4.25.1"
+pandas = "^2.3.3"
