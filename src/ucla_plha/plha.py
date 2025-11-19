@@ -209,7 +209,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             rate[filter],
             rjb[filter],
             rrup[filter],
-            rjb[filter],
+            -rjb[filter],
             rjb[filter],
             rjb[filter],
             dip[filter],
