@@ -1,6 +1,5 @@
 import numpy as np
 import scipy as sp
-import ngl_tools.smt as smt
 from scipy.stats import norm
 from scipy.special import ndtr
 
