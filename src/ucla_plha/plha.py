@@ -171,6 +171,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         fault_type = ruptures["style"].values
         node_index = np.load(str(path.joinpath("node_index.npy")))
         points = np.load(str(path.joinpath("points.npy")))
+        
         dist_temp = np.empty(np.max(node_index) + 1, dtype=float)
         for i, ni in enumerate(node_index):
             dist_temp[ni] = np.sqrt(
@@ -178,10 +179,10 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
                 + (points[i, 1] - p_xyz[1]) ** 2
                 + (points[i, 2] - p_xyz[2]) ** 2
             )
-        dist = dist_temp[ruptures["node_index"].values]
+        rjb = dist_temp[ruptures["node_index"].values]
         filter = (dist < dist_cutoff) & (m >= m_min)
         dip = np.empty(len(m), dtype=float)
-
+        
         # using Kaklamanos et al. 2011 guidance fro unknown dip, ztor, and zbor
         # Note fault_type = 1 reverse, 2 normal, 3 strike slip
         dip[fault_type == 1] = 40.0
@@ -196,17 +197,19 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ztor = zhyp - 0.6 * w * np.sin(dip * np.pi / 180.0)
         ztor[ztor < 0.0] = 0.0
         zbor = ztor + w * np.sin(dip * np.pi / 180.0)
+        
+        rrup = np.sqrt(rjb**2 + zhyp**2)
 
         # For point sources, use same distance for Rx, Rx1, Ry0, which will turn off the hanging wall term
         return (
             m[filter],
             fault_type[filter],
             rate[filter],
-            dist[filter],
-            dist[filter],
-            dist[filter],
-            dist[filter],
-            dist[filter],
+            rjb[filter],
+            rrup[filter],
+            rjb[filter],
+            rjb[filter],
+            rjb[filter],
             dip[filter],
             ztor[filter],
             zbor[filter],
