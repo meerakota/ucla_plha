@@ -180,7 +180,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
                 + (points[i, 2] - p_xyz[2]) ** 2
             )
         rjb = dist_temp[ruptures["node_index"].values]
-        filter = (dist < dist_cutoff) & (m >= m_min)
+        filter = (rjb < dist_cutoff) & (m >= m_min)
         dip = np.empty(len(m), dtype=float)
         
         # using Kaklamanos et al. 2011 guidance fro unknown dip, ztor, and zbor
@@ -207,8 +207,8 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             rate[filter],
             rjb[filter],
             rrup[filter],
-            -rjb[filter],
-            -rjb[filter],
+            rjb[filter],
+            rjb[filter],
             rjb[filter],
             dip[filter],
             ztor[filter],
