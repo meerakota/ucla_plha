@@ -5,15 +5,15 @@ description = "A code for performing probabilistic liquefaction hazard analysis 
 authors = [{ name = "Meera L. Kota" }, { name = "Scott J. Brandenberg" }]
 license = "LICENSE"
 readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy (>=2.0.0)",
+    "pandas (>=2)",
+    "scipy (>=1.16.0)",
+    "importlib-resources (>=6.0.0)",
+    "jsonschema (>=4.0.0)",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-numpy = "^2.3.5"
-scipy = "^1.16.3"
-importlib-resources = "^6.5.2"
-jsonschema = "^4.25.1"
-pandas = "^2.3.3"
