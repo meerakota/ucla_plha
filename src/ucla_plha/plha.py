@@ -200,7 +200,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ztor[ztor < 0.0] = 0.0
         zbor = ztor + w * np.sin(dip * np.pi / 180.0)
         rrup = np.sqrt((repi - w / 2.0) ** 2 + zhyp ** 2)
-        rrup[repi < 0.5 * w] = zhyp
+        rrup[repi < 0.5 * w] = zhyp[repi < 0.5 * w]
 
         # For point sources, use same distance for Rx, Rx1, Ry0, which will turn off the hanging wall term
         return (
