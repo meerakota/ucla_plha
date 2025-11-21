@@ -198,20 +198,34 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         zhyp[fault_type == 2] = 7.08 + 0.61 * m[fault_type == 2]
         ztor = zhyp - 0.6 * w * np.sin(dip * np.pi / 180.0)
         ztor[ztor < 0.0] = 0.0
+        # Expression for Rrup is fit to default parameters (first row in table 1) in Thompson and Worden (2017)
+        d = np.radians(80)
         zbor = ztor + w * np.sin(dip * np.pi / 180.0)
-        rrup = np.sqrt((repi - w / 2.0) ** 2 + zhyp ** 2)
-        rrup[repi < 0.5 * w] = zhyp[repi < 0.5 * w]
-
-        # For point sources, use same distance for Rx, Rx1, Ry0, which will turn off the hanging wall term
+        rrup1 = np.sqrt((repi - 0.6 * w * np.cos(d)) ** 2 + ztor ** 2)
+        filt = repi < 0.6 * w * np.cos(d) - ztor * np.tan(d)
+        rrup1[filt] = (zhyp[filt] - repi[filt] * np.tan(d)) / (np.cos(d) + np.sin(d) * np.tan(d))
+        rrup2 = zhyp
+        filt = repi > 1.7 * w
+        rrup2[filt] = np.sqrt((repi[filt] - 1.7 * w[filt] / 2.0) ** 2 + zhyp[filt] ** 2)
+        rrup = 0.5 * rrup1 + 0.5 * rrup2
+        # Some assumptions here for rx. The rrup model is dominated by the site being updip from fault, so make rx positive.
+        rx = -rjb / np.sqrt(2.0)
+        rx[rjb == 0] = 0.5 * w[rjb == 0] * np.cos(d)
+        # Calculate rx1 after computing rx
+        rx1 = rx + w * np.cos(d)
+        # Compute ry0 the same way as rx, but use fault length instead of width. Assume aspect ratio of 1.7
+        ry0 = rjb / np.sqrt(2.0)
+        ry0[rjb==0] = 0.5 * 1.7 * w[rjb == 0] * np.cos(d)
+        
         return (
             m[filter],
             fault_type[filter],
             rate[filter],
             rjb[filter],
             rrup[filter],
-            -rjb[filter],
-            rjb[filter],
-            rjb[filter],
+            rx[filter],
+            rx1[filter],
+            ry0[filter],
             dip[filter],
             ztor[filter],
             zbor[filter],
