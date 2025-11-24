@@ -361,7 +361,7 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             c["sigmav"],
             c["sigmavp"],
             c["depth"],
-            c["qc1ncs"],
+            c["qc1Ncs"],
             fsl,
             c["pa"],
         )
@@ -747,3 +747,4 @@ def get_hazard(config_file):
             json.dump(output, outputfile, indent=4)
 
     return output
+
