@@ -1,9 +1,14 @@
+import json
+import os
+from importlib.resources import files
+
+import jsonschema
 import numpy as np
 import pandas as pd
 import scipy as sp
 from scipy.stats import norm
 from scipy.special import ndtr
-import json, jsonschema
+
 from ucla_plha.liquefaction_models import (
     boulanger_idriss_2012,
     cetin_et_al_2018,
@@ -13,8 +18,6 @@ from ucla_plha.liquefaction_models import (
 )
 from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14
 from ucla_plha.geometry import geometry
-from importlib_resources import files
-import os
 
 
 def decompress_ucerf3_source_data():
