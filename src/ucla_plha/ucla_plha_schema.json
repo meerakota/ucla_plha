@@ -2,19 +2,38 @@
     "$schema": "http://json-schema.org/draft-04/schema",
     "id": "resource:/schemas/ucla_plha_schema.json",
     "type": "object",
-    "required": ["site", "source_models", "ground_motion_models", "output"],
+    "required": [
+        "site",
+        "source_models",
+        "ground_motion_models",
+        "output"
+    ],
     "properties": {
         "site": {
             "type": "object",
-            "properties":{
-                "latitude": {"type": "number"},
-                "longitude": {"type": "number"},
-                "elevation": {"type": "number"},
-                "dist_cutoff": {"type": "number"},
-                "m_min": {"type": "number"}
+            "properties": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "elevation": {
+                    "type": "number"
+                },
+                "dist_cutoff": {
+                    "type": "number"
+                },
+                "m_min": {
+                    "type": "number"
+                }
             },
             "additionalProperties": false,
-            "required": ["latitude", "longitude", "elevation"]
+            "required": [
+                "latitude",
+                "longitude",
+                "elevation"
+            ]
         },
         "source_models": {
             "type": "object",
@@ -25,17 +44,25 @@
                         "ucerf3_fm31": {
                             "type": "object",
                             "properties": {
-                                "weight": {"type": "number"}
+                                "weight": {
+                                    "type": "number"
+                                }
                             },
-                            "required": ["weight"],
+                            "required": [
+                                "weight"
+                            ],
                             "additionalProperties": false
                         },
                         "ucerf3_fm32": {
                             "type": "object",
                             "properties": {
-                                "weight": {"type": "number"}
+                                "weight": {
+                                    "type": "number"
+                                }
                             },
-                            "required": ["weight"],
+                            "required": [
+                                "weight"
+                            ],
                             "additionalProperties": false
                         }
                     }
@@ -46,33 +73,49 @@
                         "ucerf3_fm31_grid_sub_seis": {
                             "type": "object",
                             "properties": {
-                                "weight": {"type": "number"}
+                                "weight": {
+                                    "type": "number"
+                                }
                             },
-                            "required": ["weight"],
+                            "required": [
+                                "weight"
+                            ],
                             "additionalProperties": false
                         },
                         "ucerf3_fm31_grid_unassociated": {
                             "type": "object",
                             "properties": {
-                                "weight": {"type": "number"}
+                                "weight": {
+                                    "type": "number"
+                                }
                             },
-                            "required": ["weight"],
+                            "required": [
+                                "weight"
+                            ],
                             "additionalProperties": false
                         },
                         "ucerf3_fm32_grid_sub_seis": {
                             "type": "object",
                             "properties": {
-                                "weight": {"type": "number"}
+                                "weight": {
+                                    "type": "number"
+                                }
                             },
-                            "required": ["weight"],
+                            "required": [
+                                "weight"
+                            ],
                             "additionalProperties": false
                         },
                         "ucerf3_fm32_grid_unassociated": {
                             "type": "object",
                             "properties": {
-                                "weight": {"type": "number"}
+                                "weight": {
+                                    "type": "number"
+                                }
                             },
-                            "required": ["weight"],
+                            "required": [
+                                "weight"
+                            ],
                             "additionalProperties": false
                         }
                     }
@@ -86,42 +129,80 @@
                 "bssa14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "vs30": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["vs30", "weight"],
-                    "additionalProperties": false          
+                    "required": [
+                        "vs30",
+                        "weight"
+                    ],
+                    "additionalProperties": false
                 },
                 "cy14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {"type": "number"},
-                        "measured_vs30": {"type": "number"},
-                        "z1p0": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "vs30": {
+                            "type": "number"
+                        },
+                        "measured_vs30": {
+                            "type": "boolean"
+                        },
+                        "z1p0": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["vs30", "weight"],
-                    "additionalProperties": false       
+                    "required": [
+                        "vs30",
+                        "weight"
+                    ],
+                    "additionalProperties": false
                 },
                 "cb14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {"type": "number"},
-                        "z2p5": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "vs30": {
+                            "type": "number"
+                        },
+                        "z2p5": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["vs30", "weight"],
-                    "additionalProperties": false          
+                    "required": [
+                        "vs30",
+                        "weight"
+                    ],
+                    "additionalProperties": false
                 },
                 "ask14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {"type": "number"},
-                        "weight": {"type": "number"},
-                        "z1p0": {"type": "number"},
-                        "measured_vs30": {"type": "boolean"}
+                        "vs30": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        },
+                        "z1p0": {
+                            "type": "number"
+                        },
+                        "measured_vs30": {
+                            "type": "boolean"
+                        }
                     },
-                    "required": ["vs30", "weight"],
+                    "required": [
+                        "vs30",
+                        "weight"
+                    ],
                     "additionalProperties": false
                 }
             },
@@ -133,72 +214,209 @@
                 "boulanger_idriss_2012": {
                     "type": "object",
                     "properties": {
-                        "n160": {"type": "number"},
-                        "fc": {"type": "number"},
-                        "sigmav": {"type": "number"},
-                        "sigmavp": {"type": "number"},
-                        "depth": {"type": "number"},
-                        "pa": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "n160": {
+                            "type": "number"
+                        },
+                        "fc": {
+                            "type": "number"
+                        },
+                        "sigmav": {
+                            "type": "number"
+                        },
+                        "sigmavp": {
+                            "type": "number"
+                        },
+                        "depth": {
+                            "type": "number"
+                        },
+                        "pa": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["n160", "fc", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "required": [
+                        "n160",
+                        "fc",
+                        "sigmav",
+                        "sigmavp",
+                        "depth",
+                        "pa",
+                        "weight"
+                    ],
                     "additionalProperties": false
                 },
                 "boulanger_idriss_2016": {
                     "type": "object",
                     "properties": {
-                        "qc1Ncs": {"type": "number"},
-                        "sigmav": {"type": "number"},
-                        "sigmavp": {"type": "number"},
-                        "depth": {"type": "number"},
-                        "pa": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "qc1Ncs": {
+                            "type": "number"
+                        },
+                        "sigmav": {
+                            "type": "number"
+                        },
+                        "sigmavp": {
+                            "type": "number"
+                        },
+                        "depth": {
+                            "type": "number"
+                        },
+                        "pa": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["qc1Ncs", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "required": [
+                        "qc1Ncs",
+                        "sigmav",
+                        "sigmavp",
+                        "depth",
+                        "pa",
+                        "weight"
+                    ],
                     "additionalProperties": false
                 },
                 "cetin_et_al_2018": {
                     "type": "object",
                     "properties": {
-                        "n160": {"type": "number"},
-                        "fc": {"type": "number"},
-                        "vs12": {"type": "number"},
-                        "sigmav": {"type": "number"},
-                        "sigmavp": {"type": "number"},
-                        "depth": {"type": "number"},
-                        "pa": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "n160": {
+                            "type": "number"
+                        },
+                        "fc": {
+                            "type": "number"
+                        },
+                        "vs12": {
+                            "type": "number"
+                        },
+                        "sigmav": {
+                            "type": "number"
+                        },
+                        "sigmavp": {
+                            "type": "number"
+                        },
+                        "depth": {
+                            "type": "number"
+                        },
+                        "pa": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["n160", "fc", "vs12", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "required": [
+                        "n160",
+                        "fc",
+                        "vs12",
+                        "sigmav",
+                        "sigmavp",
+                        "depth",
+                        "pa",
+                        "weight"
+                    ],
                     "additionalProperties": false
                 },
                 "moss_et_al_2006": {
                     "properties": {
-                        "qc": {"type": "number"},
-                        "fs": {"type": "number"},
-                        "sigmav": {"type": "number"},
-                        "sigmavp": {"type": "number"},
-                        "depth": {"type": "number"},
-                        "pa": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "qc": {
+                            "type": "number"
+                        },
+                        "fs": {
+                            "type": "number"
+                        },
+                        "sigmav": {
+                            "type": "number"
+                        },
+                        "sigmavp": {
+                            "type": "number"
+                        },
+                        "depth": {
+                            "type": "number"
+                        },
+                        "pa": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["qc", "fs", "sigmav", "sigmavp", "depth", "pa", "weight"],
+                    "required": [
+                        "qc",
+                        "fs",
+                        "sigmav",
+                        "sigmavp",
+                        "depth",
+                        "pa",
+                        "weight"
+                    ],
                     "additionalProperties": false
                 },
                 "ngl_smt_2024": {
                     "type": "object",
                     "properties": {
-                        "ztop": {"type": "array", "items": {"type": "number"}},
-                        "zbot": {"type": "array", "items": {"type": "number"}},
-                        "qc1Ncs": {"type": "array", "items": {"type": "number"}},
-                        "Ic":{"type": "array", "items": {"type": "number"}},
-                        "sigmav": {"type": "array", "items": {"type": "number"}},
-                        "sigmavp": {"type": "array", "items": {"type": "number"}},
-                        "Ksat": {"type": "array", "items": {"type": "number"}},
-                        "pa": {"type": "number"},
-                        "weight": {"type": "number"}
+                        "ztop": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "zbot": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "qc1Ncs": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "Ic": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "sigmav": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "sigmavp": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "Ksat": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
+                        "pa": {
+                            "type": "number"
+                        },
+                        "weight": {
+                            "type": "number"
+                        }
                     },
-                    "required": ["ztop","zbot","qc1Ncs","Ic","sigmav","sigmavp","Ksat", "pa", "weight"],
+                    "required": [
+                        "ztop",
+                        "zbot",
+                        "qc1Ncs",
+                        "Ic",
+                        "sigmav",
+                        "sigmavp",
+                        "Ksat",
+                        "pa",
+                        "weight"
+                    ],
                     "additionalProperties": false
                 }
             }
@@ -209,16 +427,39 @@
                 "psha": {
                     "type": "object",
                     "properties": {
-                        "pga": {"type": "array", "items": {"type": "number"}},
+                        "pga": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
                         "disaggregation": {
                             "type": "object",
                             "properties": {
-                                "magnitude_bin_edges": {"type": "array", "items": {"type": "number"}},
-
-                                "distance_bin_edges": {"type": "array", "items": {"type": "number"}},
-                                "epsilon_bin_edges": {"type": "array", "items": {"type": "number"}}
+                                "magnitude_bin_edges": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                },
+                                "distance_bin_edges": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                },
+                                "epsilon_bin_edges": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                }
                             },
-                            "required": ["magnitude_bin_edges", "distance_bin_edges", "epsilon_bin_edges"],
+                            "required": [
+                                "magnitude_bin_edges",
+                                "distance_bin_edges",
+                                "epsilon_bin_edges"
+                            ],
                             "additionalProperties": false
                         }
                     }
@@ -226,20 +467,46 @@
                 "plha": {
                     "type": "object",
                     "properties": {
-                        "fsl": {"type": "array", "items": {"type": "number"}},
+                        "fsl": {
+                            "type": "array",
+                            "items": {
+                                "type": "number"
+                            }
+                        },
                         "disaggregation": {
                             "type": "object",
                             "properties": {
-                                "magnitude_bin_edges": {"type": "array", "items": {"type": "number"}},
-                                "distance_bin_edges": {"type": "array", "items": {"type": "number"}},
-                                "epsilon_bin_edges": {"type": "array", "items": {"type": "number"}}
+                                "magnitude_bin_edges": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                },
+                                "distance_bin_edges": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                },
+                                "epsilon_bin_edges": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "number"
+                                    }
+                                }
                             },
-                            "required": ["magnitude_bin_edges", "distance_bin_edges", "epsilon_bin_edges"],
+                            "required": [
+                                "magnitude_bin_edges",
+                                "distance_bin_edges",
+                                "epsilon_bin_edges"
+                            ],
                             "additionalProperties": false
                         }
                     }
                 },
-                "outputfile": {"type": "string"}
+                "outputfile": {
+                    "type": "string"
+                }
             }
         }
     }
