@@ -125,6 +125,7 @@
         },
         "ground_motion_models": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "bssa14": {
                     "type": "object",
@@ -205,11 +206,11 @@
                     ],
                     "additionalProperties": false
                 }
-            },
-            "additionalProperties": false
+            }
         },
         "liquefaction_models": {
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "boulanger_idriss_2012": {
                     "type": "object",
