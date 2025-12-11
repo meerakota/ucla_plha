@@ -49,22 +49,20 @@
         }
     },
     "liquefaction_models": {
-        "cetin_et_al_2018": {
-            "n160": 20.0,
-            "fc": 0.0,
-            "vs12": 150.0,
-            "sigmav": 70.0,
-            "sigmavp": 50.0,
-            "depth": 5.0,
+        "moss_et_al_2006": {
+            "depth": 2.85,
+            "qc": 5.49,
+            "fs": 0.02617,
+            "sigmav": 46.55,
+            "sigmavp": 43.22,
             "weight": 0.33,
             "pa": 101.325
         },
-        "idriss_boulanger_2012": {
-            "n160": 20.0,
-            "fc": 0.0,
-            "sigmav": 70.0,
-            "sigmavp": 50.0,
-            "depth": 5.0,
+        "boulanger_idriss_2016": {
+            "depth": 2.2,
+            "qc1Ncs": 71.8,
+            "sigmav": 40,
+            "sigmavp": 28,
             "weight": 0.33,
             "pa": 101.325
         },
