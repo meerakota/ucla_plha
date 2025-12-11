@@ -50,8 +50,8 @@
     },
     "liquefaction_models": {
         "boulanger_idriss_2016": {
-            "d": 2.2,
-            "qc1ncs": 71.8,
+            "depth": 2.2,
+            "qc1Ncs": 71.8,
             "sigmav": 40,
             "sigmavp": 28,
             "weight": 1.0,
