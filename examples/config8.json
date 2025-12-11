@@ -50,7 +50,7 @@
     },
     "liquefaction_models": {
         "moss_et_al_2006": {
-            "d": 2.85,
+            "depth": 2.85,
             "qc": 5.49,
             "fs": 0.02617,
             "sigmav": 46.55,
