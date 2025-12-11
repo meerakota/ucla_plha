@@ -28,7 +28,7 @@
                     "type": "number"
                 }
             },
-            "additionalProperties": false,
+            "additionalProperties": true,
             "required": [
                 "latitude",
                 "longitude",
