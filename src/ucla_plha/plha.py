@@ -703,9 +703,9 @@ def get_hazard(config_file):
                                         m,
                                         rjb,
                                         eps,
-                                        psha_magnitude_bin_edges,
-                                        psha_distance_bin_edges,
-                                        psha_epsilon_bin_edges,
+                                        plha_magnitude_bin_edges,
+                                        plha_distance_bin_edges,
+                                        plha_epsilon_bin_edges,
                                     )
                                 )
     # Now prepare output
@@ -750,4 +750,5 @@ def get_hazard(config_file):
             json.dump(output, outputfile, indent=4)
 
     return output
+
 
