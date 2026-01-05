@@ -423,33 +423,34 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
         R = number of distance bins (note that r_bin_edges has a length of R + 1)
         E = number of epsilon bins (note that eps_bin_edges has a length of E + 1)
     """
+    # use Numpy digitize function to assign bin numbers
     m_hazard = np.digitize(m, m_bin_edges)
     r_hazard = np.digitize(r, r_bin_edges)
+    eps_hazard = np.digitize(eps, eps_bin_edges)
+    
+    # compute number of bins per intensity measure value
     Nbins = (len(m_bin_edges) - 1) * (len(r_bin_edges) - 1) * (len(eps_bin_edges) - 1)
-    sum_hazard = np.zeros(Nbins)
-    disagg = np.empty(
-        (
-            len(hazards),
-            len(m_bin_edges) - 1,
-            len(r_bin_edges) - 1,
-            len(eps_bin_edges) - 1,
-        ),
-        dtype=float,
+
+    # use tensor rank reduction to create L x Nbins length array of indices
+    bin_indices = (
+        eps_hazard
+        - 1
+        + (r_hazard - 1) * (len(eps_bin_edges) - 1)
+        + (m_hazard - 1) * (len(eps_bin_edges) - 1) * (len(r_bin_edges) - 1)
     )
-    for i in range(len(hazards)):
-        eps_hazard = np.digitize(eps[i], eps_bin_edges)
-        bin_indices = (
-            eps_hazard
-            - 1
-            + (r_hazard - 1) * (len(eps_bin_edges) - 1)
-            + (m_hazard - 1) * (len(eps_bin_edges) - 1) * (len(r_bin_edges) - 1)
-        )
-        sum_hazard = np.zeros(Nbins, dtype=float)
-        for j in range(Nbins):
-            sum_hazard[j] = np.sum(hazards[i][bin_indices == j])
-        disagg[i] = sum_hazard.reshape(
-            (len(m_bin_edges) - 1, len(r_bin_edges) - 1, len(eps_bin_edges) - 1)
-        )
+    
+    # create empty array to store hazard sums, and use Numpy bincount to efficiently sum hazards
+    # within each bin. The np.bincount function must be performed on a 1D array, so we need to loop
+    # over the pga values. The cost of that loop is minimal since the number of pga values
+    # is generally small
+    sum_hazard = np.empty((len(bin_indices), Nbins))
+    for i in range(len(bin_indices)):
+        sum_hazard[i] = np.bincount(bin_indices[i], weights=hazards[i], minlength=Nbins)
+
+    # reshape the sum_hazard array
+    disagg = sum_hazard.reshape(
+        (len(bin_indices), len(m_bin_edges) -1, len(r_bin_edges) - 1, len(eps_bin_edges) - 1)
+    )
 
     return disagg
 
