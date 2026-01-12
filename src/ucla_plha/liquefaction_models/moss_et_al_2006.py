@@ -22,22 +22,22 @@ def get_ln_crr(m, mu_ln_csr, qc, fs, sigmavp, pa):
     rf = fs / qc * 100
     rf = np.min([rf, 5.0])
     rf = np.max([rf, 0.5])
-    f1 = 0.78 * qc ** -0.33
-    f2 = -(-0.32 * qc ** -0.35 + 0.49)
+    f1 = 0.78 * qc**-0.33
+    f2 = -(-0.32 * qc**-0.35 + 0.49)
     f3 = np.abs(np.log10(10.0 + qc)) ** 1.21
     c = f1 * (rf / f3) ** f2
     Cq = (pa / sigmavp) ** c
     Cq = np.minimum(Cq, 1.7)
     qc1 = Cq * qc
     x1 = 0.38 * np.min([rf, 5.0]) - 0.19
-    x2 = 1.48 * np.min([rf, 5.0]) - 0.73
-    if(rf > 0.5):
+    x2 = 1.46 * np.min([rf, 5.0]) - 0.73
+    if rf > 0.5:
         delta_qc = x1 * mu_ln_csr + x2
     else:
         delta_qc = 0.0
     qc1_mod = qc1 + delta_qc
     mu_ln_crr = (
-        qc1_mod ** 1.045
+        qc1_mod**1.045
         + qc1_mod * (0.110 * rf)
         + (0.001 * rf)
         + c * (1.0 + 0.850 * rf)
@@ -133,7 +133,9 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth, qc, fs, fsl
     fsl_cdfs = cumulative distribution functions for factor of safety against profile manfiestation, Numpy ndarray, dtype=float, shape = N x L
     eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L
     """
-    mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth)
+    mu_ln_csr, sigma_ln_csr = get_ln_csr(
+        mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth
+    )
     mu_ln_crr, sigma_ln_crr = get_ln_crr(m, mu_ln_csr, qc, fs, sigmavp, pa)
     mu_ln_fsl = mu_ln_crr - mu_ln_csr
     sigma_ln_fsl = np.sqrt(sigma_ln_crr**2 + sigma_ln_csr**2)
