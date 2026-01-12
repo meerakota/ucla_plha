@@ -17,16 +17,16 @@
         },
         "point_source_models": {
             "ucerf3_fm31_grid_sub_seis": {
-                "weight": 0.5
+                "weight": 0.25
             },
             "ucerf3_fm31_grid_unassociated": {
-                "weight": 0.5
+                "weight": 0.25
             },
             "ucerf3_fm32_grid_sub_seis": {
-                "weight": 0.5
+                "weight": 0.25
             },
             "ucerf3_fm32_grid_unassociated": {
-                "weight": 0.5
+                "weight": 0.25
             }
         }
     },
