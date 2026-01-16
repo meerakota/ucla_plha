@@ -26,7 +26,7 @@ def get_ln_crr(mu_ln_pga, m, qc1Ncs, sigmavp, pa):
     M = number of soil layers in profile.
     We are using the mean value of pga to compute msf, but pga is actually a random variable.
     """
-    lambda_dr = 1.2259
+    lambda_dr = 1.798
     dr = 47.8 * qc1Ncs**0.264 - 106.3
     dr[dr < 0] = 0
     dr[dr > 160] = 160
@@ -36,12 +36,12 @@ def get_ln_crr(mu_ln_pga, m, qc1Ncs, sigmavp, pa):
     neq = np.exp(0.46305 - 0.4082 * np.exp(mu_ln_pga) + 0.2332 * m)
     msf = (14 / neq) ** 0.2
     mu_ln_crr = (
-        -3.204
-        + 0.011 * dr_hat[np.newaxis, :]
+        -2.799
+        + 0.00092 * dr_hat[np.newaxis, :]
         + np.log(ksigma[np.newaxis, :])
         + np.log(msf[:, np.newaxis])
     )
-    sigma_ln_crr = 0.342
+    sigma_ln_crr = 0.44
 
     return mu_ln_crr, sigma_ln_crr
 
