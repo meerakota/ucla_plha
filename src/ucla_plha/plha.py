@@ -390,11 +390,11 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             m,
             np.asarray(c["ztop"], dtype=float),
             np.asarray(c["zbot"], dtype=float),
-            np.asarray(c["qc1Ncs"], dtype=float),
-            np.asarray(c["Ic"], dtype=float),
+            np.asarray(c["qc1ncs"], dtype=float),
+            np.asarray(c["ic"], dtype=float),
             np.asarray(c["sigmav"], dtype=float),
             np.asarray(c["sigmavp"], dtype=float),
-            np.asarray(c["Ksat"], dtype=float),
+            np.asarray(c["ksat"], dtype=float),
             fsl,
             float(c.get("pa", 101.325)),
         )
@@ -470,8 +470,15 @@ def get_hazard(config_file):
     '''
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is
     # validated in the get_liquefaction_hazards function.
-    schema = json.load(open(files("ucla_plha").joinpath("ucla_plha_schema.json")))
-    config = json.load(open(config_file))
+    with open(files("ucla_plha").joinpath("ucla_plha_schema.json")) as file:
+        content = file.read().lower()
+        schema = json.loads(content)
+
+    # schema = json.load(open(files("ucla_plha").joinpath("ucla_plha_schema.json")))
+    
+    with open(config_file, 'r') as file:
+        content = file.read().lower()
+        config = json.loads(content)
 
     # validate config file and return messageg if errors are encountered
     try:
