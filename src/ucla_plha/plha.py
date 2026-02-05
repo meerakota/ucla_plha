@@ -364,7 +364,7 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             c["sigmav"],
             c["sigmavp"],
             c["depth"],
-            c["qc1Ncs"],
+            c["qc1ncs"],
             fsl,
             c["pa"],
         )
@@ -470,15 +470,9 @@ def get_hazard(config_file):
     '''
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is
     # validated in the get_liquefaction_hazards function.
-    with open(files("ucla_plha").joinpath("ucla_plha_schema.json")) as file:
-        content = file.read().lower()
-        schema = json.loads(content)
 
-    # schema = json.load(open(files("ucla_plha").joinpath("ucla_plha_schema.json")))
-    
-    with open(config_file, 'r') as file:
-        content = file.read().lower()
-        config = json.loads(content)
+    schema = json.loads(open(files("ucla_plha").joinpath("ucla_plha_schema.json")).read().lower())
+    config = json.loads(open(config_file).read().lower())
 
     # validate config file and return messageg if errors are encountered
     try:
@@ -486,6 +480,44 @@ def get_hazard(config_file):
     except jsonschema.ValidationError as e:
         print("Config File Error:", e.message)
         return
+    
+    # normalize weights in config file
+    fault_source_model_weight_sum = 0.0
+    fault_source_models = ['ucerf3_fm31', 'ucerf3_fm32']
+    for fault_source_model in fault_source_models:
+        fault_source_model_weight_sum += config['source_models'].get('fault_source_models', {}).get(fault_source_model, {}).get('weight', 0.0)
+    if(fault_source_model_weight_sum > 0):
+        for fault_source_model in fault_source_models:
+            if(config['source_models'].get('fault_source_models', {}).get(fault_source_model, {})):
+                config['source_models'].get('fault_source_models', {})[fault_source_model]['weight'] /= fault_source_model_weight_sum
+
+    point_source_model_weight_sum = 0.0
+    point_source_models = ['ucerf3_fm31_grid_sub_seis', 'ucerf3_fm31_grid_unassociated', 'ucerf3_fm32_grid_sub_seis', 'ucerf3_fm32_grid_unassociated']
+    for point_source_model in point_source_models:
+        point_source_model_weight_sum += config['source_models'].get('point_source_models', {}).get(point_source_model, {}).get('weight', 0.0)
+    if(point_source_model_weight_sum > 0):
+        for point_source_model in point_source_models:
+            if(config['source_models']['point_source_models'].get(point_source_model, {})):
+                config['source_models']['point_source_models'][point_source_model]['weight'] /= point_source_model_weight_sum
+
+    ground_motion_model_weight_sum = 0.0
+    ground_motion_models = ['bssa14', 'ask14', 'cb14', 'cy14']
+    for ground_motion_model in ground_motion_models:
+        ground_motion_model_weight_sum += config['ground_motion_models'].get(ground_motion_model, {}).get('weight', 0.0)
+    if(ground_motion_model_weight_sum > 0):
+        for ground_motion_model in ground_motion_models:
+            if(config['ground_motion_models'].get(ground_motion_model, {})):
+                config['ground_motion_models'][ground_motion_model]['weight'] /= ground_motion_model_weight_sum
+
+    liquefaction_model_weight_sum = 0.0
+    liquefaction_models = ['boulanger_idriss_2012', 'boulanger_idriss_2016', 'cetin_et_al_2018', 'moss_et_al_2006', 'ngl_smt_2024']
+    for liquefaction_model in liquefaction_models:
+        liquefaction_model_weight_sum += config['liquefaction_models'].get(liquefaction_model, {}).get('weight', 0.0)
+    if(liquefaction_model_weight_sum > 0):
+        for liquefaction_model in liquefaction_models:
+            if(config['liquefaction_models'].get(liquefaction_model, {})):
+                config['liquefaction_models'][liquefaction_model]['weight'] /= liquefaction_model_weight_sum
+
 
     # Read site properties
     latitude = config["site"]["latitude"]
