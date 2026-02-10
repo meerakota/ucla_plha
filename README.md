@@ -16,7 +16,7 @@ Currently, the code uses the Uniform California Earthquake Rupture Forecast, Ver
 
 ## Config File Format
 
-The ucla_plha code uses a [Javascript Object Notation (JSON)](https://www.json.org/json-en.html) input file to configure the analysis, and uses [JSON Schema](https://json-schema.org/) to validate user inputs. Example config files are provided in the examples directory, and the schema is defined by ucla_plha_schema.json located in the src/ucla_plha directory.
+The ucla_plha code uses a [Javascript Object Notation (JSON)](https://www.json.org/json-en.html) input file to configure the analysis, and uses [JSON Schema](https://json-schema.org/) to validate user inputs. Example config files are provided in the examples directory, and the schema is defined by ucla_plha_schema.json located in the src/ucla_plha directory. The config file is case insensitive..
 
 The structure of the config file is provided below. Note that the keys are all lowercase in the example below, which follows the PEP 8 convention for Python variable names. It may seem counter-intuitive to use "n160" instead of "N160" because the PEP 8 convention does not align with geotechnical convention. We have opted to stick with PEP 8 convention here.
 
@@ -165,7 +165,7 @@ The top level keys are all JSON objects. If the "liquefaction_models" key and it
 
 ### "source_models" Keys
 
-The "source_model" JSON object is not well suited to representation in tabular form because it has a high nesting level, but only a single variable. The 2nd nesting level contains two keys "fault_source_models" and "point_source_models". The 3rd nesting level contains two keys "ucerf3_fm31" and "ucerf3_fm32". The 4th nesting level contains a single key "weight". The weights are applied to the hazard curves computed using each source model, and summed together. The weights within the "fault_source_models" object should sum to unity, and the weights within the "point_source_models" object should sum to unity.
+The "source_model" JSON object is not well suited to representation in tabular form because it has a high nesting level, but only a single variable. The 2nd nesting level contains two keys "fault_source_models" and "point_source_models". The 3rd nesting level contains two keys "ucerf3_fm31" and "ucerf3_fm32". The 4th nesting level contains a single key "weight". The weights are applied to the hazard curves computed using each source model, and summed together. The weights within the "fault_source_models" object should sum to unity, and the weights within the "point_source_models" object should sum to unity. The weights can be input however the user sees fit into the config file. However, the weights will then be normalized (divided by the sum total) within the code. This holds true for the fault source models, point source models, ground motion models, and liquefaction models. 
 
 ### "ground_motion_models" Keys
 
@@ -323,7 +323,7 @@ Computes log-normal cumulative distribution functions for factor of safety of li
             liquefaction hazard curve, length = L
         liquefaction_model (string): Liquefaction model to use. One of "cetin_et_al_2018", "moss_et_al_2006",
             "boulanger_idriss_2016", "boulanger_idriss_2012", "ngl_smt_2024".
-        config (dict): A Python dictionary read from the config file
+        config (dict): A Python dictionary read from the case insensitive config file
     
     Returns:
         fsl_cdfs (Numpy ndarray, dtype=float): Numpy array of cumulative distribution functions representing
@@ -365,7 +365,7 @@ Reads config file and runs PSHA and PLHA
     Inputs:
         config_file (string): Filename, including path, of config file. Must follow the schema
             defined by ucla_plha_schema.json. See documentation for more thorough documentation
-            of the config file.
+            of the config file. The config file is case insensitive. 
     
     Returns:
         output (dict): Python dictionary containing output of analysis. The output contains all
