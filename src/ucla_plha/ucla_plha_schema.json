@@ -21,20 +21,39 @@
                 "elevation": {
                     "type": "number"
                 },
-                "dist_cutoff": {
-                    "type": "number"
+                "vs30": {
+                    "type": "number" 
                 },
-                "m_min": {
-                    "type": "number"
+                "measured_vs30": { 
+                    "type": "boolean" 
+                },
+                "z1p0": {
+                    "type": "number" 
+                },
+                "z2p5": { 
+                    "type": "number" 
                 }
             },
             "additionalProperties": true,
             "required": [
                 "latitude",
                 "longitude",
-                "elevation"
+                "elevation",
+                "vs30"
             ]
         },
+        "constraints": {
+            "type": "object",
+            "properties": {
+                "dist_cutoff": { 
+                    "type": "number" 
+                },
+                "m_min": {
+                    "type": "number" 
+                }
+        },
+            "additionalProperties": false
+        }, 
         "source_models": {
             "type": "object",
             "properties": {
@@ -130,15 +149,11 @@
                 "bssa14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {
-                            "type": "number"
-                        },
                         "weight": {
                             "type": "number"
                         }
                     },
                     "required": [
-                        "vs30",
                         "weight"
                     ],
                     "additionalProperties": false
@@ -146,21 +161,11 @@
                 "cy14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {
-                            "type": "number"
-                        },
-                        "measured_vs30": {
-                            "type": "boolean"
-                        },
-                        "z1p0": {
-                            "type": "number"
-                        },
                         "weight": {
                             "type": "number"
                         }
                     },
                     "required": [
-                        "vs30",
                         "weight"
                     ],
                     "additionalProperties": false
@@ -168,18 +173,11 @@
                 "cb14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {
-                            "type": "number"
-                        },
-                        "z2p5": {
-                            "type": "number"
-                        },
                         "weight": {
                             "type": "number"
                         }
                     },
                     "required": [
-                        "vs30",
                         "weight"
                     ],
                     "additionalProperties": false
@@ -187,21 +185,11 @@
                 "ask14": {
                     "type": "object",
                     "properties": {
-                        "vs30": {
-                            "type": "number"
-                        },
                         "weight": {
                             "type": "number"
-                        },
-                        "z1p0": {
-                            "type": "number"
-                        },
-                        "measured_vs30": {
-                            "type": "boolean"
                         }
                     },
                     "required": [
-                        "vs30",
                         "weight"
                     ],
                     "additionalProperties": false

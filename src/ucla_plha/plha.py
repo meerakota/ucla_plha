@@ -21,14 +21,14 @@ from ucla_plha.geometry import geometry
 
 
 def decompress_ucerf3_source_data():
-    '''Decompresses ruptures.gz and ruptures_segments.gz in source_models/fault_source_models/ucerf3_fm31
+    """Decompresses ruptures.gz and ruptures_segments.gz in source_models/fault_source_models/ucerf3_fm31
     and source_models/fault_source_models/ucerf3_fm32. These files are compressed to reduce the
     size of the ucla_plha package, but decompressing the files each time the code is run is inefficient.
     This function decompresses them within the installation directory. The get_source_data() function
-    checks for .pkl versions of the files, and uses them if they exist. Otherwise it uses the 
+    checks for .pkl versions of the files, and uses them if they exist. Otherwise it uses the
     .gz versions of the files and decompresses them at runtime. This function needs to be run only
     once.
-    '''
+    """
     branches = ["ucerf3_fm31", "ucerf3_fm32"]
     for branch in branches:
         path = files("ucla_plha").joinpath(
@@ -43,8 +43,8 @@ def decompress_ucerf3_source_data():
 
 
 def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
-    '''Returns magnitude, fault type, rate, distance, and fault geometry terms.
-    
+    """Returns magnitude, fault type, rate, distance, and fault geometry terms.
+
     Args:
         source_type (string): Either "fault_source_models" or "point_source_models"
         source_model (string): Directory for source_model within the source_type directory.
@@ -73,7 +73,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
 
     Notes:
         N = number of events
-    '''
+    """
     if source_type == "fault_source_models":
         # Read files required by all ground motion models
         path = files("ucla_plha").joinpath(
@@ -132,7 +132,6 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         grouped_ruptures_segments = ruptures_segments.groupby("rupture_index")
         if any(gmm in ["ask14", "cb14", "cy14"] for gmm in gmms):
             rrup = grouped_ruptures_segments["rrup_all"].min().values
-            filter = (rrup < dist_cutoff) & (m >= m_min)
             rx = grouped_ruptures_segments["Rx_all"].min().values
             rx1 = grouped_ruptures_segments["Rx1_all"].min().values
             ry0 = grouped_ruptures_segments["Ry0_all"].min().values
@@ -144,10 +143,23 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
 
         if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
             rjb = grouped_ruptures_segments["rjb_all"].min().values
-            filter = (rjb < dist_cutoff) & (m >= m_min)
         else:
             rjb = empty_array
 
+        if (dist_cutoff is not None) and (m_min is not None):
+            if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
+                filter = (rjb < dist_cutoff) & (m >= m_min)
+            else:
+                filter = (rrup < dist_cutoff) & (m >= m_min)
+        elif (dist_cutoff is not None) and (m_min is None):
+            if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
+                filter = rjb < dist_cutoff
+            else:
+                filter = rrup < dist_cutoff
+        elif (dist_cutoff is None) and (m_min is not None):
+            filter = m >= m_min
+        else:
+            filter = np.full(len(rjb), True)
         return (
             m[filter],
             fault_type[filter],
@@ -174,7 +186,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         fault_type = ruptures["style"].values
         node_index = np.load(str(path.joinpath("node_index.npy")))
         points = np.load(str(path.joinpath("points.npy")))
-        
+
         repi_temp = np.empty(np.max(node_index) + 1, dtype=float)
         for i, ni in enumerate(node_index):
             repi_temp[ni] = np.sqrt(
@@ -185,9 +197,16 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         repi = repi_temp[ruptures["node_index"].values]
         rjb = repi / (1.0 + np.exp(-1.05 * (np.log(repi) - 1.037 * m + 4.2776)))
 
-        filter = (rjb < dist_cutoff) & (m >= m_min)
+        if (dist_cutoff is not None) and (m_min is not None):
+            filter = (rjb < dist_cutoff) & (m >= m_min)
+        elif (dist_cutoff is not None) and (m_min is None):
+            filter = rjb < dist_cutoff
+        elif (dist_cutoff is None) and (m_min is not None):
+            filter = m >= m_min
+        else:
+            filter = np.full(len(rjb), True)
         dip = np.empty(len(m), dtype=float)
-        
+
         # using Kaklamanos et al. 2011 guidance for unknown dip, ztor, and zbor
         # Note fault_type = 1 reverse, 2 normal, 3 strike slip
         dip[fault_type == 1] = 40.0
@@ -204,9 +223,11 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         # Expression for Rrup is fit to default parameters (first row in table 1) in Thompson and Worden (2017)
         d = np.radians(80)
         zbor = ztor + w * np.sin(dip * np.pi / 180.0)
-        rrup1 = np.sqrt((repi - 0.6 * w * np.cos(d)) ** 2 + ztor ** 2)
+        rrup1 = np.sqrt((repi - 0.6 * w * np.cos(d)) ** 2 + ztor**2)
         filt = repi < 0.6 * w * np.cos(d) - ztor * np.tan(d)
-        rrup1[filt] = (zhyp[filt] - repi[filt] * np.tan(d)) / (np.cos(d) + np.sin(d) * np.tan(d))
+        rrup1[filt] = (zhyp[filt] - repi[filt] * np.tan(d)) / (
+            np.cos(d) + np.sin(d) * np.tan(d)
+        )
         rrup2 = zhyp
         filt = repi > 1.7 * w
         rrup2[filt] = np.sqrt((repi[filt] - 1.7 * w[filt] / 2.0) ** 2 + zhyp[filt] ** 2)
@@ -218,8 +239,8 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         rx1 = rx + w * np.cos(d)
         # Compute ry0 the same way as rx, but use fault length instead of width. Assume aspect ratio of 1.7
         ry0 = rjb / np.sqrt(2.0)
-        ry0[rjb==0] = 0.5 * 1.7 * w[rjb == 0] * np.cos(d)
-        
+        ry0[rjb == 0] = 0.5 * 1.7 * w[rjb == 0] * np.cos(d)
+
         return (
             m[filter],
             fault_type[filter],
@@ -252,7 +273,7 @@ def get_ground_motion_data(
     zbor,
     dip,
 ):
-    '''Computes arrays containing mean and standard deviation of the natural log of a ground
+    """Computes arrays containing mean and standard deviation of the natural log of a ground
     motion intensity measure.
 
     Inputs:
@@ -264,7 +285,7 @@ def get_ground_motion_data(
         fault_type (Numpy array, dtype=int): Numpy array of fault type. 1 = reverse, 2 = normal, 3 = strike slip, length = N
         rjb (Numpy array, dtype=float): Numpy array of Joyner-Boore distances between the site and each rupture, length = N
         rrup (Numpy array, dtype=float): Numpy array of rupture distance between the site and each rupture, length = N
-        rx (Numpy array, dtype=float): Numpy array of distance from site to the surface projection of the top of each 
+        rx (Numpy array, dtype=float): Numpy array of distance from site to the surface projection of the top of each
             rupture, measured perpendicular to the strike, length = N
         rx1 (Numpy array, dtype=float): Numpy array of distance from site to the surface projection of the bottom of each
             rupture, measured perpendicular to the strike, length = N
@@ -278,10 +299,10 @@ def get_ground_motion_data(
     Returns:
         mu_ln_pga (Numpy array, dtype=float): array of the mean of the natural logs of the ground motion intensity measure, IM
         sigma_ln_pga (Numpy array, dtype=float): array of the standard deviation of the natural logs of the IM
-    
+
     Note:
         N = number of events
-    '''
+    """
     if gmm == "bssa14":
         mu_ln_pga, sigma_ln_pga = bssa14.get_im(vs30, rjb, m, fault_type)
     elif gmm == "cb14":
@@ -302,7 +323,7 @@ def get_ground_motion_data(
 
 
 def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config):
-    '''Computes log-normal cumulative distribution functions for factor of safety of liquefaction
+    """Computes log-normal cumulative distribution functions for factor of safety of liquefaction
 
     Inputs:
         m (array, dtype=float): Numpy array of magnitudes, length = N
@@ -310,22 +331,22 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             ground motion intensity measure, length = N
         sigma_ln_pga (array, dtype=float): Numpy array of the standard deviation of the natural logs
             of the ground motion intensity measure, length = N
-        fsl (array, dtype=float): Numpy array of factor of safety values at which to compute the 
+        fsl (array, dtype=float): Numpy array of factor of safety values at which to compute the
             liquefaction hazard curve, length = L
         liquefaction_model (string): Liquefaction model to use. One of "cetin_et_al_2018", "moss_et_al_2006",
             "boulanger_idriss_2016", "boulanger_idriss_2012", "ngl_smt_2024".
         config (dict): A Python dictionary read from the config file
-    
+
     Returns:
         fsl_cdfs (Numpy ndarray, dtype=float): Numpy array of cumulative distribution functions representing
             down-crossing rate of fsl for each event, length = N x L
         eps (Numpy ndarray, dtype=float): Numpy array of epsilon values, representing number of standard deviations
             of the natural log of fsl relative to the mean of the natural log of fsl, length = N x L
-        
+
     Notes:
         N = number of events
         L = number of fsl values at which to compute hazard
-    '''
+    """
     if liquefaction_model == "cetin_et_al_2018":
         c = config["liquefaction_models"]["cetin_et_al_2018"]
         return cetin_et_al_2018.get_fsl_cdfs(
@@ -411,9 +432,9 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
         m_bin_edges (Numpy array, dtype = float) = array defining magnitude bin edges, length = M + 1
         r_bin_edges (Numpy array, dtype = float) = array defining distance bin edges, length = R + 1
         eps_bin_edges (Numpy array, dtype = float) = array defining epsilon bin edges, length = E + 1
-    
+
     Returns:
-        disagg (Numpy ndarray, dtype=float) = Numpy array of contribution to hazard within each 
+        disagg (Numpy ndarray, dtype=float) = Numpy array of contribution to hazard within each
             magnitude, distance, and epsilon bin for each pga (PSHA) or fsl (PLHA) value, shape = L x M x R x E
 
     Notes:
@@ -427,7 +448,7 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
     m_hazard = np.digitize(m, m_bin_edges)
     r_hazard = np.digitize(r, r_bin_edges)
     eps_hazard = np.digitize(eps, eps_bin_edges)
-    
+
     # compute number of bins per intensity measure value
     Nbins = (len(m_bin_edges) - 1) * (len(r_bin_edges) - 1) * (len(eps_bin_edges) - 1)
 
@@ -438,7 +459,7 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
         + (r_hazard - 1) * (len(eps_bin_edges) - 1)
         + (m_hazard - 1) * (len(eps_bin_edges) - 1) * (len(r_bin_edges) - 1)
     )
-    
+
     # create empty array to store hazard sums, and use Numpy bincount to efficiently sum hazards
     # within each bin. The np.bincount function must be performed on a 1D array, so we need to loop
     # over the pga values. The cost of that loop is minimal since the number of pga values
@@ -449,29 +470,36 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
 
     # reshape the sum_hazard array
     disagg = sum_hazard.reshape(
-        (len(bin_indices), len(m_bin_edges) -1, len(r_bin_edges) - 1, len(eps_bin_edges) - 1)
+        (
+            len(bin_indices),
+            len(m_bin_edges) - 1,
+            len(r_bin_edges) - 1,
+            len(eps_bin_edges) - 1,
+        )
     )
 
     return disagg
 
 
 def get_hazard(config_file):
-    '''Reads config file and runs PSHA and PLHA
+    """Reads config file and runs PSHA and PLHA
 
     Inputs:
         config_file (string): Filename, including path, of config file. Must follow the schema
             defined by ucla_plha_schema.json. See documentation for more thorough documentation
             of the config file.
-    
+
     Returns:
         output (dict): Python dictionary containing output of analysis. The output contains all
             of the inputs for preservation, along with the hazard curve(s) and any requested
             disaggregation data. See documentation for more thorough description of output.
-    '''
+    """
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is
     # validated in the get_liquefaction_hazards function.
 
-    schema = json.loads(open(files("ucla_plha").joinpath("ucla_plha_schema.json")).read().lower())
+    schema = json.loads(
+        open(files("ucla_plha").joinpath("ucla_plha_schema.json")).read().lower()
+    )
     config = json.loads(open(config_file).read().lower())
 
     # validate config file and return messageg if errors are encountered
@@ -480,53 +508,99 @@ def get_hazard(config_file):
     except jsonschema.ValidationError as e:
         print("Config File Error:", e.message)
         return
-    
+
     # normalize weights in config file
     fault_source_model_weight_sum = 0.0
-    fault_source_models = ['ucerf3_fm31', 'ucerf3_fm32']
+    fault_source_models = ["ucerf3_fm31", "ucerf3_fm32"]
     for fault_source_model in fault_source_models:
-        fault_source_model_weight_sum += config['source_models'].get('fault_source_models', {}).get(fault_source_model, {}).get('weight', 0.0)
-    if(fault_source_model_weight_sum > 0):
+        fault_source_model_weight_sum += (
+            config["source_models"]
+            .get("fault_source_models", {})
+            .get(fault_source_model, {})
+            .get("weight", 0.0)
+        )
+    if fault_source_model_weight_sum > 0:
         for fault_source_model in fault_source_models:
-            if(config['source_models'].get('fault_source_models', {}).get(fault_source_model, {})):
-                config['source_models'].get('fault_source_models', {})[fault_source_model]['weight'] /= fault_source_model_weight_sum
+            if (
+                config["source_models"]
+                .get("fault_source_models", {})
+                .get(fault_source_model, {})
+            ):
+                config["source_models"].get("fault_source_models", {})[
+                    fault_source_model
+                ]["weight"] /= fault_source_model_weight_sum
 
     point_source_model_weight_sum = 0.0
-    point_source_models = ['ucerf3_fm31_grid_sub_seis', 'ucerf3_fm31_grid_unassociated', 'ucerf3_fm32_grid_sub_seis', 'ucerf3_fm32_grid_unassociated']
+    point_source_models = [
+        "ucerf3_fm31_grid_sub_seis",
+        "ucerf3_fm31_grid_unassociated",
+        "ucerf3_fm32_grid_sub_seis",
+        "ucerf3_fm32_grid_unassociated",
+    ]
     for point_source_model in point_source_models:
-        point_source_model_weight_sum += config['source_models'].get('point_source_models', {}).get(point_source_model, {}).get('weight', 0.0)
-    if(point_source_model_weight_sum > 0):
+        point_source_model_weight_sum += (
+            config["source_models"]
+            .get("point_source_models", {})
+            .get(point_source_model, {})
+            .get("weight", 0.0)
+        )
+    if point_source_model_weight_sum > 0:
         for point_source_model in point_source_models:
-            if(config['source_models']['point_source_models'].get(point_source_model, {})):
-                config['source_models']['point_source_models'][point_source_model]['weight'] /= point_source_model_weight_sum
+            if config["source_models"]["point_source_models"].get(
+                point_source_model, {}
+            ):
+                config["source_models"]["point_source_models"][point_source_model][
+                    "weight"
+                ] /= point_source_model_weight_sum
 
     ground_motion_model_weight_sum = 0.0
-    ground_motion_models = ['bssa14', 'ask14', 'cb14', 'cy14']
+    ground_motion_models = ["bssa14", "ask14", "cb14", "cy14"]
     for ground_motion_model in ground_motion_models:
-        ground_motion_model_weight_sum += config['ground_motion_models'].get(ground_motion_model, {}).get('weight', 0.0)
-    if(ground_motion_model_weight_sum > 0):
+        ground_motion_model_weight_sum += (
+            config["ground_motion_models"]
+            .get(ground_motion_model, {})
+            .get("weight", 0.0)
+        )
+    if ground_motion_model_weight_sum > 0:
         for ground_motion_model in ground_motion_models:
-            if(config['ground_motion_models'].get(ground_motion_model, {})):
-                config['ground_motion_models'][ground_motion_model]['weight'] /= ground_motion_model_weight_sum
+            if config["ground_motion_models"].get(ground_motion_model, {}):
+                config["ground_motion_models"][ground_motion_model]["weight"] /= (
+                    ground_motion_model_weight_sum
+                )
 
     liquefaction_model_weight_sum = 0.0
-    liquefaction_models = ['boulanger_idriss_2012', 'boulanger_idriss_2016', 'cetin_et_al_2018', 'moss_et_al_2006', 'ngl_smt_2024']
+    liquefaction_models = [
+        "boulanger_idriss_2012",
+        "boulanger_idriss_2016",
+        "cetin_et_al_2018",
+        "moss_et_al_2006",
+        "ngl_smt_2024",
+    ]
     for liquefaction_model in liquefaction_models:
-        liquefaction_model_weight_sum += config['liquefaction_models'].get(liquefaction_model, {}).get('weight', 0.0)
-    if(liquefaction_model_weight_sum > 0):
+        liquefaction_model_weight_sum += (
+            config["liquefaction_models"].get(liquefaction_model, {}).get("weight", 0.0)
+        )
+    if liquefaction_model_weight_sum > 0:
         for liquefaction_model in liquefaction_models:
-            if(config['liquefaction_models'].get(liquefaction_model, {})):
-                config['liquefaction_models'][liquefaction_model]['weight'] /= liquefaction_model_weight_sum
-
+            if config["liquefaction_models"].get(liquefaction_model, {}):
+                config["liquefaction_models"][liquefaction_model]["weight"] /= (
+                    liquefaction_model_weight_sum
+                )
 
     # Read site properties
     latitude = config["site"]["latitude"]
     longitude = config["site"]["longitude"]
     elevation = config["site"]["elevation"]
     point = np.asarray([latitude, longitude, elevation])
-    dist_cutoff = config["site"]["dist_cutoff"]
-    m_min = config["site"]["m_min"]
+    # dist_cutoff = config["site"]["dist_cutoff"]
+    # m_min = config["site"]["m_min"]
     p_xyz = geometry.point_to_xyz(point)
+    vs30 = config["site"]["vs30"]
+    measured_vs30 = config["site"].get("measured_vs30", False)
+    z1p0 = config["site"].get("z1p0", None)
+    z2p5 = config["site"].get("z2p5", None)
+    dist_cutoff = config.get("constraints", {}).get("dist_cutoff", None)
+    m_min = config.get("constraints", {}).get("m_min", None)
 
     # Read output properties
     if "psha" in config["output"].keys():
@@ -635,36 +709,36 @@ def get_hazard(config_file):
                     ground_motion_model
                 ]["weight"]
                 # move on to next ground motion model if weight is less than or equal to zero
-                if (ground_motion_model_weight <= 0):
+                if ground_motion_model_weight <= 0:
                     continue
-                vs30 = config["ground_motion_models"][ground_motion_model]["vs30"]
-                z1p0 = None
-                z2p5 = None
-                measured_vs30 = False
-                # retrieve model-specific parameters
-                if (ground_motion_model == "ask14") or (ground_motion_model == "cy14"):
-                    if (
-                        "measured_vs30"
-                        in config["ground_motion_models"][ground_motion_model].keys()
-                    ):
-                        measured_vs30 = config["ground_motion_models"][ground_motion_model][
-                            "measured_vs30"
-                        ]
-                    if (
-                        "z1p0"
-                        in config["ground_motion_models"][ground_motion_model].keys()
-                    ):
-                        z1p0 = config["ground_motion_models"][ground_motion_model][
-                            "z1p0"
-                        ]
-                if ground_motion_model == "cb14":
-                    if (
-                        "z2p5"
-                        in config["ground_motion_models"][ground_motion_model].keys()
-                    ):
-                        z2p5 = config["ground_motion_models"][ground_motion_model][
-                            "z2p5"
-                        ]
+                # vs30 = config["ground_motion_models"][ground_motion_model]["vs30"]
+                # z1p0 = None
+                # z2p5 = None
+                # measured_vs30 = False
+                # # retrieve model-specific parameters
+                # if (ground_motion_model == "ask14") or (ground_motion_model == "cy14"):
+                #     if (
+                #         "measured_vs30"
+                #         in config["ground_motion_models"][ground_motion_model].keys()
+                #     ):
+                #         measured_vs30 = config["ground_motion_models"][ground_motion_model][
+                #             "measured_vs30"
+                #         ]
+                #     if (
+                #         "z1p0"
+                #         in config["ground_motion_models"][ground_motion_model].keys()
+                #     ):
+                #         z1p0 = config["ground_motion_models"][ground_motion_model][
+                #             "z1p0"
+                #         ]
+                # if ground_motion_model == "cb14":
+                #     if (
+                #         "z2p5"
+                #         in config["ground_motion_models"][ground_motion_model].keys()
+                #     ):
+                #         z2p5 = config["ground_motion_models"][ground_motion_model][
+                #             "z2p5"
+                #         ]
                 mu_ln_pga, sigma_ln_pga = get_ground_motion_data(
                     ground_motion_model,
                     vs30,
@@ -712,7 +786,7 @@ def get_hazard(config_file):
                         liquefaction_model_weight = config["liquefaction_models"][
                             liquefaction_model
                         ]["weight"]
-                        if (liquefaction_model_weight <= 0):
+                        if liquefaction_model_weight <= 0:
                             continue
                         if output_plha:
                             liquefaction_hazards, eps = get_liquefaction_cdfs(
@@ -790,5 +864,3 @@ def get_hazard(config_file):
             json.dump(output, outputfile, indent=4)
 
     return output
-
-
