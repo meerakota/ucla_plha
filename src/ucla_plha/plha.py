@@ -546,9 +546,7 @@ def get_hazard(config_file):
         )
     if point_source_model_weight_sum > 0:
         for point_source_model in point_source_models:
-            if config["source_models"]["point_source_models"].get(
-                point_source_model, {}
-            ):
+            if config["source_models"].get("point_source_models", {}).get(point_source_model, {}):
                 config["source_models"]["point_source_models"][point_source_model][
                     "weight"
                 ] /= point_source_model_weight_sum
@@ -578,11 +576,11 @@ def get_hazard(config_file):
     ]
     for liquefaction_model in liquefaction_models:
         liquefaction_model_weight_sum += (
-            config["liquefaction_models"].get(liquefaction_model, {}).get("weight", 0.0)
+            config.get("liquefaction_models", {}).get(liquefaction_model, {}).get("weight", 0.0)
         )
     if liquefaction_model_weight_sum > 0:
         for liquefaction_model in liquefaction_models:
-            if config["liquefaction_models"].get(liquefaction_model, {}):
+            if config.get("liquefaction_models", {}).get(liquefaction_model, {}):
                 config["liquefaction_models"][liquefaction_model]["weight"] /= (
                     liquefaction_model_weight_sum
                 )
