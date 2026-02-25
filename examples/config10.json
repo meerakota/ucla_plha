@@ -3,6 +3,10 @@
         "latitude": 36.80547,
         "longitude": -121.786074,
         "elevation": 0,
+        "vs30": 230.0
+
+    },
+    "constraints": {
         "dist_cutoff": 200,
         "m_min": 5.0
     },
@@ -32,20 +36,16 @@
     },
     "ground_motion_models": {
         "bssa14": {
-            "weight": 0.25,
-            "vs30": 230.0
+            "weight": 0.25
         },
         "ask14": {
-            "weight": 0.25,
-            "vs30": 230.0
+            "weight": 0.25
         },
         "cb14": {
-            "weight": 0.25,
-            "vs30": 230.0
+            "weight": 0.25
         },
         "cy14": {
-            "weight": 0.25,
-            "vs30": 230.0
+            "weight": 0.25
         }
     },
     "liquefaction_models": {

@@ -1,8 +1,12 @@
 {
     "site": {
-        "latitude": 36.801004,
-        "longitude":  -121.78875,
+        "latitude": 36.80547,
+        "longitude": -121.786074,
         "elevation": 0,
+        "vs30": 230.0
+
+    },
+    "constraints": {
         "dist_cutoff": 200,
         "m_min": 5.0
     },
@@ -23,8 +27,7 @@
     },
     "ground_motion_models": {
         "ask14": {
-            "weight": 1.0,
-            "vs30": 230.0
+            "weight": 1.0
         }
     },
     "output": {
