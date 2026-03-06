@@ -23,7 +23,7 @@ authors:
 identifiers:
   - type: doi
     value: 10.17603/ds2-x569-qv57
-repository-code: 'https://github.com/meerakota/ucla_plha'
+repository-code: 'https://doi.org/10.17603/ds2-x569-qv57'
 abstract: >-
   The ucla_plha Python package performs probabilistic
   liquefaction hazard analysis (PLHA) to quantify the annual
