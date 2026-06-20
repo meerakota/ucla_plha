@@ -34,12 +34,10 @@ def decompress_ucerf3_source_data():
         path = files("ucla_plha").joinpath(
             "source_models/fault_source_models/" + branch
         )
-        ruptures = pd.read_pickle(str(path.joinpath("ruptures.gz")), compression="gzip")
-        pd.to_pickle(ruptures, str(path.joinpath("ruptures.pkl")))
-        ruptures_segments = pd.read_pickle(
-            str(path.joinpath("ruptures_segments.gz")), compression="gzip"
-        )
-        pd.to_pickle(ruptures_segments, str(path.joinpath("ruptures_segments.pkl")))
+        ruptures = np.load(str(path.joinpath("ruptures.npz")))
+        np.savez(ruptures, str(path.joinpath("ruptures.npy")))
+        ruptures_segments = pd.load(str(path.joinpath("ruptures_segments.npz")))
+        np.savez(ruptures_segments, str(path.joinpath("ruptures_segments.npy")))
 
 
 def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
@@ -80,27 +78,22 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             "source_models/fault_source_models/" + source_model
         )
         # Read decompressed version of files if they exist. Otherwise read zipped version.
-        if os.path.exists(str(path.joinpath("ruptures.pkl"))):
-            ruptures = pd.read_pickle(str(path.joinpath("ruptures.pkl")))
+        if os.path.exists(str(path.joinpath("ruptures.npy"))):
+            ruptures = np.load(str(path.joinpath("ruptures.npy")))
         else:
-            ruptures = pd.read_pickle(
-                str(path.joinpath("ruptures.gz")), compression="gzip"
-            )
-        m = ruptures["m"].values
-        fault_type = ruptures["style"].values
-        if os.path.exists(str(path.joinpath("ruptures_segments.pkl"))):
-            ruptures_segments = pd.read_pickle(
-                str(path.joinpath("ruptures_segments.pkl"))
-            )
+            ruptures = np.load(str(path.joinpath("ruptures.npz")))
+        m = ruptures["m"]
+        fault_type = ruptures["fault_type"]
+        if os.path.exists(str(path.joinpath("ruptures_segments.npy"))):
+            ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npy")))
         else:
-            ruptures_segments = pd.read_pickle(
-                str(path.joinpath("ruptures_segments.gz")), compression="gzip"
-            )
-        segment_index = ruptures_segments["segment_index"].values
-        rate = ruptures["rate"].values
-        dip = ruptures["dip"].values
-        ztor = ruptures["ztor"].values
-        zbor = ruptures["zbor"].values
+            ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npz")))
+        segment_index = ruptures_segments["segment_index"]
+        ruptures_index = ruptures_segments["rupture_index"]
+        rate = ruptures["rate"]
+        dip = ruptures["dip"]
+        ztor = ruptures["ztor"]
+        zbor = ruptures["zbor"]
 
         # Now read files required by ask14, bssa14, cb14, and / or cy14
         # bssa14: rjb
@@ -113,28 +106,21 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
             tri_rjb = np.load(str(path.joinpath("tri_rjb.npy")))
             rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
-            ruptures_segments["rjb_all"] = rjb_all[segment_index]
         if any(gmm in ["ask14", "cb14", "cy14"] for gmm in gmms):
             rect_segment_id = np.load(str(path.joinpath("rect_segment_id.npy")))
             tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
             rect = np.load(str(path.joinpath("rect_rjb.npy")))
             rrup_all = geometry.point_triangle_distance(tri_rrup, p_xyz, tri_segment_id)
-            ruptures_segments["rrup_all"] = rrup_all[segment_index]
-            Rx_all, Rx1_all, Ry0_all = geometry.get_Rx_Rx1_Ry0(
+            rx_all, rx1_all, ry0_all = geometry.get_Rx_Rx1_Ry0(
                 rect, p_xyz, rect_segment_id
             )
-            ruptures_segments["Rx_all"] = Rx_all[segment_index]
-            ruptures_segments["Rx1_all"] = Rx1_all[segment_index]
-            ruptures_segments["Ry0_all"] = Ry0_all[segment_index]
-            ruptures_segments["dip_all"] = dip[segment_index]
-            ruptures_segments["ztor_all"] = ztor[segment_index]
-            ruptures_segments["zbor_all"] = zbor[segment_index]
-        grouped_ruptures_segments = ruptures_segments.groupby("rupture_index")
+        split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
+        boundaries = np.r_[0, split_indices]
         if any(gmm in ["ask14", "cb14", "cy14"] for gmm in gmms):
-            rrup = grouped_ruptures_segments["rrup_all"].min().values
-            rx = grouped_ruptures_segments["Rx_all"].min().values
-            rx1 = grouped_ruptures_segments["Rx1_all"].min().values
-            ry0 = grouped_ruptures_segments["Ry0_all"].min().values
+            rrup = np.minimum.reduceat(rrup_all[segment_index], boundaries)
+            rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
+            rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
+            ry0 = np.minimum.reduceat(ry0_all[segment_index], boundaries)
         else:
             rrup = empty_array
             rx = empty_array
@@ -142,7 +128,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             ry0 = empty_array
 
         if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
-            rjb = grouped_ruptures_segments["rjb_all"].min().values
+            rjb = np.minimum.reduceat(rjb_all[segment_index], boundaries)
         else:
             rjb = empty_array
 
@@ -178,25 +164,24 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         path = files("ucla_plha").joinpath(
             "source_models/point_source_models/" + source_model
         )
-        ruptures = pd.read_pickle(
-            str(path.joinpath("ruptures.pkl")), compression="gzip"
+        ruptures =np.load(
+            str(path.joinpath("ruptures.npz"))
         )
-        rate = ruptures["rate"].values
-        m = ruptures["m"].values
-        fault_type = ruptures["style"].values
-        node_index = np.load(str(path.joinpath("node_index.npy")))
+        rate = ruptures["rate"]
+        m = ruptures["m"]
+        fault_type = ruptures["style"]
+        node_index = ruptures["node_index"]
+        nodes_index = np.load(str(path.joinpath("node_index.npy")))
         points = np.load(str(path.joinpath("points.npy")))
 
-        repi_temp = np.empty(np.max(node_index) + 1, dtype=float)
-        for i, ni in enumerate(node_index):
-            repi_temp[ni] = np.sqrt(
-                (points[i, 0] - p_xyz[0]) ** 2
-                + (points[i, 1] - p_xyz[1]) ** 2
-                + (points[i, 2] - p_xyz[2]) ** 2
-            )
-        repi = repi_temp[ruptures["node_index"].values]
+        repi_all = np.sqrt(
+            (points[:,0] - p_xyz[0]) ** 2 
+            + (points[:,1] - p_xyz[1]) ** 2
+            + (points[:,2] - p_xyz[2]) ** 2
+        )
+        repi = repi_all[np.searchsorted(nodes_index, node_index, sorter=np.argsort(nodes_index))]
         rjb = repi / (1.0 + np.exp(-1.05 * (np.log(repi) - 1.037 * m + 4.2776)))
-
+        
         if (dist_cutoff is not None) and (m_min is not None):
             filter = (rjb < dist_cutoff) & (m >= m_min)
         elif (dist_cutoff is not None) and (m_min is None):

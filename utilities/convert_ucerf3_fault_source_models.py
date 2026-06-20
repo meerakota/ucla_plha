@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import pandas_geojson as pdg
+import geopandas as gpd
 
 def get_lat_lon(filename):
     '''
@@ -11,13 +11,13 @@ def get_lat_lon(filename):
     We reserve the word "fault" for a particular named fault (e.g., Airport Lake), and "section" for
     a section of the fault. We therefore have renamed "FaultID" to "segment_id" in our dataframe.
     '''
-    df = pdg.read_geojson(filename).to_dataframe()
-    geometry_coordinates = df['geometry.coordinates'].values
-    FaultID = df['properties.FaultID'].values
-    DipDeg = df['properties.DipDeg'].values
-    DipDir = df['properties.DipDir'].values
-    LowDepth = df['properties.LowDepth'].values
-    UpDepth = df['properties.UpDepth'].values
+    df = gpd.read_file(filename)
+    geometry_coordinates = df['geometry'].get_coordinates(index_parts=True)
+    FaultID = df['FaultID'].values
+    DipDeg = df['DipDeg'].values
+    DipDir = df['DipDir'].values
+    LowDepth = df['LowDepth'].values
+    UpDepth = df['UpDepth'].values
     
     lat1 = []
     lon1 = []
@@ -29,8 +29,10 @@ def get_lat_lon(filename):
     lower_depth = []
     upper_depth = []
     
-    for gm, fid, ddeg, ddir, ldepth, udepth in zip(geometry_coordinates,FaultID,DipDeg,DipDir,LowDepth,UpDepth):
-        gm_array = np.asarray(gm)
+    I = 0
+    for fid, ddeg, ddir, ldepth, udepth in zip(FaultID,DipDeg,DipDir,LowDepth,UpDepth):
+        gm_array = geometry_coordinates.loc[I].values
+        I += 1
         for i in range(gm_array.shape[0]-1):
             segment_id.append(fid)
             lon1.append(gm_array[i,0])
@@ -143,14 +145,17 @@ def get_rupture_data(rupture_file, rate_file, ruptures_segments_file, ztor_segme
     '''
     rupture_df =  pd.read_csv(rupture_file)
     rate_df = pd.read_csv(rate_file)
-    ruptures_segments_df = pd.read_pickle(ruptures_segments_file, compression='gzip')
-    segment_index = ruptures_segments_df['segment_index'].values
-    ruptures_segments_df['ztor_all'] = ztor_segments[segment_index]
-    ruptures_segments_df['zbor_all'] = zbor_segments[segment_index]
-    ruptures_segments_df['dip_all'] = dip_segments[segment_index]
-    ztor = ruptures_segments_df.groupby('rupture_index')['ztor_all'].min().values
-    zbor = ruptures_segments_df.groupby('rupture_index')['zbor_all'].max().values
-    dip = ruptures_segments_df.groupby('rupture_index')['dip_all'].mean().values
+    ruptures_segments = np.load(ruptures_segments_file)
+    segment_index = ruptures_segments['segment_index']
+    ruptures_index = ruptures_segments['rupture_index']
+    ztor_all = ztor_segments[segment_index]
+    zbor_all = zbor_segments[segment_index]
+    dip_all = dip_segments[segment_index]
+    split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
+    boundaries = np.r_[0, split_indices]
+    ztor = np.minimum.reduceat(ztor_all[segment_index], boundaries)
+    zbor = np.minimum.reduceat(zbor_all[segment_index], boundaries)
+    dip = np.minimum.reduceat(dip_all[segment_index], boundaries)
     rate = rate_df['Annual Rate'].values
     fault_type = np.full(len(rupture_df), 1)
     rake = rupture_df['Average Rake (degrees)'].values
@@ -159,16 +164,8 @@ def get_rupture_data(rupture_file, rate_file, ruptures_segments_file, ztor_segme
     fault_type[(rake >= -180) & (rake <= -150)] = 3
     fault_type[(rake >= -30) & (rake <= 30)] = 3
     fault_type[(rake >= 150) & (rake <= 180)] = 3
-    df_out = pd.DataFrame()
-    df_out['rupture_index'] = rupture_df['Rupture Index'].values
-    df_out['m'] = m
-    df_out['rate'] = rate
-    df_out['style'] = fault_type
-    df_out['rake'] = rake
-    df_out['dip'] = dip
-    df_out['ztor'] = ztor
-    df_out['zbor'] = zbor
-    df_out.to_pickle(output_file, compression='gzip')
+    np.savez_compressed(output_file, m=m, rate=rate, fault_type=fault_type, dip=dip, ztor=ztor, zbor=zbor)
+    
     return
 
 def get_ruptures_segments(rupture_indices_file, output_file):
@@ -186,12 +183,9 @@ def get_ruptures_segments(rupture_indices_file, output_file):
     for i, it in indicesT.items():
         segment_index_array[i] = np.asarray(it.values[0:segment_index[i]], dtype='short')
         rupture_index_array[i] = np.full(segment_index[i], rupture_index[i])
-    rupture_index_all = np.hstack(rupture_index_array)
-    segment_index_all = np.hstack(segment_index_array)
-    ruptures_segments_df = pd.DataFrame()
-    ruptures_segments_df['rupture_index'] = rupture_index_all.astype('intc')
-    ruptures_segments_df['segment_index'] = segment_index_all.astype('short')
-    ruptures_segments_df.to_pickle(output_file, compression='gzip')
+    rupture_index_all = np.array(np.hstack(rupture_index_array), dtype=np.int32)
+    segment_index_all = np.array(np.hstack(segment_index_array), dtype=np.int32)
+    np.savez_compressed(output_file, rupture_index = rupture_index_all, segment_index=segment_index_all)
 
 
 ### Compute triangles representing fault segments, and array of segment_id values
@@ -206,14 +200,14 @@ np.save('../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/rect_rjb
 
 ### Compute array mapping rupture and segment indices
 fm31_rupture_indices_file = 'FM3_1_branch_averaged/ruptures/indices.csv'
-fm31_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures_segments.pkl'
+fm31_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures_segments.npz'
 get_ruptures_segments(fm31_rupture_indices_file, fm31_output_file)
 
 ### Compute ruptures.pkl file that contains rupture_index, magnitude, rate and style of faulting for each event
 fm31_rupture_file = 'FM3_1_branch_averaged/ruptures/properties.csv'
 fm31_rate_file = 'FM3_1_branch_averaged/solution/rates.csv'
-fm31_ruptures_segments_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures_segments.pkl'
-fm31_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures.pkl'
+fm31_ruptures_segments_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures_segments.npz'
+fm31_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures.npz'
 get_rupture_data(fm31_rupture_file, fm31_rate_file, fm31_ruptures_segments_file, d1, d3, dip, fm31_output_file)
 
 # Now repeat for fm32
@@ -227,11 +221,11 @@ np.save('../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/rect_seg
 np.save('../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/rect_rjb.npy', rect_fm32)
 
 fm32_rupture_indices_file = 'FM3_2_branch_averaged/ruptures/indices.csv'
-fm32_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures_segments.pkl'
+fm32_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures_segments.npz'
 get_ruptures_segments(fm32_rupture_indices_file, fm32_output_file)
 
 fm32_rupture_file = 'FM3_2_branch_averaged/ruptures/properties.csv'
 fm32_rate_file = 'FM3_2_branch_averaged/solution/rates.csv'
-fm32_ruptures_segments_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures_segments.pkl'
-fm32_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures.pkl'
+fm32_ruptures_segments_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures_segments.npz'
+fm32_output_file = '../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures.npz'
 get_rupture_data(fm32_rupture_file, fm32_rate_file, fm32_ruptures_segments_file, d1, d3, dip, fm32_output_file)
