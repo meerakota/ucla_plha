@@ -4,9 +4,6 @@ from importlib.resources import files
 
 import jsonschema
 import numpy as np
-import pandas as pd
-import scipy as sp
-from scipy.stats import norm
 from scipy.special import ndtr
 
 from ucla_plha.liquefaction_models import (
