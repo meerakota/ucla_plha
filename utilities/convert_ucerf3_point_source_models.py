@@ -59,12 +59,14 @@ def get_points(points_input_filename, weights_input_filename, points_output_file
     style_ns = np.full(len(rate_ns), 2)
     style_rs = np.full(len(rate_rs), 1)
     style = np.hstack((style_ss, style_ns, style_rs))
-    df_out = pd.DataFrame()
-    df_out['node_index'] = np.hstack((node_index_all, node_index_all, node_index_all))
-    df_out['m'] = np.hstack((m_array, m_array, m_array))
-    df_out['rate'] = rate
-    df_out['style'] = style
-    df_out[df_out['rate']> 0].to_pickle(ruptures_output_filename, compression='gzip')
+    node_index_all = np.hstack((node_index_all, node_index_all, node_index_all))
+    node_index_all = node_index_all[rate>0]
+    m_all = np.hstack((m_array, m_array, m_array))
+    m_all = m_all[rate>0]
+    style = style[rate>0]
+    rate = rate[rate>0]
+    np.savez_compressed(ruptures_output_filename, node_index=node_index_all, m=m_all, style=style, rate=rate)
+
     return
 
 ### Run function for UCERF3 input files
@@ -73,26 +75,26 @@ get_points(
     'FM3_1_branch_averaged/solution/grid_mech_weights.csv', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_sub_seis/points.npy', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_sub_seis/node_index.npy',
-    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_sub_seis/ruptures.pkl'
+    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_sub_seis/ruptures.npz'
 )
 get_points(
     'FM3_2_branch_averaged/solution/grid_sub_seis_mfds.csv', 
     'FM3_2_branch_averaged/solution/grid_mech_weights.csv', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_sub_seis/points.npy', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_sub_seis/node_index.npy',
-    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_sub_seis/ruptures.pkl'
+    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_sub_seis/ruptures.npz'
 )
 get_points(
     'FM3_1_branch_averaged/solution/grid_unassociated_mfds.csv', 
     'FM3_1_branch_averaged/solution/grid_mech_weights.csv', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_unassociated/points.npy', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_unassociated/node_index.npy',
-    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_unassociated/ruptures.pkl'
+    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm31_grid_unassociated/ruptures.npz'
 )
 get_points(
     'FM3_2_branch_averaged/solution/grid_unassociated_mfds.csv', 
     'FM3_2_branch_averaged/solution/grid_mech_weights.csv', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_unassociated/points.npy', 
     '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_unassociated/node_index.npy',
-    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_unassociated/ruptures.pkl'
+    '../src/ucla_plha/source_models/point_source_models/ucerf3_fm32_grid_unassociated/ruptures.npz'
 )
