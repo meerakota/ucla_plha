@@ -32,9 +32,9 @@ def decompress_ucerf3_source_data():
             "source_models/fault_source_models/" + branch
         )
         ruptures = np.load(str(path.joinpath("ruptures.npz")))
-        np.savez(str(path.joinpath("ruptures.npy")), ruptures)
+        np.savez(str(path.joinpath("ruptures.npy")), **ruptures)
         ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npz")))
-        np.savez(str(path.joinpath("ruptures_segments.npy"), ruptures_segments))
+        np.savez(str(path.joinpath("ruptures_segments.npy")), **ruptures_segments)
 
 
 def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
