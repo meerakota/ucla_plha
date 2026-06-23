@@ -4,7 +4,7 @@
     "codeRepository": "https://github.com/meerakota/ucla_plha",
     "contributor": [
         {
-            "id": "_:contributor_1",
+            "id": "https://orcid.org/0009-0006-4429-0443",
             "type": "Person",
             "affiliation": {
                 "type": "Organization",
@@ -27,8 +27,8 @@
         }
     ],
     "dateCreated": "2025-10-15",
-    "dateModified": "2025-10-14",
-    "datePublished": "2025-09-01",
+    "dateModified": "2026-02-27",
+    "datePublished": "2025-10-30",
     "description": "The ucla_plha Python package performs probabilistic liquefaction hazard analysis (PLHA) to quantify the annual rate of liquefaction in California. The code integrates probabilistic seismic hazard analysis (PSHA) using the Uniform California Earthquake Rupture Forecast, Version 3 (UCERF3, Field et al. 2017) source model and ground motion models from the NGAWest2 project (Bozorgnia et al. 2014) with liquefaction hazard analysis using probabilistic liquefaction triggering / manifestation models.",
     "funder": {
         "type": "Organization",
@@ -37,6 +37,6 @@
     "license": "https://spdx.org/licenses/BSD-3-Clause",
     "name": "ucla_plha: A Probabilistic Liquefaction Hazard Assessment Python Package",
     "programmingLanguage": "Python 3",
-    "version": "2.0.0",
+    "version": "2.0.3",
     "funding": "UC Climate Action Initiative"
 }
