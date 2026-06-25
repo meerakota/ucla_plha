@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.interpolate import interp1d
 
 
 def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **kwargs):

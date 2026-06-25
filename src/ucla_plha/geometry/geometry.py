@@ -1,6 +1,4 @@
 import numpy as np
-import pandas as pd
-
 
 def point_to_xyz(p):
     """
@@ -167,11 +165,13 @@ def point_triangle_distance(tri_xyz, p_xyz, tri_segment_id):
     # account for numerical round-off error
     sqrdistance[sqrdistance <= 0] = 0
 
-    # use Pandas groupby function to find shortest distance for a particular fault rupture
-    df = pd.DataFrame()
-    df["tri_segment_id"] = tri_segment_id
-    df["sqrdistance"] = sqrdistance
-    sqrdistance_out = df.groupby("tri_segment_id")["sqrdistance"].min().values
+    sort_idx = np.argsort(tri_segment_id)
+    tri_segment_id_sorted = tri_segment_id[sort_idx]
+    sqrdistance_sorted = sqrdistance[sort_idx]
+
+    split_indices = np.diff(tri_segment_id_sorted) != 0
+    boundaries = np.r_[0, np.where(split_indices)[0] + 1]
+    sqrdistance_out = np.minimum.reduceat(sqrdistance_sorted, boundaries)
 
     # return distance array
     return np.sqrt(sqrdistance_out).T
@@ -199,7 +199,7 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
     (x1,y1,z1)o--------o(x3,y3,z3)
 
     """
-
+    
     width = np.sqrt(np.sum((rect_points[:, 2] - rect_points[:, 0]) ** 2, axis=1))
     width[width < 0.001] = 0.001
     length = np.sqrt(np.sum((rect_points[:, 1] - rect_points[:, 0]) ** 2, axis=1))
@@ -270,13 +270,11 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
     # A "segment" in the UCERF3 model sometimes consists of multiple geometric objects, so we need to
     # compute the shortest distance between each geometric object and the point to find the shortest distance
     # to the "segment"
-    df = pd.DataFrame()
-    df["rect_segment_id"] = rect_segment_id
-    df["Rx"] = Rx
-    df["Rx1"] = Rx1
-    df["Ry0"] = Ry0
-    Rx_out = df.groupby("rect_segment_id")["Rx"].min().values
-    Rx1_out = df.groupby("rect_segment_id")["Rx1"].min().values
-    Ry0_out = df.groupby("rect_segment_id")["Ry0"].min().values
-
+    
+    split_indices = np.diff(rect_segment_id) != 0
+    boundaries = np.r_[0, np.where(split_indices)[0] + 1]
+    Rx_out = np.minimum.reduceat(Rx, boundaries)
+    Rx1_out = np.minimum.reduceat(Rx1, boundaries)
+    Ry0_out = np.minimum.reduceat(Ry0, boundaries)
+    
     return (Rx_out, Rx1_out, Ry0_out)
