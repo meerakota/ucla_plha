@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- axes -->
+  <path d="M12 8 V52 H56" stroke="#9aa4b2" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- seismic hazard curve (convex, decreasing) -->
+  <path d="M14 14 C24 16, 30 28, 36 38 S50 50, 54 50"
+        stroke="#2774AE" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <!-- gold marker on the curve -->
+  <circle cx="36" cy="38" r="3.2" fill="#FFC72C"/>
+</svg>

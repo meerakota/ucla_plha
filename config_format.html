@@ -1,0 +1,971 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Config File Format &#8212; ucla_plha 2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3dfe1ce0" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=d94dc4f2"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"], ["$", "$"]], "displayMath": [["\\[", "\\]"], ["$$", "$$"]]}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'config_format';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Limitations" href="overview/limitations.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">ucla_plha</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Get started</a></li>
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="overview.html">Overview</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview/coupled_decoupled.html">Coupled vs. Decoupled approaches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/limitations.html">Limitations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Config File Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">Functions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/meerakota/ucla_plha" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/config_format.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Config File Format</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#top-level-keys">Top-level keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#site-keys"><code class="docutils literal notranslate"><span class="pre">"site"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-keys"><code class="docutils literal notranslate"><span class="pre">"constraints"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-models-keys"><code class="docutils literal notranslate"><span class="pre">"source_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ground-motion-models-keys"><code class="docutils literal notranslate"><span class="pre">"ground_motion_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#liquefaction-models-keys"><code class="docutils literal notranslate"><span class="pre">"liquefaction_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-keys"><code class="docutils literal notranslate"><span class="pre">"output"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-config-structure">Full config structure</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="config-file-format">
+<h1>Config File Format<a class="headerlink" href="#config-file-format" title="Link to this heading">#</a></h1>
+<p><strong>ucla_plha</strong> uses a <a class="reference external" href="https://www.json.org/json-en.html">Javascript Object Notation (JSON)</a> input file to configure
+the analysis, and uses <a class="reference external" href="https://json-schema.org/">JSON Schema</a> to validate user inputs. Example config files
+are provided in the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> section of this documentation, and the schema is
+defined by the <a class="reference external" href="https://github.com/meerakota/ucla_plha/blob/main/src/ucla_plha/ucla_plha_schema.json">ucla_plha_schema.json</a> file in the <code class="docutils literal notranslate"><span class="pre">src/ucla_plha</span></code> directory of
+the GitHub repository. We validate that the data types are correct and that all
+required fields have been specified.</p>
+<p>We thought about using a more human-readable input file format such as YAML, but
+decided to use JSON instead since our code is intended for HPC applications. Both
+JSON and YAML are human readable, but JSON is better for machine-parsing, and we
+prioritized that in our code.</p>
+<section id="top-level-keys">
+<h2>Top-level keys<a class="headerlink" href="#top-level-keys" title="Link to this heading">#</a></h2>
+<p>The top-level keys are all JSON objects. If the <code class="docutils literal notranslate"><span class="pre">&quot;liquefaction_models&quot;</span></code> key and
+its associated JSON objects are excluded from the config file, the code will perform
+only a PSHA without performing a PLHA.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 55.0%" />
+<col style="width: 15.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;site&quot;</span></code></p></td>
+<td><p>site location, shear-wave velocity, and optional depth parameters</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;</span></code></p></td>
+<td><p>distance and magnitude limits for the analysis</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;source_models&quot;</span></code></p></td>
+<td><p>earthquake source models (fault and point sources)</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ground_motion_models&quot;</span></code></p></td>
+<td><p>ground motion models and their weights</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;liquefaction_models&quot;</span></code></p></td>
+<td><p>liquefaction triggering models and soil inputs; omit to run PSHA only</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code></p></td>
+<td><p>requested hazard outputs and optional disaggregation</p></td>
+<td><p>yes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="site-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;site&quot;</span></code> keys<a class="headerlink" href="#site-keys" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 45.0%" />
+<col style="width: 18.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>units</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;latitude&quot;</span></code></p></td>
+<td><p>latitude</p></td>
+<td><p>decimal degrees</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;longitude&quot;</span></code></p></td>
+<td><p>longitude</p></td>
+<td><p>decimal degrees</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;elevation&quot;</span></code></p></td>
+<td><p>elevation</p></td>
+<td><p>km</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;vs30&quot;</span></code></p></td>
+<td><p>time-averaged shear-wave velocity in the upper 30 m</p></td>
+<td><p>m/s</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;measured_vs30&quot;</span></code></p></td>
+<td><p>boolean indicating whether <code class="docutils literal notranslate"><span class="pre">vs30</span></code> was measured (<code class="docutils literal notranslate"><span class="pre">true</span></code>) or inferred (<code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></td>
+<td><p>-</p></td>
+<td><p>no; default = <code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;z1p0&quot;</span></code></p></td>
+<td><p>depth to the isosurface where <span class="math notranslate nohighlight">\(V_S\)</span> = 1.0 km/s; used by ASK14 and CY14</p></td>
+<td><p>km</p></td>
+<td><p>no; default = centered value based on <span class="math notranslate nohighlight">\(V_{S30}\)</span> (i.e., <span class="math notranslate nohighlight">\(\delta z_{1.0} = 0\)</span>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;z2p5&quot;</span></code></p></td>
+<td><p>depth to the isosurface where <span class="math notranslate nohighlight">\(V_S\)</span> = 2.5 km/s; used by CB14</p></td>
+<td><p>km</p></td>
+<td><p>no; default = centered value based on <span class="math notranslate nohighlight">\(V_{S30}\)</span> (i.e., <span class="math notranslate nohighlight">\(\delta z_{2.5} = 0\)</span>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><span class="math notranslate nohighlight">\(z_{1.0}\)</span> is used in the BSSA14 model but has no influence on PGA, so it
+is not accepted as an input for <code class="docutils literal notranslate"><span class="pre">&quot;bssa14&quot;</span></code>.</p>
+</div>
+</section>
+<section id="constraints-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;</span></code> keys<a class="headerlink" href="#constraints-keys" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 45.0%" />
+<col style="width: 18.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>units</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;dist_cutoff&quot;</span></code></p></td>
+<td><p>maximum source-to-site distance to include in the PSHA</p></td>
+<td><p>km</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;m_min&quot;</span></code></p></td>
+<td><p>minimum magnitude to include in the PSHA</p></td>
+<td><p>-</p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="source-models-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;source_models&quot;</span></code> keys<a class="headerlink" href="#source-models-keys" title="Link to this heading">#</a></h2>
+<p>The second nesting level contains two keys: <code class="docutils literal notranslate"><span class="pre">&quot;fault_source_models&quot;</span></code>
+and <code class="docutils literal notranslate"><span class="pre">&quot;point_source_models&quot;</span></code>. The third nesting level contains the specific source
+model keys listed below. The fourth nesting level contains a single key
+<code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code>.</p>
+<p>Weights will be normalized within <code class="docutils literal notranslate"><span class="pre">&quot;fault_source_models&quot;</span></code> and within
+<code class="docutils literal notranslate"><span class="pre">&quot;point_source_models&quot;</span></code> such that they sum to unity.</p>
+<p><strong>fault_source_models</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 51.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm31&quot;</span></code></p></td>
+<td><p>UCERF3 Fault Model 3.1</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm32&quot;</span></code></p></td>
+<td><p>UCERF3 Fault Model 3.2</p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>point_source_models</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 43.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm31_grid_sub_seis&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.1 gridded sub-seismogenic sources</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm31_grid_unassociated&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.1 gridded unassociated sources</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm32_grid_sub_seis&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.2 gridded sub-seismogenic sources</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm32_grid_unassociated&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.2 gridded unassociated sources</p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="ground-motion-models-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;ground_motion_models&quot;</span></code> keys<a class="headerlink" href="#ground-motion-models-keys" title="Link to this heading">#</a></h2>
+<p>The second nesting level defines the ground motion model and must be one or more of
+<code class="docutils literal notranslate"><span class="pre">&quot;ask14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;bssa14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cb14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cy14&quot;</span></code>. The third nesting level defines
+the model parameters listed below. Weights within <code class="docutils literal notranslate"><span class="pre">&quot;ground_motion_models&quot;</span></code> will be
+normalized to sum to unity.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 55.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code></p></td>
+<td><p>weight assigned to this ground motion model</p></td>
+<td><p>required for all models</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="liquefaction-models-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;liquefaction_models&quot;</span></code> keys<a class="headerlink" href="#liquefaction-models-keys" title="Link to this heading">#</a></h2>
+<p>The second nesting level defines the liquefaction triggering model and must be one
+or more of <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>. The third
+nesting level defines the model inputs listed below.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 40.0%" />
+<col style="width: 10.0%" />
+<col style="width: 34.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>units</p></th>
+<th class="head"><p>required by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;n160&quot;</span></code></p></td>
+<td><p>overburden- and energy-corrected SPT blow count</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;fc&quot;</span></code></p></td>
+<td><p>fines content</p></td>
+<td><p>%</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;vs12&quot;</span></code></p></td>
+<td><p>time-averaged shear-wave velocity in the upper 12 m</p></td>
+<td><p>m/s</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;qc1Ncs&quot;</span></code></p></td>
+<td><p>overburden- and fines-corrected dimensionless cone tip resistance</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;qc&quot;</span></code></p></td>
+<td><p>cone tip resistance</p></td>
+<td><p>MPa</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;fs&quot;</span></code></p></td>
+<td><p>cone sleeve friction</p></td>
+<td><p>MPa</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;Ic&quot;</span></code></p></td>
+<td><p>soil behavior type index</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;Ksat&quot;</span></code></p></td>
+<td><p>saturation factor applied to probability of triggering</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ztop&quot;</span></code></p></td>
+<td><p>depth to top of layer (array)</p></td>
+<td><p>m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;zbot&quot;</span></code></p></td>
+<td><p>depth to bottom of layer (array)</p></td>
+<td><p>m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;sigmav&quot;</span></code></p></td>
+<td><p>vertical total stress at center of layer</p></td>
+<td><p>kPa</p></td>
+<td><p>all models; array-valued for <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>, scalar-valued for other models</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;sigmavp&quot;</span></code></p></td>
+<td><p>vertical effective stress at center of layer</p></td>
+<td><p>kPa</p></td>
+<td><p>all models; array-valued for <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>, scalar-valued for other models</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;depth&quot;</span></code></p></td>
+<td><p>depth to center of layer</p></td>
+<td><p>m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pa&quot;</span></code></p></td>
+<td><p>atmospheric pressure</p></td>
+<td><p>kPa</p></td>
+<td><p>all models</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code></p></td>
+<td><p>weight assigned to this liquefaction model</p></td>
+<td><p>-</p></td>
+<td><p>all models</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You cannot include keys that are not required by a given model. For example,
+<code class="docutils literal notranslate"><span class="pre">&quot;n160&quot;</span></code> cannot appear in a cone penetration test model entry.</p>
+</div>
+</section>
+<section id="output-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code> keys<a class="headerlink" href="#output-keys" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code> object specifies whether to write the PSHA and/or PLHA output to a
+JSON file, and whether to include disaggregation data. Including disaggregation data
+slows down the calculations, and should be included only if needed.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 45.0%" />
+<col style="width: 27.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code></p></td>
+<td><p>include to output a PSHA hazard curve</p></td>
+<td><p>optional</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pga&quot;</span></code></p></td>
+<td><p>array of PGA values at which to evaluate the hazard curve</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code></p></td>
+<td><p>include to output a PLHA hazard curve</p></td>
+<td><p>optional</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;fsl&quot;</span></code></p></td>
+<td><p>array of factor-of-safety values at which to evaluate the hazard curve</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code></p></td>
+<td><p>include under <code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code> to output disaggregation data</p></td>
+<td><p>optional</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;magnitude_bin_edges&quot;</span></code></p></td>
+<td><p>edges of magnitude bins for disaggregation</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;distance_bin_edges&quot;</span></code></p></td>
+<td><p>edges of distance bins for disaggregation</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;epsilon_bin_edges&quot;</span></code></p></td>
+<td><p>edges of epsilon bins for disaggregation</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;outputfile&quot;</span></code></p></td>
+<td><p>filename for saving output (includes a copy of the inputs)</p></td>
+<td><p>optional</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can specify <code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code> and its <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> object without including
+<code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code>. In this case the PSHA will still be performed internally, but its
+results will not be returned.</p>
+<p>Whether or not <code class="docutils literal notranslate"><span class="pre">&quot;outputfile&quot;</span></code> is specified, the code returns a Python
+dictionary containing all results.</p>
+<p>The input JSON object is saved alongside the output in <code class="docutils literal notranslate"><span class="pre">&quot;outputfile&quot;</span></code> so that
+inputs and outputs are always stored together. This prevents inconsistencies if
+the config file is modified after a run.</p>
+</div>
+</section>
+<section id="full-config-structure">
+<h2>Full config structure<a class="headerlink" href="#full-config-structure" title="Link to this heading">#</a></h2>
+<p>The following shows the complete structure of a config file. Note that keys are
+lowercase following <a class="reference external" href="https://peps.python.org/pep-0008/">PEP 8</a> convention, but the config file is case-insensitive
+so <code class="docutils literal notranslate"><span class="pre">N160</span></code> works equally well as <code class="docutils literal notranslate"><span class="pre">n160</span></code>. Optional inputs are shown with their
+default values where applicable.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">34.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-118.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">350.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;measured_vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;z1p0&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;z2p5&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;liquefaction_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;boulanger_idriss_2012&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;n160&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;boulanger_idriss_2016&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">80.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;cetin_et_al_2018&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;n160&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;vs12&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;moss_et_al_2006&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;qc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;ngl_smt_2024&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;ztop&quot;</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">4.5</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;zbot&quot;</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5.5</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">80.0</span><span class="p">,</span><span class="w"> </span><span class="mf">85.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;Ic&quot;</span><span class="p">:</span><span class="w">      </span><span class="p">[</span><span class="mf">1.8</span><span class="p">,</span><span class="w"> </span><span class="mf">1.9</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">110.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="mf">65.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;Ksat&quot;</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;disaggregation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;magnitude_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;distance_bin_edges&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;epsilon_bin_edges&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+<span class="w">         </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;plha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">&quot;fsl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.75</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.25</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">&quot;disaggregation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;magnitude_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;distance_bin_edges&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;epsilon_bin_edges&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+<span class="w">         </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;outputfile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output.json&quot;</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="overview/limitations.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Limitations</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="examples.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#top-level-keys">Top-level keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#site-keys"><code class="docutils literal notranslate"><span class="pre">"site"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-keys"><code class="docutils literal notranslate"><span class="pre">"constraints"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-models-keys"><code class="docutils literal notranslate"><span class="pre">"source_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ground-motion-models-keys"><code class="docutils literal notranslate"><span class="pre">"ground_motion_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#liquefaction-models-keys"><code class="docutils literal notranslate"><span class="pre">"liquefaction_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-keys"><code class="docutils literal notranslate"><span class="pre">"output"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-config-structure">Full config structure</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Meera L. Kota, Scott J. Brandenberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Meera L. Kota and Scott J. Brandenberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

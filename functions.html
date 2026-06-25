@@ -1,0 +1,710 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Functions &#8212; ucla_plha 2.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3dfe1ce0" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=d94dc4f2"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"], ["$", "$"]], "displayMath": [["\\[", "\\]"], ["$$", "$$"]]}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'functions';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Validation" href="validation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">ucla_plha</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Get started</a></li>
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="overview.html">Overview</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview/coupled_decoupled.html">Coupled vs. Decoupled approaches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/limitations.html">Limitations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="config_format.html">Config File Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Functions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/meerakota/ucla_plha" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/functions.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Functions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decompress_ucerf3_source_data"><code class="docutils literal notranslate"><span class="pre">decompress_ucerf3_source_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_source_data"><code class="docutils literal notranslate"><span class="pre">get_source_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_ground_motion_data"><code class="docutils literal notranslate"><span class="pre">get_ground_motion_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_liquefaction_cdfs"><code class="docutils literal notranslate"><span class="pre">get_liquefaction_cdfs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_disagg"><code class="docutils literal notranslate"><span class="pre">get_disagg()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_hazard"><code class="docutils literal notranslate"><span class="pre">get_hazard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="functions">
+<h1>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h1>
+<p>The functions available in the <strong>ucla_plha</strong> package are summarized below, followed
+by a detailed description of each. Some general notes on the functions:
+- <span class="math notranslate nohighlight">\(N\)</span> = number of events
+- <span class="math notranslate nohighlight">\(L\)</span> = number of FSL or intensity measure values at which to compute hazard curves
+- <span class="math notranslate nohighlight">\(M\)</span> = number of magnitude bins for disaggregation
+- <span class="math notranslate nohighlight">\(R\)</span> = number of distance bins for disaggregation
+- <span class="math notranslate nohighlight">\(E\)</span> = number of epsilon bins for disaggregation</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>function</p></th>
+<th class="head"><p>description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="#decompress_ucerf3_source_data" title="decompress_ucerf3_source_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">decompress_ucerf3_source_data()</span></code></a></p></td>
+<td><p>Decompress the UCERF3 source-model files</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#get_source_data" title="get_source_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_source_data()</span></code></a></p></td>
+<td><p>Read source-model files and compute rupture distances and geometry</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#get_ground_motion_data" title="get_ground_motion_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_ground_motion_data()</span></code></a></p></td>
+<td><p>Evaluate the four <span class="math notranslate nohighlight">\(V_{S30}\)</span>-dependent ground motion models</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#get_liquefaction_cdfs" title="get_liquefaction_cdfs"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_liquefaction_cdfs()</span></code></a></p></td>
+<td><p>Evaluate probabilistic liquefaction triggering models</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#get_disagg" title="get_disagg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_disagg()</span></code></a></p></td>
+<td><p>Compute seismic and liquefaction hazard disaggregation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#get_hazard" title="get_hazard"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_hazard()</span></code></a></p></td>
+<td><p>Run the full PSHA and PLHA from a config file</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<dl class="py function">
+<dt class="sig sig-object py" id="decompress_ucerf3_source_data">
+<span class="sig-name descname"><span class="pre">decompress_ucerf3_source_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#decompress_ucerf3_source_data" title="Link to this definition">#</a></dt>
+<dd><p>Some of the input UCERF3 source-model files are quite large and are compressed as
+NumPy archives to keep the package installation efficient. Within the
+<code class="docutils literal notranslate"><span class="pre">ucerf3_fm31</span></code> and <code class="docutils literal notranslate"><span class="pre">ucerf3_fm32</span></code> directories under
+<code class="docutils literal notranslate"><span class="pre">source_models/fault_source_models</span></code>, the <code class="docutils literal notranslate"><span class="pre">ruptures.npz</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ruptures_segments.npz</span></code> files are compressed as (<code class="docutils literal notranslate"><span class="pre">.npz</span></code>) NumPy archives. An .npz file
+is a NumPy specific zip archive format used to save multiple NumPy arrays into a single file on disk. Loading
+the compressed archives at run time is slower than loading uncompressed data, so
+this function reads the <code class="docutils literal notranslate"><span class="pre">.npz</span></code> archives for both UCERF3 branches and writes
+uncompressed <code class="docutils literal notranslate"><span class="pre">.npy</span></code> versions. The <strong>ucla_plha</strong> code checks for the <code class="docutils literal notranslate"><span class="pre">.npy</span></code>
+files first and uses them if present, otherwise falling back to the <code class="docutils literal notranslate"><span class="pre">.npz</span></code>
+archives. It only needs to be run once.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="get_source_data">
+<span class="sig-name descname"><span class="pre">get_source_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_xyz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_cutoff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gmms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#get_source_data" title="Link to this definition">#</a></dt>
+<dd><p>This function takes inputs of the type of source data (fault or point source),
+the source model (branch dependent), the site of interest, distance cutoff (e.g. 200 km),
+and the ground motion models of interest. For fault and point source data it returns
+filtered values (given distance cutoff) for magnitude, fault type (dependent on rake),
+rate, <span class="math notranslate nohighlight">\(R_{JB}\)</span> (Joyner-Boore distance in km), <span class="math notranslate nohighlight">\(R_{rup}\)</span> (rupture distance
+in km), <span class="math notranslate nohighlight">\(R_x\)</span> (the horizontal distance from the top edge of the rupture in km),
+<span class="math notranslate nohighlight">\(R_{x1}\)</span> (in km), <span class="math notranslate nohighlight">\(R_{y0}\)</span> (in km), dip (perpendicular to strike, in degrees),
+<span class="math notranslate nohighlight">\(Z_{tor}\)</span> (depth to top of rupture in km), and <span class="math notranslate nohighlight">\(Z_{bor}\)</span> (depth to bottom of
+rupture in km).</p>
+<p>Returns magnitude, fault type, rate, distance, and fault geometry terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Either <code class="docutils literal notranslate"><span class="pre">&quot;fault_source_models&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;point_source_models&quot;</span></code>.</p></li>
+<li><p><strong>source_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Directory for the source model within the source-type
+directory. Currently either <code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm31&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm32&quot;</span></code>.</p></li>
+<li><p><strong>p_xyz</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><em>numpy.ndarray</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Array containing the x, y, z coordinates of the point of interest,
+length 3.</p></li>
+<li><p><strong>dist_cutoff</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Maximum distance to consider in the seismic hazard analysis.</p></li>
+<li><p><strong>gmms</strong> (<em>array</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Ground motion models to use, one or more of <code class="docutils literal notranslate"><span class="pre">&quot;ask14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;bssa14&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;cb14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cy14&quot;</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A tuple of arrays, each of length <span class="math notranslate nohighlight">\(N\)</span>:</p>
+<ul class="simple">
+<li><p><strong>m</strong> – magnitudes.</p></li>
+<li><p><strong>fault_type</strong> – fault types (1 = reverse, 2 = normal, 3 = strike slip).</p></li>
+<li><p><strong>rate</strong> – annual rate of occurrence of each event.</p></li>
+<li><p><strong>rjb</strong> – <span class="math notranslate nohighlight">\(R_{JB}\)</span>, Joyner-Boore distance between the site and each rupture, in km.</p></li>
+<li><p><strong>rrup</strong> – <span class="math notranslate nohighlight">\(R_{rup}\)</span>, rupture distance between the site and each rupture, in km.</p></li>
+<li><p><strong>rx</strong> – <span class="math notranslate nohighlight">\(R_x\)</span>, distance to the surface projection of the top of each rupture,
+measured perpendicular to strike, in km.</p></li>
+<li><p><strong>rx1</strong> – <span class="math notranslate nohighlight">\(R_{x1}\)</span>, distance to the surface projection of the bottom of each rupture,
+measured perpendicular to strike, in km.</p></li>
+<li><p><strong>ry0</strong> – <span class="math notranslate nohighlight">\(R_{y0}\)</span>, distance to the surface projection of each rupture, measured
+parallel to strike, in km.</p></li>
+<li><p><strong>dip</strong> – dip angle of each rupture, in degrees.</p></li>
+<li><p><strong>ztor</strong> – <span class="math notranslate nohighlight">\(Z_{tor}\)</span>, depth to the top of each rupture, in km.</p></li>
+<li><p><strong>zbor</strong> – <span class="math notranslate nohighlight">\(Z_{bor}\)</span>, depth to the bottom of each rupture, in km.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="get_ground_motion_data">
+<span class="sig-name descname"><span class="pre">get_ground_motion_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gmm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vs30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fault_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rjb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rrup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rx1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ry0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ztor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zbor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dip</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z1p0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z2p5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measured_vs30</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#get_ground_motion_data" title="Link to this definition">#</a></dt>
+<dd><p>Computes arrays containing the mean and standard deviation of the natural log of a
+ground motion intensity measure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gmm</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Ground motion model. One of <code class="docutils literal notranslate"><span class="pre">&quot;ask14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;bssa14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cb14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cy14&quot;</span></code>.</p></li>
+<li><p><strong>vs30</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – <span class="math notranslate nohighlight">\(V_{S30}\)</span>, time-averaged shear-wave velocity in the upper 30 m, in m/s.</p></li>
+<li><p><strong>measured_vs30</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether <span class="math notranslate nohighlight">\(V_{S30}\)</span> is measured (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or inferred (<code class="docutils literal notranslate"><span class="pre">False</span></code>).</p></li>
+<li><p><strong>z1p0</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – <span class="math notranslate nohighlight">\(Z_{1.0}\)</span>, depth to the 1.0 km/s shear-wave isosurface, in km.</p></li>
+<li><p><strong>z2p5</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – <span class="math notranslate nohighlight">\(Z_{2.5}\)</span>, depth to the 2.5 km/s shear-wave isosurface, in km.</p></li>
+<li><p><strong>fault_type</strong> – Fault type for each rupture (1 = reverse, 2 = normal, 3 = strike slip), length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>rjb</strong> – <span class="math notranslate nohighlight">\(R_{JB}\)</span>, Joyner-Boore distances, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>rrup</strong> – <span class="math notranslate nohighlight">\(R_{rup}\)</span>, rupture distances, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>rx</strong> – <span class="math notranslate nohighlight">\(R_x\)</span>, distance to the surface projection of the top of each rupture, perpendicular to strike, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>rx1</strong> – <span class="math notranslate nohighlight">\(R_{x1}\)</span>, distance to the surface projection of the bottom of each rupture, perpendicular to strike, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>ry0</strong> – <span class="math notranslate nohighlight">\(R_{y0}\)</span>, distance to the surface projection of each rupture, parallel to strike, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>m</strong> – Magnitudes, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>ztor</strong> – <span class="math notranslate nohighlight">\(Z_{tor}\)</span>, depth to the top of each rupture, in km, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>zbor</strong> – <span class="math notranslate nohighlight">\(Z_{bor}\)</span>, depth to the bottom of each rupture, in km, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>dip</strong> – Dip angle of each rupture, in degrees, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mu_ln_pga</strong> – <span class="math notranslate nohighlight">\(\mu_{\ln PGA}\)</span>, mean of the natural log of the ground motion intensity measure, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>sigma_ln_pga</strong> – <span class="math notranslate nohighlight">\(\sigma_{\ln PGA}\)</span>, standard deviation of the natural log of the intensity measure, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="get_liquefaction_cdfs">
+<span class="sig-name descname"><span class="pre">get_liquefaction_cdfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_ln_pga</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_ln_pga</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fsl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">liquefaction_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#get_liquefaction_cdfs" title="Link to this definition">#</a></dt>
+<dd><p>Computes log-normal cumulative distribution functions for the factor of safety of
+liquefaction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>m</strong> – Magnitudes, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>mu_ln_pga</strong> – <span class="math notranslate nohighlight">\(\mu_{\ln PGA}\)</span>, mean of the natural log of the ground motion intensity measure, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>sigma_ln_pga</strong> – <span class="math notranslate nohighlight">\(\sigma_{\ln PGA}\)</span>, standard deviation of the natural log of the intensity measure, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>fsl</strong> – Factor-of-safety values at which to compute the liquefaction hazard curve, length <span class="math notranslate nohighlight">\(L\)</span>.</p></li>
+<li><p><strong>liquefaction_model</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – One of <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>.</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Dictionary read from the (case-insensitive) config file.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fsl_cdfs</strong> – cumulative distribution functions representing the down-crossing
+rate of <span class="math notranslate nohighlight">\(FS_L\)</span> for each event, shape <span class="math notranslate nohighlight">\(N \times L\)</span>.</p></li>
+<li><p><strong>eps</strong> – <span class="math notranslate nohighlight">\(\varepsilon\)</span> values (number of standard deviations of <span class="math notranslate nohighlight">\(\ln(FS_L)\)</span>
+relative to its mean), shape <span class="math notranslate nohighlight">\(N \times L\)</span>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="get_disagg">
+<span class="sig-name descname"><span class="pre">get_disagg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hazards</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_bin_edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_bin_edges</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_bin_edges</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#get_disagg" title="Link to this definition">#</a></dt>
+<dd><p>This function calculates the seismic and liquefaction hazard disaggregation (i.e., how
+different earthquake scenarios (magnitude, distance, etc.) contribute to the overall
+seismic and liquefaction hazard at a specific location).
+It takes NumPy arrays of hazard values (size of number of IM values x number of events),
+magnitude values, distance values, <span class="math notranslate nohighlight">\(\varepsilon\)</span> values, and lastly magnitude, distance,
+and <span class="math notranslate nohighlight">\(\varepsilon\)</span> bin edges. It returns disaggregation values for the desired bins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hazards</strong> – Hazard values, shape <span class="math notranslate nohighlight">\(L \times N\)</span>.</p></li>
+<li><p><strong>m</strong> – Magnitude values, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>r</strong> – Distance values, length <span class="math notranslate nohighlight">\(N\)</span>.</p></li>
+<li><p><strong>eps</strong> – <span class="math notranslate nohighlight">\(\varepsilon\)</span> values, shape <span class="math notranslate nohighlight">\(L \times N\)</span>.</p></li>
+<li><p><strong>m_bin_edges</strong> – Magnitude bin edges, length <span class="math notranslate nohighlight">\(M + 1\)</span>.</p></li>
+<li><p><strong>r_bin_edges</strong> – Distance bin edges, length <span class="math notranslate nohighlight">\(R + 1\)</span>.</p></li>
+<li><p><strong>eps_bin_edges</strong> – <span class="math notranslate nohighlight">\(\varepsilon\)</span> bin edges, length <span class="math notranslate nohighlight">\(E + 1\)</span>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>disagg</strong> – contribution to the hazard within each magnitude, distance,
+and <span class="math notranslate nohighlight">\(\varepsilon\)</span> bin, for each PGA (PSHA) or <span class="math notranslate nohighlight">\(FS_L\)</span> (PLHA) value, shape
+<span class="math notranslate nohighlight">\(L \times M \times R \times E\)</span>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="get_hazard">
+<span class="sig-name descname"><span class="pre">get_hazard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#get_hazard" title="Link to this definition">#</a></dt>
+<dd><p>Read a config file and run the PSHA and/or PLHA. This is the main entry point of the
+package.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config_file</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Filename, including path, of the config file. Must follow
+the schema defined by <code class="docutils literal notranslate"><span class="pre">ucla_plha_schema.json</span></code> (see <a class="reference internal" href="config_format.html"><span class="doc">Config File Format</span></a>). The
+config file is case-insensitive.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>output</strong> – dictionary containing the analysis output. It preserves all
+of the inputs and adds the hazard curve(s) and any requested disaggregation data.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading">#</a></h2>
+<div role="list" class="citation-list">
+<div class="citation" id="ask14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>ASK14<span class="fn-bracket">]</span></span>
+<p>Abrahamson, N. A., Silva, W. J., and Kamai, R. (2014). Summary of the ASK14 ground-motion relation for active crustal regions, <em>Earthquake Spectra</em>, 30(3), 1025-1055. DOI: <a class="reference external" href="https://doi.org/10.1193/070913EQS198M">10.1193/070913EQS198M</a></p>
+</div>
+<div class="citation" id="bssa14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BSSA14<span class="fn-bracket">]</span></span>
+<p>Boore, D. M., Stewart, J. P., Seyhan, E., and Atkinson, G. M. (2014). NGA-West2 equations for predicting PGA, PGV, and 5%-damped PSA for shallow crustal earthquakes, <em>Earthquake Spectra</em>, 30(3), 1057-1085. DOI: <a class="reference external" href="https://doi.org/10.1193/070113EQS184M">10.1193/070113EQS184M</a></p>
+</div>
+<div class="citation" id="bi12" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BI12<span class="fn-bracket">]</span></span>
+<p>Boulanger, R. W. and Idriss, I. M. (2012). Probabilistic Standard Penetration Test-Based Liquefaction-Triggering Procedure, <em>Journal of Geotechnical and Geoenvironmental Engineering</em>, 138(10), 1185-1195. DOI: <a class="reference external" href="https://doi.org/10.1061/(ASCE)GT.1943-5606.0000700">10.1061/(ASCE)GT.1943-5606.0000700</a></p>
+</div>
+<div class="citation" id="bi16" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>BI16<span class="fn-bracket">]</span></span>
+<p>Boulanger, R. W. and Idriss, I. M. (2016). CPT-Based Liquefaction Triggering Procedure, <em>Journal of Geotechnical and Geoenvironmental Engineering</em>, 142(2), 04015065. DOI: <a class="reference external" href="https://doi.org/10.1061/(ASCE)GT.1943-5606.0001388">10.1061/(ASCE)GT.1943-5606.0001388</a></p>
+</div>
+<div class="citation" id="cb14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>CB14<span class="fn-bracket">]</span></span>
+<p>Campbell, K. W. and Bozorgnia, Y. (2014). NGA-West2 ground motion model for the average horizontal components of PGA, PGV, and 5%-damped linear acceleration response spectra, <em>Earthquake Spectra</em>, 30(3), 1087-1115. DOI: <a class="reference external" href="https://doi.org/10.1193/062913EQS175M">10.1193/062913EQS175M</a></p>
+</div>
+<div class="citation" id="cea18" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>CEA18<span class="fn-bracket">]</span></span>
+<p>Cetin, K. O., Seed, R. B., Kayen, R. E., Moss, R. E. S., Bilge, H. T., Ilgac, M., and Chowdhury, K. (2018). SPT-based probabilistic and deterministic assessment of seismic soil liquefaction triggering hazard, <em>Soil Dynamics and Earthquake Engineering</em>, 115, 698-709. DOI: <a class="reference external" href="https://doi.org/10.1016/j.soildyn.2018.09.012">10.1016/j.soildyn.2018.09.012</a></p>
+</div>
+<div class="citation" id="cy14" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>CY14<span class="fn-bracket">]</span></span>
+<p>Chiou, B. S.-J. and Youngs, R. R. (2014). Update of the Chiou and Youngs NGA model for the average horizontal component of peak ground motion and response spectra, <em>Earthquake Spectra</em>, 30(3), 1117-1153. DOI: <a class="reference external" href="https://doi.org/10.1193/072813EQS219M">10.1193/072813EQS219M</a></p>
+</div>
+<div class="citation" id="ucerf3" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>UCERF3<span class="fn-bracket">]</span></span>
+<p>Field, E. H., Biasi, G. P., Bird, P., Dawson, T. E., Felzer, K. R., Jackson, D. D., Johnson, K. M., Jordan, T. H., Madden, C., Michael, A. J., Milner, K. R., Page, M. T., Parsons, T., Powers, P. M., Shaw, B. E., Thatcher, W. R., Weldon, R. J. II, and Zeng, Y. (2013). Uniform California earthquake rupture forecast, version 3 (UCERF3) — The time-independent model, <em>U.S. Geological Survey Open-File Report</em>, 2013-1165. DOI: <a class="reference external" href="https://doi.org/10.3133/ofr20131165">10.3133/ofr20131165</a></p>
+</div>
+<div class="citation" id="mea06" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>MEA06<span class="fn-bracket">]</span></span>
+<p>Moss, R. E. S., Seed, R. B., Kayen, R. E., Stewart, J. P., Der Kiureghian, A., and Cetin, K. O. (2006). CPT-Based probabilistic and deterministic assessment of in situ seismic soil liquefaction potential, <em>Journal of Geotechnical and Geoenvironmental Engineering</em>, 132(8), 1032-1051. DOI: <a class="reference external" href="https://doi.org/10.1061/(ASCE)1090-0241(2006)132:8(1032)">10.1061/(ASCE)1090-0241(2006)132:8(1032)</a></p>
+</div>
+<div class="citation" id="ngl24" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>NGL24<span class="fn-bracket">]</span></span>
+<p>Ulmer, K. J., Hudson, K. S., Brandenberg, S. J., Zimmaro, P., Pretell, R., Carlton, J. B., Kramer, S. L., and Stewart, J. P. (2024). Next Generation Liquefaction models for susceptibility, triggering, and manifestation, Rev. 1, <em>Research Information Letter, Office of Nuclear Regulatory Research, United States Nuclear Regulatory Commission</em>, Report No. RIL2024-13. <a class="reference external" href="https://www.nrc.gov/docs/ML2435/ML24353A158.pdf">link</a></p>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="validation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Validation</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decompress_ucerf3_source_data"><code class="docutils literal notranslate"><span class="pre">decompress_ucerf3_source_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_source_data"><code class="docutils literal notranslate"><span class="pre">get_source_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_ground_motion_data"><code class="docutils literal notranslate"><span class="pre">get_ground_motion_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_liquefaction_cdfs"><code class="docutils literal notranslate"><span class="pre">get_liquefaction_cdfs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_disagg"><code class="docutils literal notranslate"><span class="pre">get_disagg()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get_hazard"><code class="docutils literal notranslate"><span class="pre">get_hazard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#references">References</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Meera L. Kota, Scott J. Brandenberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Meera L. Kota and Scott J. Brandenberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
