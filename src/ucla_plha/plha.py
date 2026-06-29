@@ -75,14 +75,14 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             "source_models/fault_source_models/" + source_model
         )
         # Read decompressed version of files if they exist. Otherwise read zipped version.
-        if os.path.exists(str(path.joinpath("ruptures.npy"))):
-            ruptures = np.load(str(path.joinpath("ruptures.npy")))
+        if os.path.exists(str(path.joinpath("ruptures.npy.npz"))):
+            ruptures = np.load(str(path.joinpath("ruptures.npy.npz")))
         else:
             ruptures = np.load(str(path.joinpath("ruptures.npz")))
         m = ruptures["m"]
         fault_type = ruptures["fault_type"]
-        if os.path.exists(str(path.joinpath("ruptures_segments.npy"))):
-            ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npy")))
+        if os.path.exists(str(path.joinpath("ruptures_segments.npy.npz"))):
+            ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npy.npz")))
         else:
             ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npz")))
         segment_index = ruptures_segments["segment_index"]
