@@ -22,28 +22,28 @@ directory. See `psha_validation.ipynb`_ for the full comparison.
 .. _OpenSHA: https://opensha.org/
 .. _psha_validation.ipynb: https://github.com/meerakota/ucla_plha/blob/main/validation/psha_validation.ipynb
 
-.. figure:: images/psha4.png
+.. figure:: images/psha1.png
    :width: 560px
    :align: center
 
    Comparison of **ucla_plha** and OpenSHA hazard curves using the Boore et al.
    (2014) BSSA14 ground motion model [BSSA14]_.
 
-.. figure:: images/psha3.png
+.. figure:: images/psha2.png
    :width: 560px
    :align: center
 
    Comparison of **ucla_plha** and OpenSHA hazard curves using the Abrahamson
    et al. (2014) ASK14 ground motion model [ASK14]_.
 
-.. figure:: images/psha2.png
+.. figure:: images/psha3.png
    :width: 560px
    :align: center
 
    Comparison of **ucla_plha** and OpenSHA hazard curves using the Campbell and
    Bozorgnia (2014) CB14 ground motion model [CB14]_.
 
-.. figure:: images/psha1.png
+.. figure:: images/psha4.png
    :width: 560px
    :align: center
 
@@ -62,7 +62,7 @@ comparison.
 
 .. _gmm.ipynb: https://github.com/meerakota/ucla_plha/blob/main/validation/gmm.ipynb
 
-.. figure:: images/gmm4.png
+.. figure:: images/gmm2.png
    :width: 680px
    :align: center
 
@@ -70,7 +70,7 @@ comparison.
    and 5%-damped PSA as a function of :math:`R_{JB}` for strike-slip earthquakes,
    :math:`V_{S30}` = 760 m/s.
 
-.. figure:: images/gmm3.png
+.. figure:: images/gmm1.png
    :width: 680px
    :align: center
 
@@ -78,7 +78,7 @@ comparison.
    acceleration scaling with distance for strike-slip earthquakes at a rock site
    (:math:`V_{S30}` = 760 m/s).
 
-.. figure:: images/gmm2.png
+.. figure:: images/gmm3.png
    :width: 680px
    :align: center
 
@@ -86,7 +86,7 @@ comparison.
    PSA distance-scaling for strike-slip earthquakes, :math:`V_{S30}` = 760 m/s,
    :math:`Z_{2.5}` = 0.6068 km.
 
-.. figure:: images/gmm5.png
+.. figure:: images/gmm4.png
    :width: 680px
    :align: center
 
@@ -94,7 +94,7 @@ comparison.
    versus :math:`R_X` for vertical strike-slip earthquakes, :math:`V_{S30}` =
    760 m/s.
 
-.. figure:: images/gmm1.png
+.. figure:: images/gmm5.png
    :width: 680px
    :align: center
 
@@ -152,7 +152,7 @@ from OpenSHA. See `PSHA_Disaggregation_Validation.ipynb`_ for the full compariso
 
 .. _PSHA_Disaggregation_Validation.ipynb: https://github.com/meerakota/ucla_plha/blob/main/validation/PSHA_Disaggregation_Validation.ipynb
 
-.. figure:: images/disagg2.png
+.. figure:: images/disagg1.png
    :width: 700px
    :align: center
 
@@ -160,7 +160,7 @@ from OpenSHA. See `PSHA_Disaggregation_Validation.ipynb`_ for the full compariso
    the percentage contribution to hazard from each magnitude, distance, and
    epsilon bin.
 
-.. figure:: images/disagg1.png
+.. figure:: images/disagg2.png
    :width: 700px
    :align: center
 
