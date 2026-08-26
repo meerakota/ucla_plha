@@ -27,20 +27,20 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=4418a689" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3dfe1ce0" />
   
   <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
     <script src="_static/documentation_options.js?v=d94dc4f2"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
@@ -52,6 +52,7 @@
     <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"], ["$", "$"]], "displayMath": [["\\[", "\\]"], ["$$", "$$"]]}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'config_format';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Examples" href="examples.html" />
@@ -59,20 +60,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="2.0" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -98,7 +105,51 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
     </header>
   
 
@@ -293,11 +344,18 @@
 
 
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
 
 
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -325,7 +383,7 @@
                 <h2> Contents </h2>
             </div>
             <nav aria-label="Page">
-                <ul class="visible nav section-nav flex-column">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#top-level-keys">Top-level keys</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#site-keys"><code class="docutils literal notranslate"><span class="pre">"site"</span></code> keys</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-keys"><code class="docutils literal notranslate"><span class="pre">"constraints"</span></code> keys</a></li>
@@ -770,88 +828,88 @@ lowercase following <a class="reference external" href="https://peps.python.org/
 so <code class="docutils literal notranslate"><span class="pre">N160</span></code> works equally well as <code class="docutils literal notranslate"><span class="pre">n160</span></code>. Optional inputs are shown with their
 default values where applicable.</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">   </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">34.0</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-118.0</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">350.0</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;measured_vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;z1p0&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;z2p5&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">   </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">34.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-118.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">350.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"measured_vs30"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"z1p0"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"z2p5"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">   </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">}</span>
+<span class="w">   </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">}</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
-<span class="w">         </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
+<span class="w">      </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
+<span class="w">   </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;liquefaction_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;boulanger_idriss_2012&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;n160&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">   </span><span class="nt">"liquefaction_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"boulanger_idriss_2012"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"n160"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"fc"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;boulanger_idriss_2016&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">80.0</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="nt">"boulanger_idriss_2016"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w"> </span><span class="mf">80.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;cetin_et_al_2018&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;n160&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;vs12&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150.0</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="nt">"cetin_et_al_2018"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"n160"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"fc"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"vs12"</span><span class="p">:</span><span class="w"> </span><span class="mf">150.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;moss_et_al_2006&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;qc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;fs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="nt">"moss_et_al_2006"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"qc"</span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"fs"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;ngl_smt_2024&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;ztop&quot;</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">4.5</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;zbot&quot;</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5.5</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">80.0</span><span class="p">,</span><span class="w"> </span><span class="mf">85.0</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;Ic&quot;</span><span class="p">:</span><span class="w">      </span><span class="p">[</span><span class="mf">1.8</span><span class="p">,</span><span class="w"> </span><span class="mf">1.9</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">110.0</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="mf">65.0</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;Ksat&quot;</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
-<span class="w">         </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">      </span><span class="nt">"ngl_smt_2024"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"ztop"</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">4.5</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"zbot"</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5.5</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">80.0</span><span class="p">,</span><span class="w"> </span><span class="mf">85.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"Ic"</span><span class="p">:</span><span class="w">      </span><span class="p">[</span><span class="mf">1.8</span><span class="p">,</span><span class="w"> </span><span class="mf">1.9</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">110.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="mf">65.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"Ksat"</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
 <span class="w">      </span><span class="p">}</span>
 <span class="w">   </span><span class="p">},</span>
-<span class="w">   </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;disaggregation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;magnitude_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;distance_bin_edges&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;epsilon_bin_edges&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+<span class="w">   </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"disaggregation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"magnitude_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"distance_bin_edges"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"epsilon_bin_edges"</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
 <span class="w">         </span><span class="p">}</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;plha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">         </span><span class="nt">&quot;fsl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.75</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.25</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">],</span>
-<span class="w">         </span><span class="nt">&quot;disaggregation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;magnitude_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;distance_bin_edges&quot;</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;epsilon_bin_edges&quot;</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+<span class="w">      </span><span class="nt">"plha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"fsl"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.75</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.25</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"disaggregation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"magnitude_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"distance_bin_edges"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"epsilon_bin_edges"</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
 <span class="w">         </span><span class="p">}</span>
 <span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;outputfile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;output.json&quot;</span>
+<span class="w">      </span><span class="nt">"outputfile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"output.json"</span>
 <span class="w">   </span><span class="p">}</span>
 <span class="p">}</span>
 </pre></div>
@@ -905,7 +963,7 @@ default values where applicable.</p>
     <i class="fa-solid fa-list"></i> Contents
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#top-level-keys">Top-level keys</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#site-keys"><code class="docutils literal notranslate"><span class="pre">"site"</span></code> keys</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-keys"><code class="docutils literal notranslate"><span class="pre">"constraints"</span></code> keys</a></li>
@@ -962,8 +1020,8 @@ By Meera L. Kota, Scott J. Brandenberg
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
   </footer>
