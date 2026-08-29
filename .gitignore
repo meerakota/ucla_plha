@@ -177,6 +177,3 @@ pyrightconfig.json
 
 # macOS-created
 .DS_Store
-
-# utilities for producing pickle files
-utilities/

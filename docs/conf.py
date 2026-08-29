@@ -13,15 +13,15 @@ version = ".".join(release.split(".")[:2])
 
 # -- General configuration ---------------------------------------------------
 extensions = [
-    "sphinx.ext.autodoc",        # pull docstrings from the code
-    "sphinx.ext.autosummary",    # generate per-function/class summary pages
-    "sphinx.ext.napoleon",       # parse Google-style docstrings (Args:/Returns:)
-    "sphinx.ext.viewcode",       # add [source] links
-    "sphinx.ext.intersphinx",    # cross-link to numpy/scipy/etc. docs
-    "sphinx.ext.mathjax",        # render LaTeX math
-    "myst_parser",               # let Sphinx read Markdown (.md) files
-    "sphinx_copybutton",         # copy button on code blocks
-    "sphinx_design",             # cards / grids for the landing page
+    "sphinx.ext.autodoc",  # pull docstrings from the code
+    "sphinx.ext.autosummary",  # generate per-function/class summary pages
+    "sphinx.ext.napoleon",  # parse Google-style docstrings (Args:/Returns:)
+    "sphinx.ext.viewcode",  # add [source] links
+    "sphinx.ext.intersphinx",  # cross-link to numpy/scipy/etc. docs
+    "sphinx.ext.mathjax",  # render LaTeX math
+    "myst_parser",  # let Sphinx read Markdown (.md) files
+    "sphinx_copybutton",  # copy button on code blocks
+    "sphinx_design",  # cards / grids for the landing page
 ]
 
 autosummary_generate = True

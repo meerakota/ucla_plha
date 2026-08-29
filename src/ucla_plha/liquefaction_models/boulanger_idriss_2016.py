@@ -83,7 +83,9 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth, qc1ncs, fsl
     eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L
     """
     mu_ln_crr, sigma_ln_crr = get_ln_crr(m, qc1ncs, sigmavp, pa)
-    mu_ln_csr, sigma_ln_csr = get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth)
+    mu_ln_csr, sigma_ln_csr = get_ln_csr(
+        mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth
+    )
     mu_ln_fsl = mu_ln_crr - mu_ln_csr
     std_ln_fsl = np.sqrt(sigma_ln_csr**2 + sigma_ln_crr**2)
     eps = (np.log(fsl) - mu_ln_fsl[:, np.newaxis]) / std_ln_fsl[:, np.newaxis]

@@ -12,7 +12,7 @@ def get_im(vs30, rjb, m, fault_type):
     # vs30
     # PGAr = PGA at reference site condition (eg. rock)
     # T = period in sec
-    e0 = 0.4473
+    e0 = 0.4473  # pylint: disable=unused-variable
     e1 = 0.4856
     e2 = 0.2459
     e3 = 0.4539
@@ -35,8 +35,9 @@ def get_im(vs30, rjb, m, fault_type):
     f3 = 0.1
     f4 = -0.15
     f5 = -0.00701
-    f6 = -9.900  # Not used since basin term doesn't influence PGA
-    f7 = -9.900  # Not used since basin term doesn't influence PGA
+    # f6 and f7 are unused: the basin term doesn't influence PGA
+    f6 = -9.900  # pylint: disable=unused-variable
+    f7 = -9.900  # pylint: disable=unused-variable
     r1 = 110.000
     r2 = 270.000
     deltaphir = 0.1000

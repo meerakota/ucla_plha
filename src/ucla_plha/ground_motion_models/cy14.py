@@ -15,7 +15,7 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     c4 = -2.1
     c4a = -0.5
     crb = 50.0
-    c8a = 0.2695
+    c8a = 0.2695  # pylint: disable=unused-variable
     c11 = 0.0
 
     # period-dependent inputs
@@ -32,8 +32,8 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     c6 = 0.4908
     c7 = 0.0352
     c7b = 0.0462
-    c8 = 0.0000
-    c8b = 0.4833
+    c8 = 0.0000  # pylint: disable=unused-variable
+    c8b = 0.4833  # pylint: disable=unused-variable
     c9 = 0.9228
     c9a = 0.1202
     c9b = 6.8607
@@ -68,7 +68,7 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     deltaz1p0 = z1p0 - np.exp(
         -7.15 / 4.0 * np.log((vs30**4.0 + 571.0**4.0) / (1360.0**4.0 + 571.0**4.0))
     )
-    deltaz1p0_ref = z1p0_ref - np.exp(
+    deltaz1p0_ref = z1p0_ref - np.exp(  # pylint: disable=unused-variable
         -7.15 / 4.0 * np.log((1130.0**4.0 + 571.0**4.0) / (1360.0**4.0 + 571.0**4.0))
     )
     frv = np.zeros(len(fault_type), dtype=float)
@@ -122,7 +122,7 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     lnyrefij[m > cg3] += (cg1 + cg2 / np.cosh(m[m > cg3] - cg3)) * rrup[m > cg3]
     lnyrefij[m <= cg3] += (cg1 + cg2) * rrup[m <= cg3]
 
-    FHW = np.zeros(len(m), dtype = float)
+    FHW = np.zeros(len(m), dtype=float)
     FHW[rx >= 0.0] = 1.0
     lnyrefij += (
         FHW

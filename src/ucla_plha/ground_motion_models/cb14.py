@@ -25,8 +25,8 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     c9 = -0.212
     c10 = 0.720
     c11 = 1.090
-    c12 = 2.186
-    c13 = 1.420
+    c12 = 2.186  # pylint: disable=unused-variable
+    c13 = 1.420  # pylint: disable=unused-variable
     c14 = -0.0064
     c15 = -0.202
     c16 = 0.393
@@ -37,7 +37,7 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     k1 = 865.0
     k2 = -1.186
     k3 = 1.839
-    a1 = 0.167
+    a1 = 0.167  # pylint: disable=unused-variable
     a2 = 0.167
     h1 = 0.241
     h2 = 1.474
@@ -49,8 +49,8 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     phi1 = 0.734
     phi2 = 0.492
     phi_ln_af = 0.300
-    sigma_m_lt_4p5 = 0.840
-    sigma_m_gt_5p5 = 0.588
+    sigma_m_lt_4p5 = 0.840  # pylint: disable=unused-variable
+    sigma_m_gt_5p5 = 0.588  # pylint: disable=unused-variable
     n_check = kwargs.get("z2p5", None)
     if n_check is not None:
         z2p5 = n_check
@@ -109,7 +109,7 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     r2 = 62.0 * m - 350.0  # Equation 12
 
     # Equation 16
-    f_hng_delta = (90 - dip) / 45
+    f_hng_delta = (90 - dip) / 45  # pylint: disable=unused-variable
 
     # Equation 9
     f1_rx = h1 + h2 * (rx / r1) + h3 * (rx / r1) ** 2

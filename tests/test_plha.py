@@ -98,7 +98,9 @@ def test_get_source_data_point_site_on_node(tmp_path, monkeypatch):
 
 
 def test_get_source_data_no_distance_models():
-    out = plha.get_source_data("fault_source_models", FAULT_MODEL, P_XYZ, None, None, [])
+    out = plha.get_source_data(
+        "fault_source_models", FAULT_MODEL, P_XYZ, None, None, []
+    )
     assert len({len(a) for a in out}) == 1
     assert len(out[0]) > 0
 

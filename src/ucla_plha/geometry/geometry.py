@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def point_to_xyz(p):
     """
     Convert point latitude, longitude, elevation values to Cartesian coordinates.
@@ -199,7 +200,7 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
     (x1,y1,z1)o--------o(x3,y3,z3)
 
     """
-    
+
     width = np.sqrt(np.sum((rect_points[:, 2] - rect_points[:, 0]) ** 2, axis=1))
     width[width < 0.001] = 0.001
     length = np.sqrt(np.sum((rect_points[:, 1] - rect_points[:, 0]) ** 2, axis=1))
@@ -270,11 +271,11 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
     # A "segment" in the UCERF3 model sometimes consists of multiple geometric objects, so we need to
     # compute the shortest distance between each geometric object and the point to find the shortest distance
     # to the "segment"
-    
+
     split_indices = np.diff(rect_segment_id) != 0
     boundaries = np.r_[0, np.where(split_indices)[0] + 1]
     Rx_out = np.minimum.reduceat(Rx, boundaries)
     Rx1_out = np.minimum.reduceat(Rx1, boundaries)
     Ry0_out = np.minimum.reduceat(Ry0, boundaries)
-    
+
     return (Rx_out, Rx1_out, Ry0_out)

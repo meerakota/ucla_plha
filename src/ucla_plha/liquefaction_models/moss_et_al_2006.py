@@ -87,8 +87,8 @@ def get_rd(mu_ln_pga, m, depth):
     # For large values of amax, rd can become negative or larger than 1.0. Constrain
     # these values to lie within 0.2 to 1.0, which is the approximate range in Fig. 4
     # of Moss et al. (2006)
-    rd[rd<0.2] = 0.2
-    rd[rd>1.0] = 1.0
+    rd[rd < 0.2] = 0.2
+    rd[rd > 1.0] = 1.0
     return rd
 
 

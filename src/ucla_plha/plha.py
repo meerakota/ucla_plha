@@ -161,9 +161,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         path = files("ucla_plha").joinpath(
             "source_models/point_source_models/" + source_model
         )
-        ruptures =np.load(
-            str(path.joinpath("ruptures.npz"))
-        )
+        ruptures = np.load(str(path.joinpath("ruptures.npz")))
         rate = ruptures["rate"]
         m = ruptures["m"]
         fault_type = ruptures["style"]
@@ -172,13 +170,15 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         points = np.load(str(path.joinpath("points.npy")))
 
         repi_all = np.sqrt(
-            (points[:,0] - p_xyz[0]) ** 2 
-            + (points[:,1] - p_xyz[1]) ** 2
-            + (points[:,2] - p_xyz[2]) ** 2
+            (points[:, 0] - p_xyz[0]) ** 2
+            + (points[:, 1] - p_xyz[1]) ** 2
+            + (points[:, 2] - p_xyz[2]) ** 2
         )
-        repi = repi_all[np.searchsorted(nodes_index, node_index, sorter=np.argsort(nodes_index))]
+        repi = repi_all[
+            np.searchsorted(nodes_index, node_index, sorter=np.argsort(nodes_index))
+        ]
         rjb = repi / (1.0 + np.exp(-1.05 * (np.log(repi) - 1.037 * m + 4.2776)))
-        
+
         if (dist_cutoff is not None) and (m_min is not None):
             filter = (rjb < dist_cutoff) & (m >= m_min)
         elif (dist_cutoff is not None) and (m_min is None):
@@ -300,7 +300,10 @@ def get_ground_motion_data(
             vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, z1p0=z1p0
         )
     else:
-        print("incorrect ground motion model")
+        raise ValueError(
+            f'incorrect ground motion model "{gmm}", '
+            'expected one of "ask14", "bssa14", "cb14", "cy14"'
+        )
     return [mu_ln_pga, sigma_ln_pga]
 
 
@@ -528,7 +531,11 @@ def get_hazard(config_file):
         )
     if point_source_model_weight_sum > 0:
         for point_source_model in point_source_models:
-            if config["source_models"].get("point_source_models", {}).get(point_source_model, {}):
+            if (
+                config["source_models"]
+                .get("point_source_models", {})
+                .get(point_source_model, {})
+            ):
                 config["source_models"]["point_source_models"][point_source_model][
                     "weight"
                 ] /= point_source_model_weight_sum
@@ -544,9 +551,9 @@ def get_hazard(config_file):
     if ground_motion_model_weight_sum > 0:
         for ground_motion_model in ground_motion_models:
             if config["ground_motion_models"].get(ground_motion_model, {}):
-                config["ground_motion_models"][ground_motion_model]["weight"] /= (
-                    ground_motion_model_weight_sum
-                )
+                config["ground_motion_models"][ground_motion_model][
+                    "weight"
+                ] /= ground_motion_model_weight_sum
 
     liquefaction_model_weight_sum = 0.0
     liquefaction_models = [
@@ -558,14 +565,16 @@ def get_hazard(config_file):
     ]
     for liquefaction_model in liquefaction_models:
         liquefaction_model_weight_sum += (
-            config.get("liquefaction_models", {}).get(liquefaction_model, {}).get("weight", 0.0)
+            config.get("liquefaction_models", {})
+            .get(liquefaction_model, {})
+            .get("weight", 0.0)
         )
     if liquefaction_model_weight_sum > 0:
         for liquefaction_model in liquefaction_models:
             if config.get("liquefaction_models", {}).get(liquefaction_model, {}):
-                config["liquefaction_models"][liquefaction_model]["weight"] /= (
-                    liquefaction_model_weight_sum
-                )
+                config["liquefaction_models"][liquefaction_model][
+                    "weight"
+                ] /= liquefaction_model_weight_sum
 
     # Read site properties
     latitude = config["site"]["latitude"]

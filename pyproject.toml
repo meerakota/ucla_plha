@@ -30,7 +30,20 @@ jupyter = [
 dev = [
     "pytest (>=7.4.0,<8.0.0)",
     "pytest-cov (>=7.1.0,<8.0.0)",
+    "black (>=25.0.0,<26.0.0)",
+    "pylint (>=4.0.0,<5.0.0)",
 ]
+# Dependencies for the UCERF3 conversion scripts in utilities/
+# poetry install --with utilities
+utilities = [
+    "geopandas (>=1.0.0,<2.0.0)",
+]
+
+[tool.black]
+extend-exclude = '\.ipynb$'
+
+[tool.pylint.typecheck]
+ignored-modules = ["scipy.special"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

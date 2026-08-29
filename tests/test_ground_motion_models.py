@@ -73,5 +73,5 @@ def test_ask14_without_z1p0_kwarg():
 
 
 def test_get_ground_motion_data_invalid_model():
-    with pytest.raises(UnboundLocalError):
+    with pytest.raises(ValueError, match="incorrect ground motion model"):
         _call("not_a_model", 300.0, False, None, None)
