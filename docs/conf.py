@@ -5,10 +5,7 @@ import importlib.metadata
 project = "ucla_plha"
 author = "Meera L. Kota, Scott J. Brandenberg"
 copyright = "2026, Meera L. Kota and Scott J. Brandenberg"
-try:
-    release = importlib.metadata.version("ucla_plha")
-except importlib.metadata.PackageNotFoundError:
-    release = "2.0.3"
+release = importlib.metadata.version("ucla_plha")
 version = ".".join(release.split(".")[:2])
 
 # -- General configuration ---------------------------------------------------
