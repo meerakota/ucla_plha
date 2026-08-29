@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Examples &#8212; ucla_plha 2.0</title>
+    <title>Examples &#8212; ucla_plha 2.1</title>
   
   
   
@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="_static/documentation_options.js?v=d94dc4f2"></script>
+    <script src="_static/documentation_options.js?v=32e37178"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="prev" title="Config File Format" href="config_format.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2.0" />
+  <meta name="docsearch:version" content="2.1" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -452,49 +452,49 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config1.json – PSHA (no PLHA) using BSSA14</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -526,49 +526,49 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config2.json – PSHA (no PLHA) using ASK14</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -600,49 +600,49 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config3.json – PSHA (no PLHA) using CB14</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -674,49 +674,49 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config4.json – PSHA (no PLHA) using CY14</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -748,58 +748,58 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config5.json – PSHA (no PLHA) using BSSA14, ASK14, CB14, and CY14</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -831,58 +831,58 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config6.json – PSHA with disaggregation using BSSA14, ASK14, CB14, and CY14</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -904,8 +904,8 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">6.952</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">10.000</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"disaggregation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"magnitude_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;disaggregation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;magnitude_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">5.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">5.4</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">5.8</span><span class="p">,</span>
@@ -917,7 +917,7 @@ expanded beneath it.</p>
 <span class="w">                    </span><span class="mf">8.2</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">8.6</span>
 <span class="w">                </span><span class="p">],</span>
-<span class="w">                </span><span class="nt">"distance_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">&quot;distance_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">0.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">25.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">50.0</span><span class="p">,</span>
@@ -928,7 +928,7 @@ expanded beneath it.</p>
 <span class="w">                    </span><span class="mf">175.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">200.0</span>
 <span class="w">                </span><span class="p">],</span>
-<span class="w">                </span><span class="nt">"epsilon_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">&quot;epsilon_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">-500.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">-3.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">-2.0</span><span class="p">,</span>
@@ -950,68 +950,68 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config7.json – PSHA + PLHA using all four GMMs and the Boulanger &amp; Idriss (2016) triggering model</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"liquefaction_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"boulanger_idriss_2016"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.2</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w"> </span><span class="mf">71.8</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
+<span class="w">    </span><span class="nt">&quot;liquefaction_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;boulanger_idriss_2016&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.2</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">71.8</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -1034,8 +1034,8 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">10.000</span>
 <span class="w">            </span><span class="p">]</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"plha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"fsl"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">&quot;plha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;fsl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.100</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.123</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.151</span><span class="p">,</span>
@@ -1067,69 +1067,69 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config8.json – PSHA + PLHA using all four GMMs and the Moss et al. (2006) triggering model</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"liquefaction_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"moss_et_al_2006"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.85</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"qc"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.49</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"fs"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.02617</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">46.55</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">43.22</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
+<span class="w">    </span><span class="nt">&quot;liquefaction_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;moss_et_al_2006&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.85</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;qc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.49</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;fs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.02617</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">46.55</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">43.22</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -1152,8 +1152,8 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">10.000</span>
 <span class="w">            </span><span class="p">]</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"plha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"fsl"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">&quot;plha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;fsl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.100</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.123</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.151</span><span class="p">,</span>
@@ -1185,58 +1185,58 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config9.json – PSHA + PLHA using all four GMMs and the NGL SMT triggering model</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"liquefaction_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"ngl_smt_2024"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ztop"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;liquefaction_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;ngl_smt_2024&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ztop&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.0500</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.3750</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
@@ -1253,7 +1253,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">13.5250</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">13.7250</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"zbot"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;zbot&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.3750</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.1750</span><span class="p">,</span>
@@ -1270,7 +1270,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">13.7250</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">14.2000</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">414.6217</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">241.4954</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">241.4954</span><span class="p">,</span>
@@ -1287,7 +1287,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">133.3264</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">556.4955</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"Ic"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;Ic&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">1.1126</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.3779</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.3779</span><span class="p">,</span>
@@ -1304,7 +1304,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">2.4967</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.4071</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">4.0375</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">13.0625</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">20.6625</span><span class="p">,</span>
@@ -1321,7 +1321,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">258.8750</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">265.2875</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">11.7629</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">16.1281</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">19.8041</span><span class="p">,</span>
@@ -1338,7 +1338,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">135.0238</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">138.1254</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"Ksat"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;Ksat&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
@@ -1355,13 +1355,13 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -1384,8 +1384,8 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">10.000</span>
 <span class="w">            </span><span class="p">]</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"plha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"fsl"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">&quot;plha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;fsl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.100</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.123</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.151</span><span class="p">,</span>
@@ -1417,75 +1417,75 @@ expanded beneath it.</p>
 <summary class="sd-summary-title sd-card-header">
 <span class="sd-summary-text">config10.json – PSHA + PLHA with disaggregation, all four GMMs, and three triggering models (Boulanger &amp; Idriss 2016, NGL SMT, Moss et al. 2006); also writes an output file</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
+<span class="w">    </span><span class="nt">&quot;site&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;latitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">36.80547</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;longitude&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-121.786074</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;elevation&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;vs30&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">230.0</span>
 
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">    </span><span class="nt">&quot;constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;dist_cutoff&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;m_min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">    </span><span class="nt">&quot;source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;fault_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;point_source_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm31_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_sub_seis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">},</span>
-<span class="w">            </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">            </span><span class="nt">&quot;ucerf3_fm32_grid_unassociated&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">    </span><span class="nt">&quot;ground_motion_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;bssa14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;ask14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cb14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">        </span><span class="nt">&quot;cy14&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"liquefaction_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"moss_et_al_2006"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.85</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"qc"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.49</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"fs"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.02617</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">46.55</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">43.22</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.33</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
+<span class="w">    </span><span class="nt">&quot;liquefaction_models&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;moss_et_al_2006&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.85</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;qc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5.49</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;fs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.02617</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">46.55</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">43.22</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.33</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"boulanger_idriss_2016"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">2.2</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w"> </span><span class="mf">71.8</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.33</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
+<span class="w">        </span><span class="nt">&quot;boulanger_idriss_2016&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;depth&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.2</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">71.8</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.33</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"ngl_smt_2024"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"ztop"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">&quot;ngl_smt_2024&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;ztop&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.0500</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.3750</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
@@ -1502,7 +1502,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">13.5250</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">13.7250</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"zbot"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;zbot&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.3750</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.1750</span><span class="p">,</span>
@@ -1519,7 +1519,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">13.7250</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">14.2000</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;qc1Ncs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">414.6217</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">241.4954</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">241.4954</span><span class="p">,</span>
@@ -1536,7 +1536,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">133.3264</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">556.4955</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"Ic"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;Ic&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">1.1126</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.3779</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.3779</span><span class="p">,</span>
@@ -1553,7 +1553,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">2.4967</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.4071</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;sigmav&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">4.0375</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">13.0625</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">20.6625</span><span class="p">,</span>
@@ -1570,7 +1570,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">258.8750</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">265.2875</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;sigmavp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">11.7629</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">16.1281</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">19.8041</span><span class="p">,</span>
@@ -1587,7 +1587,7 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">135.0238</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">138.1254</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"Ksat"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;Ksat&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
@@ -1604,14 +1604,14 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">1.0000</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">1.0000</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.33</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
+<span class="w">            </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.33</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;pa&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">"outputfile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default"</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;outputfile&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;psha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pga&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.010</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.014</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.021</span><span class="p">,</span>
@@ -1633,8 +1633,8 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">6.952</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">10.000</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"disaggregation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"magnitude_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;disaggregation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;magnitude_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">4.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">4.5</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">5.0</span><span class="p">,</span>
@@ -1648,7 +1648,7 @@ expanded beneath it.</p>
 <span class="w">                    </span><span class="mf">8.2</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">8.6</span>
 <span class="w">                </span><span class="p">],</span>
-<span class="w">                </span><span class="nt">"distance_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">&quot;distance_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">0.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">25.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">50.0</span><span class="p">,</span>
@@ -1659,7 +1659,7 @@ expanded beneath it.</p>
 <span class="w">                    </span><span class="mf">175.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">200.0</span>
 <span class="w">                </span><span class="p">],</span>
-<span class="w">                </span><span class="nt">"epsilon_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">&quot;epsilon_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">-500.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">-3.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">-2.0</span><span class="p">,</span>
@@ -1672,8 +1672,8 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="p">]</span>
 <span class="w">            </span><span class="p">}</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">"plha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">"fsl"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nt">&quot;plha&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;fsl&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                </span><span class="mf">0.100</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.123</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">0.151</span><span class="p">,</span>
@@ -1695,8 +1695,8 @@ expanded beneath it.</p>
 <span class="w">                </span><span class="mf">4.070</span><span class="p">,</span>
 <span class="w">                </span><span class="mf">5.000</span>
 <span class="w">            </span><span class="p">],</span>
-<span class="w">            </span><span class="nt">"disaggregation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">                </span><span class="nt">"magnitude_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="nt">&quot;disaggregation&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;magnitude_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">4.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">4.5</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">5.0</span><span class="p">,</span>
@@ -1710,7 +1710,7 @@ expanded beneath it.</p>
 <span class="w">                    </span><span class="mf">8.2</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">8.6</span>
 <span class="w">                </span><span class="p">],</span>
-<span class="w">                </span><span class="nt">"distance_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">&quot;distance_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">0.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">25.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">50.0</span><span class="p">,</span>
@@ -1721,7 +1721,7 @@ expanded beneath it.</p>
 <span class="w">                    </span><span class="mf">175.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">200.0</span>
 <span class="w">                </span><span class="p">],</span>
-<span class="w">                </span><span class="nt">"epsilon_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="nt">&quot;epsilon_bin_edges&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">                    </span><span class="mf">-500.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">-3.0</span><span class="p">,</span>
 <span class="w">                    </span><span class="mf">-2.0</span><span class="p">,</span>
