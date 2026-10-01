@@ -246,6 +246,8 @@ def get_rupture_data(
     dip = np.add.reduceat(
         dip_section[segment_index] * area_all, boundaries
     ) / np.add.reduceat(area_all, boundaries)
+    # averaging vertical sections can give dips slightly above 90 from floating point round-off
+    dip = np.minimum(dip, 90.0)
     rate = rate_df["Annual Rate"].values
     fault_type = np.full(len(rupture_df), 1)
     rake = rupture_df["Average Rake (degrees)"].values
