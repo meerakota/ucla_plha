@@ -43,7 +43,9 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
     Args:
         source_type (string): Either "fault_source_models" or "point_source_models"
         source_model (string): Directory for source_model within the source_type directory.
-            Currently either "ucerf3_fm31" or "ucerf3_fm32"
+            Currently "ucerf3_fm31", "ucerf3_fm32", or "nshm23_wus" for fault_source_models, and
+            "ucerf3_fm31_grid_sub_seis", "ucerf3_fm31_grid_unassociated", "ucerf3_fm32_grid_sub_seis",
+            "ucerf3_fm32_grid_unassociated", or "nshm23_wus_grid" for point_source_models
         p_xyz (numpy array, dtype=float): Array containing x, y, z coordinates for point of interest, length = 3
         dist_cutoff (float): maximum distance to consider in seismic hazard analysis
         m_min (float): minimum magnitude to consider in seismic hazard analysis
@@ -496,7 +498,7 @@ def get_hazard(config_file):
 
     # normalize weights in config file
     fault_source_model_weight_sum = 0.0
-    fault_source_models = ["ucerf3_fm31", "ucerf3_fm32"]
+    fault_source_models = ["ucerf3_fm31", "ucerf3_fm32", "nshm23_wus"]
     for fault_source_model in fault_source_models:
         fault_source_model_weight_sum += (
             config["source_models"]
@@ -521,6 +523,7 @@ def get_hazard(config_file):
         "ucerf3_fm31_grid_unassociated",
         "ucerf3_fm32_grid_sub_seis",
         "ucerf3_fm32_grid_unassociated",
+        "nshm23_wus_grid",
     ]
     for point_source_model in point_source_models:
         point_source_model_weight_sum += (

@@ -83,6 +83,18 @@
                                 "weight"
                             ],
                             "additionalProperties": false
+                        },
+                        "nshm23_wus": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
                         }
                     }
                 },
@@ -126,6 +138,18 @@
                             "additionalProperties": false
                         },
                         "ucerf3_fm32_grid_unassociated": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "nshm23_wus_grid": {
                             "type": "object",
                             "properties": {
                                 "weight": {

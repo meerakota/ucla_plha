@@ -1,24 +1,23 @@
+import json
 import numpy as np
 import pandas as pd
-import geopandas as gpd
 
 
 def get_lat_lon(filename):
     """
-    Read UCERF3 source geojson file, convert it to a Pandas dataframe, and gather together data
-    and output a Python list containing Numpy arrays for segment_id, and the latitudes and longitudes.
+    Read UCERF3 source geojson file and output a Python list containing Numpy arrays for segment_id,
+    and the latitudes and longitudes.
 
     Notation: UCERF3 uses the variable name "FaultID" to refer to the subsections of the fault.
     We reserve the word "fault" for a particular named fault (e.g., Airport Lake), and "section" for
     a section of the fault. We therefore have renamed "FaultID" to "segment_id" in our dataframe.
     """
-    df = gpd.read_file(filename)
-    geometry_coordinates = df["geometry"].get_coordinates(index_parts=True)
-    FaultID = df["FaultID"].values
-    DipDeg = df["DipDeg"].values
-    DipDir = df["DipDir"].values
-    LowDepth = df["LowDepth"].values
-    UpDepth = df["UpDepth"].values
+    features = json.load(open(filename))["features"]
+    FaultID = [f["properties"]["FaultID"] for f in features]
+    DipDeg = [f["properties"]["DipDeg"] for f in features]
+    DipDir = [f["properties"]["DipDir"] for f in features]
+    LowDepth = [f["properties"]["LowDepth"] for f in features]
+    UpDepth = [f["properties"]["UpDepth"] for f in features]
 
     lat1 = []
     lon1 = []
@@ -34,7 +33,7 @@ def get_lat_lon(filename):
     for fid, ddeg, ddir, ldepth, udepth in zip(
         FaultID, DipDeg, DipDir, LowDepth, UpDepth
     ):
-        gm_array = geometry_coordinates.loc[idx].values
+        gm_array = np.asarray(features[idx]["geometry"]["coordinates"])
         idx += 1
         for i in range(gm_array.shape[0] - 1):
             segment_id.append(fid)
@@ -91,14 +90,17 @@ def get_lat_lon(filename):
     # is mathematically possible). So impose ranges on the inverse angles
     invangle13[invangle13 > 1.0] = 1.0
     invangle13[invangle13 < -1.0] = -1.0
-    lon3 = lon1 + np.arccos(invangle13) / rad
+    # arccos is always positive, so use the sign of the east component of the dip direction to move
+    # the bottom edge west for faults that dip toward the west (dip_dir between 180 and 360 degrees)
+    lon_sign = np.sign(np.sin(dip_dir * rad))
+    lon3 = lon1 + lon_sign * np.arccos(invangle13) / rad
 
     invangle24 = 1.0 - (
         2.0 * np.sin(w / (2.0 * r4)) ** 2.0 + np.cos(dlat2 * rad) - 1.0
     ) / (np.cos(lat2 * rad) * np.cos(lat4 * rad))
     invangle24[invangle24 > 1.0] = 1.0
     invangle24[invangle24 < -1.0] = -1.0
-    lon4 = lon2 + np.arccos(invangle24) / rad
+    lon4 = lon2 + lon_sign * np.arccos(invangle24) / rad
 
     return (
         segment_id,
@@ -181,32 +183,69 @@ def get_rectangles(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
     return rect_rjb_xyz
 
 
+def get_section_properties(filename):
+    """
+    Read UCERF3 source geojson file and return Numpy arrays of upper depth, lower depth, dip, and
+    down-dip area for each section, indexed by segment_id (FaultID).
+    """
+    features = json.load(open(filename))["features"]
+    segment_id = np.asarray([f["properties"]["FaultID"] for f in features])
+    # get_rupture_data() indexes these arrays by segment_id, so segment_id must be 0, 1, ..., N-1
+    assert np.array_equal(segment_id, np.arange(len(segment_id)))
+    upper_depth = np.asarray([f["properties"]["UpDepth"] for f in features])
+    lower_depth = np.asarray([f["properties"]["LowDepth"] for f in features])
+    dip = np.asarray([f["properties"]["DipDeg"] for f in features])
+    # trace length of each section from the haversine distance between consecutive points
+    rad = np.pi / 180.0
+    a = 6378.1370  # Earth's equatorial radius in km
+    b = 6356.7523  # Earth's polar radius in km
+    length = np.zeros(len(features))
+    for i, f in enumerate(features):
+        coords = np.asarray(f["geometry"]["coordinates"])
+        lon = coords[:, 0] * rad
+        lat = coords[:, 1] * rad
+        r = np.sqrt(
+            ((a**2 * np.cos(lat)) ** 2 + (b**2 * np.sin(lat)) ** 2)
+            / ((a * np.cos(lat)) ** 2 + (b * np.sin(lat)) ** 2)
+        )
+        hav = (
+            np.sin(np.diff(lat) / 2.0) ** 2
+            + np.cos(lat[:-1]) * np.cos(lat[1:]) * np.sin(np.diff(lon) / 2.0) ** 2
+        )
+        length[i] = np.sum(0.5 * (r[:-1] + r[1:]) * 2.0 * np.arcsin(np.sqrt(hav)))
+    area = length * (lower_depth - upper_depth) / np.sin(dip * rad)
+    return (upper_depth, lower_depth, dip, area)
+
+
 def get_rupture_data(
     rupture_file,
     rate_file,
     ruptures_segments_file,
-    ztor_segments,
-    zbor_segments,
-    dip_segments,
+    section_file,
     output_file,
 ):
     """
-    Read UCERF3 rupture data file, and rate data file. Organize data into a Pandas dataframe containing
-    rupture_index, magnitude, rate, and style of faulting. Save Pandas dataframe in pickle file format.
+    Read UCERF3 rupture data file, rate data file, and section properties. Save magnitude, rate, style of
+    faulting, dip, ztor, and zbor for each rupture in compressed npz format. ztor is the shallowest upper
+    depth and zbor is the deepest lower depth of the sections in the rupture, and dip is the area-weighted
+    average dip of the sections in the rupture.
     """
     rupture_df = pd.read_csv(rupture_file)
     rate_df = pd.read_csv(rate_file)
     ruptures_segments = np.load(ruptures_segments_file)
     segment_index = ruptures_segments["segment_index"]
     ruptures_index = ruptures_segments["rupture_index"]
-    ztor_all = ztor_segments[segment_index]
-    zbor_all = zbor_segments[segment_index]
-    dip_all = dip_segments[segment_index]
+    upper_depth, lower_depth, dip_section, area_section = get_section_properties(
+        section_file
+    )
     split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
     boundaries = np.r_[0, split_indices]
-    ztor = np.minimum.reduceat(ztor_all[segment_index], boundaries)
-    zbor = np.minimum.reduceat(zbor_all[segment_index], boundaries)
-    dip = np.minimum.reduceat(dip_all[segment_index], boundaries)
+    ztor = np.minimum.reduceat(upper_depth[segment_index], boundaries)
+    zbor = np.maximum.reduceat(lower_depth[segment_index], boundaries)
+    area_all = area_section[segment_index]
+    dip = np.add.reduceat(
+        dip_section[segment_index] * area_all, boundaries
+    ) / np.add.reduceat(area_all, boundaries)
     rate = rate_df["Annual Rate"].values
     fault_type = np.full(len(rupture_df), 1)
     rake = rupture_df["Average Rake (degrees)"].values
@@ -297,9 +336,7 @@ get_rupture_data(
     fm31_rupture_file,
     fm31_rate_file,
     fm31_ruptures_segments_file,
-    d1,
-    d3,
-    dip,
+    "FM3_1_branch_averaged/ruptures/fault_sections.geojson",
     fm31_output_file,
 )
 
@@ -344,8 +381,6 @@ get_rupture_data(
     fm32_rupture_file,
     fm32_rate_file,
     fm32_ruptures_segments_file,
-    d1,
-    d3,
-    dip,
+    "FM3_2_branch_averaged/ruptures/fault_sections.geojson",
     fm32_output_file,
 )
