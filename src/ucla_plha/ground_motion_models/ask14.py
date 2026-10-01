@@ -134,11 +134,12 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
         + a2HW * (m[(5.5 < m) & (m < 6.5)] - 6.5)
         - (1 - a2HW) * (m[(5.5 < m) & (m < 6.5)] - 6.5) ** 2.0
     )
-    T2[m >= 5.5] = 0
+    T2[m <= 5.5] = 0
     T3 = np.zeros(len(m), dtype=float)
-    T3[rx < r1] = (
-        h1 + h2 * (rx[rx < r1] / r1[rx < r1]) + h3 * (rx[rx < r1] / r1[rx < r1]) ** 2
-    )
+    # T3 is only needed on the hanging wall (rx >= 0). Excluding footwall sites also avoids
+    # dividing by r1 = 0 for vertical ruptures.
+    hw = (0 <= rx) & (rx < r1)
+    T3[hw] = h1 + h2 * (rx[hw] / r1[hw]) + h3 * (rx[hw] / r1[hw]) ** 2
     T3[(r1 <= rx) & (rx <= r2) & (r1 != r2)] = 1 - (
         rx[(r1 <= rx) & (rx <= r2) & (r1 != r2)]
         - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)]

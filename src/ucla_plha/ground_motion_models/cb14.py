@@ -105,7 +105,8 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     ###############################################################
     # Hanging wall term
     ###############################################################
-    r1 = (zbor - ztor) * np.radians(dip)
+    # Equation 11: R1 = W cos(dip), where W = (zbor - ztor) / sin(dip)
+    r1 = (zbor - ztor) / np.tan(np.radians(dip))
     r2 = 62.0 * m - 350.0  # Equation 12
 
     # Equation 16

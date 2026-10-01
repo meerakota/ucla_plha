@@ -218,23 +218,16 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
         )
         / length
     )
-    Rx1 = (
-        np.sqrt(
-            np.sum(
-                (
-                    np.cross(
-                        rect_points[:, 3] - rect_points[:, 2], rect_points[:, 2] - point
-                    )
-                )
-                ** 2,
-                axis=1,
-            )
-        )
-        / length
-    )
-    rx_filt = Rx < Rx1
-    Rx[rx_filt] = -Rx[rx_filt]
-    Rx1[rx_filt] = -Rx1[rx_filt]
+    # Rx is positive on the hanging wall side of the top edge, which is the side containing the
+    # bottom edge. Sites on the top edge line and sites near vertical faults have positive Rx.
+    # Rx1 = Rx - W cos(dip), where W cos(dip) is the horizontal distance between the top and
+    # bottom edges, so Rx1 is negative for sites above the rupture.
+    strike = rect_points[:, 1] - rect_points[:, 0]
+    site_side = np.cross(strike, point - rect_points[:, 0])
+    bottom_side = np.cross(strike, rect_points[:, 2] - rect_points[:, 0])
+    footwall = np.sum(site_side * bottom_side, axis=1) < 0.0
+    Rx[footwall] = -Rx[footwall]
+    Rx1 = Rx - np.sqrt(np.sum(bottom_side**2, axis=1)) / length
     Ry0a = (
         np.sqrt(
             np.sum(
