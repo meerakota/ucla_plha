@@ -178,14 +178,11 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
             z1 = z1ref
     else:
         z1 = z1ref
-    if vs30 <= 200:
-        f10 = a43 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    elif (200 < vs30) & (vs30 <= 300):
-        f10 = a44 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    elif (300 < vs30) & (vs30 <= 500):
-        f10 = a45 * np.log((z1 + 0.01) / (z1ref + 0.01))
-    else:
-        f10 = a46 * np.log((z1 + 0.01) / (z1ref + 0.01))
+    # Equation 17 defines a43 to a46 for Vs30 bins. Following the paper's application guidelines,
+    # the coefficients are placed at the bin centers and linearly interpolated in between. The
+    # centers of the open-ended bins are 150 m/s and 700 m/s, as in pygmm.
+    slope = np.interp(vs30, [150.0, 250.0, 400.0, 700.0], [a43, a44, a45, a46])
+    f10 = slope * np.log((z1 + 0.01) / (z1ref + 0.01))
 
     # Aftershock scaling (assume all earthquakes are mainshocks here)
     FAs = 0.0
@@ -206,14 +203,10 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
 
     # Now compute the rock motion amplitude and then do site response
     f5_1180 = (a10 + b * n) * np.log(1180 / vlin)
-    z1ref_1180 = 0.002808692671351688
-    if "z1p0" in kwargs:
-        z1_1180 = kwargs.get("z1p0")
-        if z1_1180 is None:
-            z1_1180 = z1ref_1180
-    else:
-        z1_1180 = z1ref_1180
-    f10_1180 = a46 * np.log((z1_1180 + 0.01) / (z1ref_1180 + 0.01))
+    # Sa1180 is the median motion on reference rock with Vs30 = 1180 m/s, so it has no basin
+    # term. Using the site's z1 here would make sa1180, and therefore the nonlinear site
+    # response, depend on the soil site's basin depth.
+    f10_1180 = 0.0
     sa1180 = np.exp(
         f1
         + f5_1180
