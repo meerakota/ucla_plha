@@ -1,0 +1,18 @@
+{
+  "type": "Feature",
+  "id": 8210,
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [-124.35, 42.05],
+      [-122.25, 42.05],
+      [-122.25, 46.35],
+      [-124.35, 46.35],
+      [-124.35, 42.05]
+    ]]
+  },
+  "properties": {
+    "name": "OR Intraslab",
+    "state": "OR"
+  }
+}

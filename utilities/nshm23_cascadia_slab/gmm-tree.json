@@ -1,0 +1,7 @@
+[
+  { "id": "ZHAO_06_SLAB_BASIN", "weight": 0.25 },
+  { "id": "AG_20_CASCADIA_SLAB_BASIN", "weight": 0.0825 },
+  { "id": "AG_20_CASCADIA_SLAB_ADJUSTED_BASIN", "weight": 0.1675 },
+  { "id": "KBCG_20_CASCADIA_SLAB_BASIN", "weight": 0.25 },
+  { "id": "PSBAH_20_CASCADIA_SLAB_BASIN", "weight": 0.25 }
+]

@@ -1,0 +1,9 @@
+[
+  {
+    "name": "CA Intraslab",
+    "id": 8201,
+    "feature": 8200,
+    "mfd-tree": "ca-slab",
+    "spatial-pdf": "pdf-ca.csv"
+  }
+]
