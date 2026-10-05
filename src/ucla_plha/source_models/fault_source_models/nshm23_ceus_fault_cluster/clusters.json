@@ -1,0 +1,881 @@
+[
+ {
+  "cluster_id": 0,
+  "path": "usgs/west/cluster-in/all",
+  "name": "New Madrid - USGS (west, all)",
+  "nshm_id": 3004,
+  "weight": 0.02,
+  "effective_rate": 3.10197e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.002,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R2",
+    "rate": 0.0013333,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R3",
+    "rate": 0.001,
+    "leaf_weight": 0.001
+   },
+   {
+    "id": "R4",
+    "rate": 2e-05,
+    "leaf_weight": 0.001
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (west, north)",
+    "id": 3000,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (west, center)",
+    "id": 3001,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (west, south)",
+    "id": 3002,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 1,
+  "path": "usgs/west/cluster-in/center-south",
+  "name": "New Madrid - USGS (west, center-south)",
+  "nshm_id": 3005,
+  "weight": 0.02,
+  "effective_rate": 6.000299999999999e-06,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.0,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R2",
+    "rate": 0.0006667,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R3",
+    "rate": 0.0,
+    "leaf_weight": 0.001
+   },
+   {
+    "id": "R4",
+    "rate": 0.0,
+    "leaf_weight": 0.001
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (west, center)",
+    "id": 3001,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (west, south)",
+    "id": 3002,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 2,
+  "path": "usgs/mid-west/cluster-in/all",
+  "name": "New Madrid - USGS (mid-west)",
+  "nshm_id": 3014,
+  "weight": 0.04,
+  "effective_rate": 6.20394e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.002,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R2",
+    "rate": 0.0013333,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R3",
+    "rate": 0.001,
+    "leaf_weight": 0.002
+   },
+   {
+    "id": "R4",
+    "rate": 2e-05,
+    "leaf_weight": 0.002
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (mid-west, north)",
+    "id": 3010,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (mid-west, center)",
+    "id": 3011,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (mid-west, south)",
+    "id": 3012,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 3,
+  "path": "usgs/mid-west/cluster-in/center-south",
+  "name": "New Madrid - USGS (mid-west, center-south)",
+  "nshm_id": 3015,
+  "weight": 0.04,
+  "effective_rate": 1.2000599999999998e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.0,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R2",
+    "rate": 0.0006667,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R3",
+    "rate": 0.0,
+    "leaf_weight": 0.002
+   },
+   {
+    "id": "R4",
+    "rate": 0.0,
+    "leaf_weight": 0.002
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (mid-west, center)",
+    "id": 3011,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (mid-west, south)",
+    "id": 3012,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 4,
+  "path": "usgs/center/cluster-in/all",
+  "name": "New Madrid - USGS (center, all)",
+  "nshm_id": 3024,
+  "weight": 0.28,
+  "effective_rate": 0.0004342758,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.002,
+    "leaf_weight": 0.126
+   },
+   {
+    "id": "R2",
+    "rate": 0.0013333,
+    "leaf_weight": 0.126
+   },
+   {
+    "id": "R3",
+    "rate": 0.001,
+    "leaf_weight": 0.014
+   },
+   {
+    "id": "R4",
+    "rate": 2e-05,
+    "leaf_weight": 0.014
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (center, north)",
+    "id": 3020,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (center, center)",
+    "id": 3021,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (center, south)",
+    "id": 3022,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 5,
+  "path": "usgs/center/cluster-in/center-south",
+  "name": "New Madrid - USGS (center, center-south)",
+  "nshm_id": 3025,
+  "weight": 0.28,
+  "effective_rate": 8.40042e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.0,
+    "leaf_weight": 0.126
+   },
+   {
+    "id": "R2",
+    "rate": 0.0006667,
+    "leaf_weight": 0.126
+   },
+   {
+    "id": "R3",
+    "rate": 0.0,
+    "leaf_weight": 0.014
+   },
+   {
+    "id": "R4",
+    "rate": 0.0,
+    "leaf_weight": 0.014
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (center, center)",
+    "id": 3021,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (center, south)",
+    "id": 3022,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 6,
+  "path": "usgs/mid-east/cluster-in/all",
+  "name": "New Madrid - USGS (mid-east, all)",
+  "nshm_id": 3034,
+  "weight": 0.04,
+  "effective_rate": 6.20394e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.002,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R2",
+    "rate": 0.0013333,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R3",
+    "rate": 0.001,
+    "leaf_weight": 0.002
+   },
+   {
+    "id": "R4",
+    "rate": 2e-05,
+    "leaf_weight": 0.002
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (mid-east, north)",
+    "id": 3030,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (mid-east, center)",
+    "id": 3031,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (mid-east, south)",
+    "id": 3032,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 7,
+  "path": "usgs/mid-east/cluster-in/center-south",
+  "name": "New Madrid - USGS (mid-east, center-south)",
+  "nshm_id": 3035,
+  "weight": 0.04,
+  "effective_rate": 1.2000599999999998e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.0,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R2",
+    "rate": 0.0006667,
+    "leaf_weight": 0.018
+   },
+   {
+    "id": "R3",
+    "rate": 0.0,
+    "leaf_weight": 0.002
+   },
+   {
+    "id": "R4",
+    "rate": 0.0,
+    "leaf_weight": 0.002
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (mid-east, center)",
+    "id": 3031,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (mid-east, south)",
+    "id": 3032,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 8,
+  "path": "usgs/east/cluster-in/all",
+  "name": "New Madrid - USGS (east, all)",
+  "nshm_id": 3044,
+  "weight": 0.02,
+  "effective_rate": 3.10197e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.002,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R2",
+    "rate": 0.0013333,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R3",
+    "rate": 0.001,
+    "leaf_weight": 0.001
+   },
+   {
+    "id": "R4",
+    "rate": 2e-05,
+    "leaf_weight": 0.001
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (east, north)",
+    "id": 3040,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (east, center)",
+    "id": 3041,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (east, south)",
+    "id": 3042,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 9,
+  "path": "usgs/east/cluster-in/center-south",
+  "name": "New Madrid - USGS (east, center-south)",
+  "nshm_id": 3045,
+  "weight": 0.02,
+  "effective_rate": 6.000299999999999e-06,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.0,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R2",
+    "rate": 0.0006667,
+    "leaf_weight": 0.009
+   },
+   {
+    "id": "R3",
+    "rate": 0.0,
+    "leaf_weight": 0.001
+   },
+   {
+    "id": "R4",
+    "rate": 0.0,
+    "leaf_weight": 0.001
+   }
+  ],
+  "sections": [
+   {
+    "name": "USGS (east, center)",
+    "id": 3041,
+    "sum_of_rates": 0.9999999999999999
+   },
+   {
+    "name": "USGS (east, south)",
+    "id": 3042,
+    "sum_of_rates": 0.9999999999999999
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 10,
+  "path": "sscn/cluster-in/axsbl-rfts-nmns",
+  "name": "New Madrid - SSCn (AxS-BL : RFT-S : NMN-S)",
+  "nshm_id": 3080,
+  "weight": 0.1323,
+  "effective_rate": 0.00035152110026460005,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0133623
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0322812
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.041013
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0322812
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0133623
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-BL: Axial (south), Bootheel)",
+    "id": 3054,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-S: north, short)",
+    "id": 3060,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-S: Reelfoot, short)",
+    "id": 3071,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 11,
+  "path": "sscn/cluster-in/axsbl-rftl-nmns",
+  "name": "New Madrid - SSCn (AxS-BL : RFT-L : NMN-S)",
+  "nshm_id": 3081,
+  "weight": 0.0567,
+  "effective_rate": 0.00015065190011339998,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0057267
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0138348
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.017577
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0138348
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0057267
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-BL: Axial (south), Bootheel)",
+    "id": 3054,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-S: north, short)",
+    "id": 3060,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-L: Reelfoot, extended)",
+    "id": 3073,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 12,
+  "path": "sscn/cluster-in/axsbl-rfts-nmnl",
+  "name": "New Madrid - SSCn (AxS-BL : RFT-S : NMN-L)",
+  "nshm_id": 3082,
+  "weight": 0.0567,
+  "effective_rate": 0.00015065190011339998,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0057267
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0138348
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.017577
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0138348
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0057267
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-BL: Axial (south), Bootheel)",
+    "id": 3054,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-L: north, extended)",
+    "id": 3062,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-S: Reelfoot, short)",
+    "id": 3071,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 13,
+  "path": "sscn/cluster-in/axsbl-rftl-nmnl",
+  "name": "New Madrid - SSCn (AxS-BL : RFT-L : NMN-L)",
+  "nshm_id": 3083,
+  "weight": 0.0243,
+  "effective_rate": 6.45651000486e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0024543
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0059292
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.007533
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0059292
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0024543
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-BL: Axial (south), Bootheel)",
+    "id": 3054,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-L: north, extended)",
+    "id": 3062,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-L: Reelfoot, extended)",
+    "id": 3073,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 14,
+  "path": "sscn/cluster-in/axsaxn-rfts-nmns",
+  "name": "New Madrid - SSCn (AxS-AxN : RFT-S : NMN-S)",
+  "nshm_id": 3084,
+  "weight": 0.0882,
+  "effective_rate": 0.0002343474001764,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0089082
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0215208
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.027342
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0215208
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0089082
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-AxN: Axial (south), Axial (north))",
+    "id": 3053,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-S: north, short)",
+    "id": 3060,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-S: Reelfoot, short)",
+    "id": 3071,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 15,
+  "path": "sscn/cluster-in/axsaxn-rftl-nmns",
+  "name": "New Madrid - SSCn (AxS-AxN : RFT-L : NMN-S)",
+  "nshm_id": 3085,
+  "weight": 0.0378,
+  "effective_rate": 0.0001004346000756,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0038178
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0092232
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.011718
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0092232
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0038178
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-AxN: Axial (south), Axial (north))",
+    "id": 3053,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-S: north, short)",
+    "id": 3060,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-L: Reelfoot, extended)",
+    "id": 3073,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 16,
+  "path": "sscn/cluster-in/axsaxn-rfts-nmnl",
+  "name": "New Madrid - SSCn (AxS-AxN : RFT-S : NMN-L)",
+  "nshm_id": 3086,
+  "weight": 0.0378,
+  "effective_rate": 0.0001004346000756,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0038178
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0092232
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.011718
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0092232
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0038178
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-AxN: Axial (south), Axial (north))",
+    "id": 3053,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-L: north, extended)",
+    "id": 3062,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-S: Reelfoot, short)",
+    "id": 3071,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ },
+ {
+  "cluster_id": 17,
+  "path": "sscn/cluster-in/axsaxn-rftl-nmnl",
+  "name": "New Madrid - SSCn (AxS-AxN : RFT-L : NMN-L)",
+  "nshm_id": 3087,
+  "weight": 0.0162,
+  "effective_rate": 4.30434000324e-05,
+  "rate_branches": [
+   {
+    "id": "R1",
+    "rate": 0.006,
+    "leaf_weight": 0.0016362
+   },
+   {
+    "id": "R2",
+    "rate": 0.0037,
+    "leaf_weight": 0.0039528
+   },
+   {
+    "id": "R3",
+    "rate": 0.0024,
+    "leaf_weight": 0.005022
+   },
+   {
+    "id": "R4",
+    "rate": 0.0014,
+    "leaf_weight": 0.0039528
+   },
+   {
+    "id": "R5",
+    "rate": 0.000619802,
+    "leaf_weight": 0.0016362
+   }
+  ],
+  "sections": [
+   {
+    "name": "SSCn (AxS-AxN: Axial (south), Axial (north))",
+    "id": 3053,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (NMN-L: north, extended)",
+    "id": 3062,
+    "sum_of_rates": 1.0
+   },
+   {
+    "name": "SSCn (RFT-L: Reelfoot, extended)",
+    "id": 3073,
+    "sum_of_rates": 1.0
+   }
+  ],
+  "source_id": 3099
+ }
+]

@@ -177,3 +177,6 @@ pyrightconfig.json
 
 # macOS-created
 .DS_Store
+
+# NSHM stable-crust (CEUS) inputs downloaded by utilities/convert_nshm23_ceus_*.py
+utilities/nshm23_ceus/
