@@ -24,11 +24,11 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
     """
 
     # Define flags
-    FRV = np.zeros(len(m), dtype=float)
+    FRV = np.zeros(len(m), dtype=np.float64)
     FRV[fault_type == 1] = 1.0
-    FN = np.zeros(len(m), dtype=float)
+    FN = np.zeros(len(m), dtype=np.float64)
     FN[fault_type == 2] = 1.0
-    FHW = np.zeros(len(m), dtype=float)
+    FHW = np.zeros(len(m), dtype=np.float64)
     FHW[(dip != 90) & (rx > 0.0)] = 1.0
 
     # Define z1.0
@@ -69,7 +69,7 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
     s4 = 0.36
 
     # Basic form
-    f1 = np.empty(len(m), dtype=float)
+    f1 = np.empty(len(m), dtype=np.float64)
     f1_filt1 = m >= M1
     f1_filt2 = (M2 <= m) & (m < M1)
     f1_filt3 = m < M2
@@ -106,18 +106,18 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
     )
 
     # Style of faulting model
-    f7 = np.empty(len(m), dtype=float)
+    f7 = np.empty(len(m), dtype=np.float64)
     f7[m_filt1] = a11
     f7[m_filt2] = a11 * (m[m_filt2] - 4.0)
     f7[m_filt3] = 0.0
 
-    f8 = np.empty(len(m), dtype=float)
+    f8 = np.empty(len(m), dtype=np.float64)
     f8[m_filt1] = a12
     f8[m_filt2] = a12 * (m[m_filt2] - 4.0)
     f8[m_filt3] = 0.0
 
     # Hanging wall model
-    T1 = np.zeros(len(m), dtype=float)
+    T1 = np.zeros(len(m), dtype=np.float64)
     a2HW = 0.2
     r1 = np.abs(rx - rx1)
     r2 = 3 * r1
@@ -127,7 +127,7 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
     ry1 = rx * np.tan(20 * np.pi / 180.0)
     T1[dip > 30] = (90 - dip[dip > 30]) / 45
     T1[dip <= 30] = 60 / 45
-    T2 = np.zeros(len(m), dtype=float)
+    T2 = np.zeros(len(m), dtype=np.float64)
     T2[m >= 6.5] = 1 + a2HW * (m[m >= 6.5] - 6.5)
     T2[(5.5 < m) & (m < 6.5)] = (
         1
@@ -135,7 +135,7 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
         - (1 - a2HW) * (m[(5.5 < m) & (m < 6.5)] - 6.5) ** 2.0
     )
     T2[m <= 5.5] = 0
-    T3 = np.zeros(len(m), dtype=float)
+    T3 = np.zeros(len(m), dtype=np.float64)
     # T3 is only needed on the hanging wall (rx >= 0). Excluding footwall sites also avoids
     # dividing by r1 = 0 for vertical ruptures.
     hw = (0 <= rx) & (rx < r1)
@@ -148,10 +148,10 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
         - r1[(r1 <= rx) & (rx <= r2) & (r1 != r2)]
     )
     T3[rx > r2] = 0.0
-    T4 = np.zeros(len(m), dtype=float)
+    T4 = np.zeros(len(m), dtype=np.float64)
     T4[ztor <= 10] = 1 - ztor[ztor <= 10] ** 2 / 100
     T4[ztor > 10] = 0.0
-    T5 = np.zeros(len(m), dtype=float)
+    T5 = np.zeros(len(m), dtype=np.float64)
     T5[0.0 >= ry0 - ry1] = 1.0
     T5[(0.0 < ry0 - ry1) & (ry0 - ry1 < 5)] = (
         1
@@ -164,7 +164,7 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
     f4 = a13 * T1 * T2 * T3 * T4 * T5
 
     # Depth to rupture model
-    f6 = np.empty(len(m), dtype=float)
+    f6 = np.empty(len(m), dtype=np.float64)
     f6[ztor < 20] = a15 * ztor[ztor < 20] / 20.0
     f6[ztor >= 20] = a15
 
@@ -192,8 +192,8 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
     regional = 0.0
 
     # Site response model (do this one last because we need to know the ground motion for VS30 = 1180 m/s to compute it)
-    f5 = np.zeros(len(m), dtype=float)
-    vs30star = np.empty(len(m), dtype=float)
+    f5 = np.zeros(len(m), dtype=np.float64)
+    vs30star = np.empty(len(m), dtype=np.float64)
     v1 = 1500.0
     if vs30 < v1:
         vs30star = vs30
@@ -225,12 +225,12 @@ def get_im(vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, **
             + b * np.log(sa1180 + c * (vs30star / vlin) ** n)
         )
     # Standard deviation
-    phi_al = np.empty(len(m), dtype=float)
+    phi_al = np.empty(len(m), dtype=np.float64)
     phi_al[m < 4.0] = s1
     phi_al[(4 <= m) & (m <= 6)] = s1 + (s2 - s1) / 2.0 * (m[(4 <= m) & (m <= 6)] - 4.0)
     phi_al[m > 6] = s2
 
-    tau_al = np.empty(len(m), dtype=float)
+    tau_al = np.empty(len(m), dtype=np.float64)
     tau_al[m < 5] = s3
     tau_al[(5 <= m) & (m <= 7)] = s3 + (s4 - s3) / 2.0 * (m[(5 <= m) & (m <= 7)] - 5.0)
     tau_al[(m > 7)] = s4

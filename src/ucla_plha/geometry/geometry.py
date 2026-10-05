@@ -59,7 +59,7 @@ def point_triangle_distance(tri_xyz, p_xyz, tri_segment_id):
     s = b * e - c * d
     t = b * d - a * e
 
-    sqrdistance = np.empty(len(tri_xyz), dtype=float)
+    sqrdistance = np.empty(len(tri_xyz), dtype=np.float64)
 
     # Region 4
     cond = (s + t <= det) & (s < 0.0) & (t < 0.0) & (d < 0.0) & (-d >= a)
@@ -256,7 +256,7 @@ def get_Rx_Rx1_Ry0(rect_points, point, rect_segment_id):
         )
         / width
     )
-    Ry0 = np.empty(len(rect_points), dtype=float)
+    Ry0 = np.empty(len(rect_points), dtype=np.float64)
     Ry0[Ry0a < Ry0b] = Ry0a[Ry0a < Ry0b]
     Ry0[Ry0b <= Ry0a] = Ry0b[Ry0b <= Ry0a]
     Ry0[(Ry0a < length) & (Ry0b < length)] = 0

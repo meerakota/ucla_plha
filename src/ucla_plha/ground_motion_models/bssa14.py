@@ -49,9 +49,9 @@ def get_im(vs30, rjb, m, fault_type):
     tau1 = 0.398
     tau2 = 0.348
 
-    rs = np.zeros(len(fault_type), dtype=float)
-    ss = np.zeros(len(fault_type), dtype=float)
-    ns = np.zeros(len(fault_type), dtype=float)
+    rs = np.zeros(len(fault_type), dtype=np.float64)
+    ss = np.zeros(len(fault_type), dtype=np.float64)
+    ns = np.zeros(len(fault_type), dtype=np.float64)
     rs[fault_type == 1] = 1
     ns[fault_type == 2] = 1
     ss[fault_type == 3] = 1
@@ -94,7 +94,7 @@ def get_im(vs30, rjb, m, fault_type):
     tau[(4.5 < m) & (m < 5.5)] = tau1 + (tau2 - tau1) * (m[(4.5 < m) & (m < 5.5)] - 4.5)
 
     # phi(M) equation 17 in BSSA14
-    phi_m = np.empty(len(fault_type), dtype=float)
+    phi_m = np.empty(len(fault_type), dtype=np.float64)
     phi_m[m <= 4.5] = phi1
     phi_m[(4.5 < m) & (m < 5.5)] = phi1 + (phi2 - phi1) * (
         m[(4.5 < m) & (m < 5.5)] - 4.5
@@ -102,7 +102,7 @@ def get_im(vs30, rjb, m, fault_type):
     phi_m[m >= 5.5] = phi2
 
     # phi(M, RJB) equation 16 in BSSA14
-    phi_m_rjb = np.empty(len(fault_type), dtype=float)
+    phi_m_rjb = np.empty(len(fault_type), dtype=np.float64)
     phi_m_rjb[rjb <= r1] = phi_m[rjb <= r1]
     phi_m_rjb[(r1 < rjb) & (rjb <= r2)] = phi_m[
         (r1 < rjb) & (rjb <= r2)

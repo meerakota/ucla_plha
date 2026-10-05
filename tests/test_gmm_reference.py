@@ -1,6 +1,6 @@
 """
 Compare ground motion models against reference values from pygmm, an independent implementation
-of the NGA-West2 models. See tests/data/make_gmm_reference.py for how the reference values were
+of the NGA-West2 models (ASK14, BSSA14, CB14, CY14, and Idriss 2014). See tests/data/make_gmm_reference.py for how the reference values were
 generated. Scenarios cover reverse, normal, and strike-slip ruptures, M5 to M7.8, footwall and
 hanging wall sites from 2 km to 150 km, three Vs30 values, and measured and inferred Vs30.
 A second set of scenarios checks the ASK14 soil depth term for user-specified z1p0.
@@ -8,6 +8,7 @@ A second set of scenarios checks the ASK14 soil depth term for user-specified z1
 
 import itertools
 import json
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -18,7 +19,10 @@ from ucla_plha import plha
 _DATA = json.loads((Path(__file__).parent / "data" / "gmm_reference.json").read_text())
 REFERENCE = _DATA["scenarios"]
 ASK14_BASIN = _DATA["ask14_basin_scenarios"]
-GMMS = ["bssa14", "ask14", "cb14", "cy14"]
+GMMS = ["bssa14", "ask14", "cb14", "cy14", "idriss14"]
+# Idriss (2014) warns for Vs30 outside 450 to 1200 m/s. The reference scenarios include softer
+# sites to test the model equations over the range of Vs30 used for liquefaction hazard.
+IDRISS_VS30_WARNING = "ignore:vs30 = .* idriss14:UserWarning"
 VS30_CASES = sorted({(s["vs30"], s["measured_vs30"]) for s in REFERENCE})
 # Tolerance on natural log of PGA and on its standard deviation
 ATOL = 1.0e-3
@@ -64,6 +68,7 @@ def _describe(rows, i):
     )
 
 
+@pytest.mark.filterwarnings(IDRISS_VS30_WARNING)
 @pytest.mark.parametrize(
     "gmm,vs30,measured_vs30",
     [(g, v, mv) for g, (v, mv) in itertools.product(GMMS, VS30_CASES)],
@@ -155,6 +160,7 @@ def test_hanging_wall_amplifies_dipping_ruptures(gmm):
     assert mu[0] > mu[1] + 0.1
 
 
+@pytest.mark.filterwarnings(IDRISS_VS30_WARNING)
 @pytest.mark.parametrize("gmm", GMMS)
 def test_pga_decreases_with_distance_and_increases_with_magnitude(gmm):
     n = 20
@@ -175,3 +181,29 @@ def test_pga_decreases_with_distance_and_increases_with_magnitude(gmm):
         mu[m], _ = _run(gmm, 400.0, False, dict(base, m=np.full(n, m)))
         assert np.all(np.diff(mu[m]) < 0.0)
     assert np.all(mu[6.5] > mu[5.5]) and np.all(mu[7.5] > mu[6.5])
+
+
+@pytest.mark.parametrize(
+    "vs30,warns", [(300.0, True), (450.0, False), (1200.0, False), (1500.0, True)]
+)
+def test_idriss14_warns_outside_recommended_vs30(vs30, warns):
+    _, a = _scenarios(250.0, False)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _run("idriss14", vs30, False, a)
+    messages = [str(w.message) for w in caught if issubclass(w.category, UserWarning)]
+    assert any("idriss14" in msg for msg in messages) == warns
+
+
+@pytest.mark.filterwarnings(IDRISS_VS30_WARNING)
+def test_idriss14_treats_normal_faulting_as_strike_slip():
+    # Idriss (2014) has a style of faulting term for reverse earthquakes only
+    _, a = _scenarios(760.0, False)
+    a_ss = dict(a, fault_type=np.full(len(a["m"]), 3))
+    a_ns = dict(a, fault_type=np.full(len(a["m"]), 2))
+    a_rs = dict(a, fault_type=np.full(len(a["m"]), 1))
+    mu_ss, _ = _run("idriss14", 760.0, False, a_ss)
+    mu_ns, _ = _run("idriss14", 760.0, False, a_ns)
+    mu_rs, _ = _run("idriss14", 760.0, False, a_rs)
+    np.testing.assert_array_equal(mu_ns, mu_ss)
+    np.testing.assert_allclose(mu_rs - mu_ss, 0.08, atol=1e-12)

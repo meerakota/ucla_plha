@@ -13,7 +13,7 @@ from ucla_plha.liquefaction_models import (
     moss_et_al_2006,
     boulanger_idriss_2016,
 )
-from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14
+from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14, idriss14
 from ucla_plha.geometry import geometry
 
 
@@ -50,7 +50,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         dist_cutoff (float): maximum distance to consider in seismic hazard analysis
         m_min (float): minimum magnitude to consider in seismic hazard analysis
         gmms (array, dtype=string): An array of strings defining ground motion models to use in seismic
-            hazard analysis. Currently one or more of "ask14", "bssa14", "cb14", "cy14"
+            hazard analysis. Currently one or more of "ask14", "bssa14", "cb14", "cy14", "idriss14"
 
     Returns: A tuple containing the following arrays
         m (array, dtype=float): Numpy array of magnitudes, length = N
@@ -94,18 +94,19 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ztor = ruptures["ztor"]
         zbor = ruptures["zbor"]
 
-        # Now read files required by ask14, bssa14, cb14, and / or cy14
+        # Now read files required by ask14, bssa14, cb14, cy14, and / or idriss14
         # bssa14: rjb
         # ask14: rrup,rx,rx1,ry0,
         # cb14: rjb,rrup,rx
         # cy14: rjb,rrup,rx
+        # idriss14: rrup
         empty_array = np.empty(len(m))
-        if any(gmm in ["ask14", "bssa14", "cb14", "cy14"] for gmm in gmms):
+        if any(gmm in ["ask14", "bssa14", "cb14", "cy14", "idriss14"] for gmm in gmms):
             tri_segment_id = np.load(str(path.joinpath("tri_segment_id.npy")))
         if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
             tri_rjb = np.load(str(path.joinpath("tri_rjb.npy")))
             rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
-        if any(gmm in ["ask14", "cb14", "cy14"] for gmm in gmms):
+        if any(gmm in ["ask14", "cb14", "cy14", "idriss14"] for gmm in gmms):
             rect_segment_id = np.load(str(path.joinpath("rect_segment_id.npy")))
             tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
             rect = np.load(str(path.joinpath("rect_rjb.npy")))
@@ -115,7 +116,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             )
         split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
         boundaries = np.r_[0, split_indices]
-        if any(gmm in ["ask14", "cb14", "cy14"] for gmm in gmms):
+        if any(gmm in ["ask14", "cb14", "cy14", "idriss14"] for gmm in gmms):
             rrup = np.minimum.reduceat(rrup_all[segment_index], boundaries)
             rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
             rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
@@ -261,7 +262,7 @@ def get_ground_motion_data(
     motion intensity measure.
 
     Inputs:
-        gmm (string): Ground motion model. One of "ask14", "bssa14", "cb14", "cy14"
+        gmm (string): Ground motion model. One of "ask14", "bssa14", "cb14", "cy14", "idriss14"
         vs30 (float): Time-averaged shear wave velocity in the upper 30m in m/s
         measured_vs30 (bool): boolean field indicating whether vs30 is measured (True) or inferred (False)
         z1p0 (float): Isosurface depth to a shear wave velocity of 1.0 km/s in km, length = N
@@ -301,10 +302,12 @@ def get_ground_motion_data(
         mu_ln_pga, sigma_ln_pga = ask14.get_im(
             vs30, rrup, rx, rx1, ry0, m, fault_type, measured_vs30, dip, ztor, z1p0=z1p0
         )
+    elif gmm == "idriss14":
+        mu_ln_pga, sigma_ln_pga = idriss14.get_im(vs30, rrup, m, fault_type)
     else:
         raise ValueError(
             f'incorrect ground motion model "{gmm}", '
-            'expected one of "ask14", "bssa14", "cb14", "cy14"'
+            'expected one of "ask14", "bssa14", "cb14", "cy14", "idriss14"'
         )
     return [mu_ln_pga, sigma_ln_pga]
 
@@ -544,7 +547,7 @@ def get_hazard(config_file):
                 ] /= point_source_model_weight_sum
 
     ground_motion_model_weight_sum = 0.0
-    ground_motion_models = ["bssa14", "ask14", "cb14", "cy14"]
+    ground_motion_models = ["bssa14", "ask14", "cb14", "cy14", "idriss14"]
     for ground_motion_model in ground_motion_models:
         ground_motion_model_weight_sum += (
             config["ground_motion_models"]

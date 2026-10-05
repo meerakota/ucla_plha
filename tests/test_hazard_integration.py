@@ -27,7 +27,9 @@ GMM_MU = {
     "ask14": np.log(0.3),
     "cb14": np.log(0.15),
     "cy14": np.log(0.25),
+    "idriss14": np.log(0.22),
 }
+GMM_DIR = Path(str(files("ucla_plha").joinpath("ground_motion_models")))
 SIGMA = 0.6
 
 
@@ -125,6 +127,23 @@ def test_fault_and_point_source_hazards_add(synthetic, tmp_path):
         2.0 * _exceedance("bssa14"),
         rtol=1e-12,
     )
+
+
+def test_every_ground_motion_model_is_registered(synthetic, tmp_path):
+    # Each module in ground_motion_models must be accepted by the config schema and have its
+    # weight normalized in get_hazard
+    gmms = sorted(p.stem for p in GMM_DIR.glob("*.py") if p.stem != "__init__")
+    assert set(gmms) == set(GMM_MU)
+    for gmm in gmms:
+        config = _config(fault_models={"ucerf3_fm31": 1.0}, gmms={gmm: 4.0})
+        out = _hazard(tmp_path, config)
+        assert out is not None, f"{gmm} rejected by config schema"
+        np.testing.assert_allclose(
+            out["psha"]["annual_rate_of_exceedance"],
+            _exceedance(gmm),
+            rtol=1e-12,
+            err_msg=gmm,
+        )
 
 
 @pytest.mark.parametrize("source_type", ["fault_source_models", "point_source_models"])

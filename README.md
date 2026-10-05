@@ -169,7 +169,7 @@ The "source_model" JSON object is not well suited to representation in tabular f
 
 ### "ground_motion_models" Keys
 
-The 2nd nesting level keys define the ground motion model, and must be one of "ask14", "bssa14", "cb14", and/or "cy14". The 3rd nesting level keys define the variables indicated in the table below. 
+The 2nd nesting level keys define the ground motion model, and must be one of "ask14", "bssa14", "cb14", "cy14", and/or "idriss14". The "idriss14" model (Idriss 2014) is recommended for vs30 from 450 to 1200 m/s, so it is generally not applicable to the soft soil sites where liquefaction occurs; ucla_plha issues a warning when vs30 is outside that range. The 3rd nesting level keys define the variables indicated in the table below. 
 
 | key | definition | units | notes |
 | --- | ---------- | ----- | ----- |

@@ -71,12 +71,12 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
     deltaz1p0_ref = z1p0_ref - np.exp(  # pylint: disable=unused-variable
         -7.15 / 4.0 * np.log((1130.0**4.0 + 571.0**4.0) / (1360.0**4.0 + 571.0**4.0))
     )
-    frv = np.zeros(len(fault_type), dtype=float)
-    fnm = np.zeros(len(fault_type), dtype=float)
+    frv = np.zeros(len(fault_type), dtype=np.float64)
+    fnm = np.zeros(len(fault_type), dtype=np.float64)
     frv[fault_type == 1] = 1.0
     fnm[fault_type == 2] = 1.0
 
-    e_ztor = np.zeros(len(m), dtype=float)
+    e_ztor = np.zeros(len(m), dtype=np.float64)
     filt = (m > 5.849) & (fault_type == 1)
     e_ztor[filt] = 2.704 - 1.226 * (m[filt] - 5.849)
     e_ztor[(m <= 5.849) & (fault_type == 1)] = 2.704
@@ -89,7 +89,7 @@ def get_im(vs30, rjb, rrup, rx, m, fault_type, measured_vs30, dip, ztor, **kwarg
 
     # Equation 11. This equation is very long, so it's broken down here into different components
     # corresponding to each row in which the equation is organized
-    lnyrefij = np.empty(len(m), dtype=float)
+    lnyrefij = np.empty(len(m), dtype=np.float64)
     lnyrefij[m > 4.5] = (
         c1 + (c1a + c1c / (np.cosh(2.0 * (m[m > 4.5] - 4.5)))) * frv[m > 4.5]
     )

@@ -9,7 +9,7 @@ unit tests do not depend on pygmm. Regenerate the file only when the scenarios c
     python tests/data/make_gmm_reference.py
 
 The main scenarios use the default basin depths (z1p0 and z2p5 not specified) and provide
-reference values for all four models. A second set of scenarios specifies z1p0 and provides
+reference values for all five models (ASK14, BSSA14, CB14, CY14, and Idriss 2014). A second set of scenarios specifies z1p0 and provides
 reference values for ASK14 only. User-specified basin depths are not yet checked for CB14 and
 CY14 (for PGA, the CY14 basin term is zero).
 """
@@ -17,12 +17,16 @@ CY14 (for PGA, the CY14 basin term is zero).
 import itertools
 import json
 import logging
+import warnings
 from pathlib import Path
 
 import numpy as np
 import pygmm
 
 logging.disable(logging.WARNING)
+# pygmm warns when scenarios are outside a model's recommended range (e.g., Vs30 < 450 m/s for
+# Idriss 2014). The reference values are still valid tests of the model equations.
+warnings.simplefilter("ignore", UserWarning)
 
 MECHANISM = {1: "RS", 2: "NS", 3: "SS"}
 DIP = {1: 40.0, 2: 55.0, 3: 90.0}
@@ -33,6 +37,7 @@ MODELS = {
     "ask14": pygmm.AbrahamsonSilvaKamai2014,
     "cb14": pygmm.CampbellBozorgnia2014,
     "cy14": pygmm.ChiouYoungs2014,
+    "idriss14": pygmm.Idriss2014,
 }
 
 

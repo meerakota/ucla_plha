@@ -89,12 +89,12 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     ###############################################################
     # Style of faulting term. Equations 4, 5, and 6 in CB 14
     ###############################################################
-    frv = np.zeros(len(fault_type), dtype=float)
-    fnm = np.zeros(len(fault_type), dtype=float)
+    frv = np.zeros(len(fault_type), dtype=np.float64)
+    fnm = np.zeros(len(fault_type), dtype=np.float64)
     frv[fault_type == 1] = 1.0
     fnm[fault_type == 2] = 1.0
 
-    fflt_m = np.empty(len(m), dtype=float)
+    fflt_m = np.empty(len(m), dtype=np.float64)
     fflt_m[m <= 4.5] = 0.0
     fflt_m[(4.5 < m) & (m <= 5.5)] = m[(4.5 < m) & (m <= 5.5)] - 4.5
     fflt_m[m > 5.5] = 1.0
@@ -119,19 +119,19 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     f2_rx = h4 + h5 * (rx - r1) / (r2 - r1) + h6 * ((rx - r1) / (r2 - r1)) ** 2
 
     # Equation 8
-    fhng_rx = np.empty(len(m), dtype=float)
+    fhng_rx = np.empty(len(m), dtype=np.float64)
     fhng_rx[rx < 0] = 0.0
     fhng_rx[(0 <= rx) & (rx < r1)] = f1_rx[(0 <= rx) & (rx < r1)]
     fhng_rx[rx >= r1] = f2_rx[rx >= r1]
     fhng_rx[(rx >= r1) & (fhng_rx < 0.0)] = 0.0
 
     # Equation 13
-    fhng_rrup = np.empty(len(m), dtype=float)
+    fhng_rrup = np.empty(len(m), dtype=np.float64)
     fhng_rrup[rrup == 0] = 1.0
     fhng_rrup[rrup > 0] = (rrup[rrup > 0] - rjb[rrup > 0]) / rrup[rrup > 0]
 
     # Equation 14
-    fhng_m = np.empty(len(m), dtype=float)
+    fhng_m = np.empty(len(m), dtype=np.float64)
     fhng_m[m <= 5.5] = 0.0
     fhng_m[(5.5 <= m) & (m <= 6.5)] = (m[(5.5 <= m) & (m <= 6.5)] - 5.5) * (
         1.0 + a2 * (m[(5.5 <= m) & (m <= 6.5)] - 6.5)
@@ -139,7 +139,7 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     fhng_m[m > 6.5] = 1.0 + a2 * (m[m > 6.5] - 6.5)
 
     # Equation 15
-    fhng_z = np.empty(len(m), dtype=float)
+    fhng_z = np.empty(len(m), dtype=np.float64)
     fhng_z[ztor <= 16.66] = 1.0 - 0.06 * ztor[ztor <= 16.66]
     fhng_z[ztor > 16.66] = 0.0
 
@@ -174,12 +174,12 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     ####################################################################
 
     # Equation 36
-    fdz_m = np.empty(len(m), dtype=float)
+    fdz_m = np.empty(len(m), dtype=np.float64)
     fdz_m[m < 6.75] = -4.317 + 0.984 * m[m < 6.75]
     fdz_m[m >= 6.75] = 2.325
 
     # Equation 37
-    fdz_delta = np.zeros(len(m), dtype=float)
+    fdz_delta = np.zeros(len(m), dtype=np.float64)
     fdz_delta[dip <= 40.0] = 0.0445 * (dip[dip <= 40.0] - 40.0)
 
     # Equation 35
@@ -194,13 +194,13 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     zhyp = ztor + np.exp(lndz)
 
     # Equation 22
-    fhyp_h = np.empty(len(m), dtype=float)
+    fhyp_h = np.empty(len(m), dtype=np.float64)
     fhyp_h[zhyp <= 7.0] = 0.0
     fhyp_h[(7.0 < zhyp) & (zhyp <= 20.0)] = zhyp[(7.0 < zhyp) & (zhyp <= 20.0)] - 7.0
     fhyp_h[zhyp > 20] = 13.0
 
     # Equation 23
-    fhyp_m = np.empty(len(m), dtype=float)
+    fhyp_m = np.empty(len(m), dtype=np.float64)
     fhyp_m[m <= 5.5] = c17
     fhyp_m[(5.5 < m) & (m <= 6.5)] = c17 + (c18 - c17) * (
         m[(5.5 < m) & (m <= 6.5)] - 5.5
@@ -215,7 +215,7 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     ####################################################################
 
     # Equation 24
-    fdip = np.empty(len(m), dtype=float)
+    fdip = np.empty(len(m), dtype=np.float64)
     fdip[m <= 4.5] = c19 * dip[m <= 4.5]
     fdip[(4.5 <= m) & (m <= 5.5)] = (
         c19 * (5.5 - m[(4.5 <= m) & (m <= 5.5)]) * dip[(4.5 <= m) & (m <= 5.5)]
@@ -227,7 +227,7 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     ####################################################################
 
     # Equation 25
-    fatn = np.zeros(len(m), dtype=float)
+    fatn = np.zeros(len(m), dtype=np.float64)
     fatn[rrup > 80] = c20 * (rrup[rrup > 80] - 80)
 
     ####################################################################
@@ -259,14 +259,14 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     #####################################################################
 
     # Equation 27
-    tau_lny = np.empty(len(m), dtype=float)
+    tau_lny = np.empty(len(m), dtype=np.float64)
     tau_lny[m <= 4.5] = tau1
     tau_lny[(4.5 < m) & (m < 5.5)] = tau2 + (tau1 - tau2) * (
         5.5 - m[(4.5 < m) & (m < 5.5)]
     )
     tau_lny[m >= 5.5] = tau2
     # Equation 28
-    phi_lny = np.empty(len(m), dtype=float)
+    phi_lny = np.empty(len(m), dtype=np.float64)
     phi_lny[m <= 4.5] = phi1
     phi_lny[(4.5 < m) & (m < 5.5)] = phi2 + (phi1 - phi2) * (
         5.5 - m[(4.5 < m) & (m < 5.5)]
@@ -274,7 +274,7 @@ def get_im(vs30, rjb, rrup, rx, rx1, m, fault_type, ztor, zbor, dip, **kwargs):
     phi_lny[m >= 5.5] = phi2
     # Equation 31
     if vs30 >= k1:
-        alpha = np.zeros(len(m), dtype=float)
+        alpha = np.zeros(len(m), dtype=np.float64)
     else:
         alpha = (
             k2 * a1100 * ((a1100 + c * (vs30 / k1) ** n) ** (-1) - (a1100 + c) ** (-1))

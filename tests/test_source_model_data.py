@@ -216,6 +216,25 @@ def test_fault_source_data_is_finite(model, site):
     assert np.all(rrup >= rjb * (1.0 - 1e-3))
 
 
+@pytest.mark.parametrize("model", FAULT_MODELS)
+def test_rrup_only_models_get_rupture_distance(model):
+    # idriss14 needs only Rrup, so get_source_data must compute Rrup when it is the only GMM,
+    # and the result must match Rrup computed for the other GMMs
+    p_xyz = geometry.point_to_xyz(np.array([36.80547, -121.786074, 0.0]))
+    out_all = plha.get_source_data(
+        "fault_source_models", model, p_xyz, None, 6.0, ALL_GMMS
+    )
+    out_idriss = plha.get_source_data(
+        "fault_source_models", model, p_xyz, None, 6.0, ["idriss14"]
+    )
+    np.testing.assert_array_equal(out_idriss[4], out_all[4])
+    # With only an Rrup-based GMM, the distance cutoff is applied to Rrup
+    out_cut = plha.get_source_data(
+        "fault_source_models", model, p_xyz, 100.0, 6.0, ["idriss14"]
+    )
+    assert len(out_cut[4]) > 0 and np.all(out_cut[4] < 100.0)
+
+
 @pytest.mark.parametrize("model", POINT_MODELS)
 def test_point_source_model_is_consistent(model):
     points = _load("point_source_models", model, "points.npy")
