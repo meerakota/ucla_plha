@@ -65,6 +65,11 @@ GRID_INPUT_FILES = {
     ),
 }
 ALL_GMMS = ["bssa14", "ask14", "cb14", "cy14"]
+# Sites within 100 km of models outside California (default: Monterey, California)
+NEAR_SITES = {
+    "nshm23_cascadia_interface": (44.63, -124.05),
+    "nshm23_cascadia_interface_cluster": (44.63, -124.05),
+}
 
 
 def _load(source_type, model, name):
@@ -150,7 +155,9 @@ def test_fault_rupture_properties_are_physical(fault_model):
     assert np.all(r["zbor"] > r["ztor"])
     assert np.all(r["zbor"] < 40.0)
     # Depths and dips should vary across ruptures rather than taking a handful of values
-    assert len(np.unique(r["ztor"])) > 5
+    # Cluster models have few ruptures, most of them with the same upper trace depth
+    if not fault_model["model"].endswith("_cluster"):
+        assert len(np.unique(r["ztor"])) > 5
     assert len(np.unique(r["zbor"])) > 5
     assert len(np.unique(r["dip"])) > 5
 
@@ -168,6 +175,8 @@ def test_fault_rupture_segment_mapping(fault_model):
 
 
 def test_fault_down_dip_edge_follows_dip_direction(fault_model):
+    if fault_model["model"] not in SECTION_FILES:
+        pytest.skip(f"no section file for {fault_model['model']}")
     filename, id_key, dip_key, dipdir_key = SECTION_FILES[fault_model["model"]]
     if not filename.exists():
         pytest.skip(f"{filename} not available")
@@ -220,7 +229,8 @@ def test_fault_source_data_is_finite(model, site):
 def test_rrup_only_models_get_rupture_distance(model):
     # idriss14 needs only Rrup, so get_source_data must compute Rrup when it is the only GMM,
     # and the result must match Rrup computed for the other GMMs
-    p_xyz = geometry.point_to_xyz(np.array([36.80547, -121.786074, 0.0]))
+    site = NEAR_SITES.get(model, (36.80547, -121.786074))
+    p_xyz = geometry.point_to_xyz(np.array([site[0], site[1], 0.0]))
     out_all = plha.get_source_data(
         "fault_source_models", model, p_xyz, None, 6.0, ALL_GMMS
     )
