@@ -17,12 +17,15 @@ import os
 import numpy as np
 import pandas as pd
 
-input_dir = 'nshm23_wus_branch_avg'
-output_dir = '../src/ucla_plha/source_models/fault_source_models/nshm23_wus'
+input_dir = os.environ.get('NSHM23_WUS_INPUT_DIR', 'nshm23_wus_branch_avg')
+output_dir = os.environ.get('NSHM23_WUS_OUTPUT_DIR', '../src/ucla_plha/source_models/fault_source_models/nshm23_wus')
 
 # NSHM23 reduces the seismogenic area of each subsection by moving the upper depth down by
 # aseismicity * (lower_depth - upper_depth). The rupture depths in ruptures.csv include this
 # reduction, so apply it to the geometry too so that Rrup, Rjb, and ztor are consistent.
+# As in nshmp-lib (DefaultGriddedSurface), the reduction removes the top of the dipping fault
+# plane: the upper edge moves down-dip, by aseismicity * (lower_depth - upper_depth) / tan(dip)
+# horizontally in the dip direction, and the lower edge does not move.
 apply_aseismicity = True
 
 def get_lat_lon(filename):
@@ -55,14 +58,21 @@ def get_lat_lon(filename):
         coords = coords[np.r_[True, np.any(np.diff(coords, axis=0) != 0, axis=1)]]
         udepth = p['upper-depth']
         ldepth = p['lower-depth']
+        shift = 0.0
         if apply_aseismicity:
-            udepth = udepth + p.get('aseismicity', 0.0) * (ldepth - udepth)
+            reduction = p.get('aseismicity', 0.0) * (ldepth - udepth)
+            udepth = udepth + reduction
+            shift = reduction / np.tan(np.radians(p['dip']))
+        # top corners: the trace moved down-dip by the aseismic reduction
+        tlat, tlon = destination_point(coords[:, 1], coords[:, 0], p['dip-direction'], shift)
+        if shift == 0.0:
+            tlat, tlon = coords[:, 1], coords[:, 0]
         for i in range(coords.shape[0] - 1):
             segment_id.append(p['index'])
-            lon1.append(coords[i, 0])
-            lat1.append(coords[i, 1])
-            lon2.append(coords[i + 1, 0])
-            lat2.append(coords[i + 1, 1])
+            lon1.append(tlon[i])
+            lat1.append(tlat[i])
+            lon2.append(tlon[i + 1])
+            lat2.append(tlat[i + 1])
             dip.append(p['dip'])
             dip_dir.append(p['dip-direction'])
             lower_depth.append(ldepth)
