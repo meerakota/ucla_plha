@@ -1,0 +1,14 @@
+[
+  {
+    "id": "bottom",
+    "weight": 0.3
+  },
+  {
+    "id": "middle",
+    "weight": 0.5
+  },
+  {
+    "id": "top",
+    "weight": 0.2
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "grid-spacing": 0.1,
+  "point-source-type": "FINITE",
+  "rupture-scaling": "NSHM_SUB_GEOMAT_LENGTH",
+  "max-width": 8.0,
+  "focal-mech-tree": [
+    { "id": "STRIKE_SLIP", "weight": 1.0 }
+  ]
+}

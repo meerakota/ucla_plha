@@ -1,0 +1,18 @@
+{
+  "type": "Feature",
+  "id": 8220,
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [-126.55, 45.75],
+      [-120.55, 45.75],
+      [-120.55, 51.05],
+      [-126.55, 51.05],
+      [-126.55, 45.75]
+    ]]
+  },
+  "properties": {
+    "name": "WA Intraslab",
+    "state": "WA"
+  }
+}

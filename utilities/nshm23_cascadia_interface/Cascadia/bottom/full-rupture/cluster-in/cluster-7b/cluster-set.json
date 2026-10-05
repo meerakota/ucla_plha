@@ -1,0 +1,65 @@
+{
+  "name": "Cascadia (cluster-7b, bottom)",
+  "id": 3310,
+  "rupture-sets": [
+    {
+      "name": "7b-1",
+      "id": 3311,
+      "mfd-tree": "cluster-7b-1-bottom",
+      "sections": [
+        3200, 3201, 3202, 3203
+      ]
+    },
+    {
+      "name": "7b-2",
+      "id": 3312,
+      "mfd-tree": "cluster-7b-2-bottom",
+      "sections": [
+        3204, 3205, 3206
+      ]
+    },
+    {
+      "name": "7b-3",
+      "id": 3313,
+      "mfd-tree": "cluster-7b-3-bottom",
+      "sections": [
+        3207, 3208, 3209
+      ]
+    },
+    {
+      "name": "7b-4",
+      "id": 3314,
+      "mfd-tree": "cluster-7b-4-bottom",
+      "sections": [
+        3210, 3211, 3212
+      ]
+    },
+    {
+      "name": "7b-5",
+      "id": 3315,
+      "mfd-tree": "cluster-7b-5-bottom",
+      "sections": [
+        3213, 3214, 3215
+      ]
+    },
+    {
+      "name": "7b-6",
+      "id": 3316,
+      "mfd-tree": "cluster-7b-6-bottom",
+      "sections": [
+        3216, 3217, 3218
+      ]
+    },
+    {
+      "name": "7b-7",
+      "id": 3317,
+      "mfd-tree": "cluster-7b-7-bottom",
+      "sections": [
+        3219, 3220, 3221
+      ]
+    }
+  ],
+  "properties": {
+    "state": "WA"
+  }
+}

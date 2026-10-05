@@ -1,0 +1,18 @@
+{
+    "type": "Feature",
+    "id": 8200,
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-126.55, 37.95],
+        [-121.05, 37.95],
+        [-121.05, 42.75],
+        [-126.55, 42.75],
+        [-126.55, 37.95]
+      ]]
+    },
+    "properties": {
+      "name": "CA Intraslab",
+      "state": "CA"
+    }
+  }

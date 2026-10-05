@@ -1,0 +1,76 @@
+{
+  "ca-slab": [
+    {
+      "id": "M1",
+      "weight": 0.9,
+      "value": {
+        "type": "GR",
+        "b": 0.8,
+        "Δm": 0.1,
+        "mMin": 5.0,
+        "mMax": 7.5
+      }
+    },
+    {
+      "id": "M2",
+      "weight": 0.1,
+      "value": {
+        "type": "GR",
+        "b": 0.8,
+        "Δm": 0.1,
+        "mMin": 5.0,
+        "mMax": 8.0
+      }
+    }
+  ],
+  "or-slab-mfd-lo": [
+    {
+      "id": "M1",
+      "weight": 1.0,
+      "value": {
+        "type": "GR", 
+        "b": 0.4,
+        "Δm": 0.1,
+        "mMin": 6.5,
+        "mMax": 7.2
+      }
+    }
+  ],
+  "wa-slab-mfd-lo": [
+    {
+      "id": "M1",
+      "weight": 1.0,
+      "value": {
+        "type": "GR", 
+        "b": 0.4,
+        "Δm": 0.1,
+        "mMin": 5.0,
+        "mMax": 7.2
+      }
+    }
+  ],
+  "or-wa-slab-mfd-hi": [
+    {
+      "id": "M1",
+      "weight": 0.9,
+      "value": { 
+        "type": "GR", 
+        "b": 0.8,
+        "Δm": 0.1,
+        "mMin": 7.2,
+        "mMax": 7.5
+      }
+    },
+    {
+      "id": "M2",
+      "weight": 0.1,
+      "value": { 
+        "type": "GR",
+        "b": 0.8,
+        "Δm": 0.1,
+        "mMin": 7.2,
+        "mMax": 8.0
+      }
+    }
+  ]
+}
