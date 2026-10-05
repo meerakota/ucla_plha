@@ -477,16 +477,46 @@ def _nshmp_point_source_data(path, p_xyz, dist_cutoff, m_min, ps):
         index, ztor, m, style, r_h = (a[first] for a in (index, ztor, m, style, r_h))
 
     max_depth = ps.get("max_depth")
-    d = point_source.finite_point_source_distances(
-        m,
-        style,
-        r_h,
-        ztor,
-        ps["rupture_scaling"],
-        ps["type"],
-        max_depth=max_depth,
-        max_width=None if max_depth is not None else ps.get("max_width"),
-    )
+    max_width = None if max_depth is not None else ps.get("max_width")
+    if ps["type"] == "fixed_strike":
+        # nshmp-lib zones: FIXED_STRIKE sources at nodes with a strike (strike.npy), FINITE
+        # sources (with the rJB correction) at nodes without one (NaN). Not optimized.
+        strike = np.load(str(path.joinpath("strike.npy")))[pos].astype(float)
+        fixed = np.isfinite(strike)
+        parts = []
+        if np.any(fixed):
+            d = point_source.fixed_strike_distances(
+                m[fixed], style[fixed], node_lat[pos][fixed], node_lon[pos][fixed],
+                strike[fixed], site_lat, site_lon, ztor[fixed], ps["rupture_scaling"],
+                max_depth=max_depth, max_width=max_width,
+            )
+            d["index"] = np.flatnonzero(fixed)[d["index"]]
+            parts.append(d)
+        if np.any(~fixed):
+            sel = np.flatnonzero(~fixed)
+            d = point_source.finite_point_source_distances(
+                m[sel], style[sel], r_h[sel], ztor[sel], ps["rupture_scaling"], "finite",
+                max_depth=max_depth, max_width=max_width,
+            )
+            d["index"] = sel[d["index"]]
+            parts.append(d)
+        if parts:
+            d = {k: np.concatenate([q[k] for q in parts]) for k in parts[0]}
+        else:
+            d = point_source.finite_point_source_distances(
+                m, style, r_h, ztor, ps["rupture_scaling"], "point"
+            )
+    else:
+        d = point_source.finite_point_source_distances(
+            m,
+            style,
+            r_h,
+            ztor,
+            ps["rupture_scaling"],
+            ps["type"],
+            max_depth=max_depth,
+            max_width=max_width,
+        )
     k = d["index"]
     arrays = (
         m[k],
@@ -880,6 +910,19 @@ def get_hazard(config_file):
         if config["source_models"][key[0]][key[1]]["weight"] > 0
     }
     gmm_trees, notes = tectonic_regions.parse_ground_motion_models(config, regions_used)
+    # Ground motion models of individual source models: the "ground_motion_models" of the
+    # source model in the config, or a "gmm_tree" list in its source_info.json (e.g. the NSHM
+    # system grid in the stable crust, which mixes NGA-East and NGA-West2 models)
+    model_trees = {}
+    for (source_type, source_model), info in source_infos.items():
+        entry = config["source_models"][source_type][source_model]
+        if entry["weight"] <= 0:
+            continue
+        tree = tectonic_regions.source_model_gmm_entries(entry, info)
+        if tree is not None:
+            model_trees[(source_type, source_model)] = tectonic_regions.build_region_tree(
+                source_model, tree, notes
+            )
 
     liquefaction_model_weight_sum = 0.0
     liquefaction_models = [
@@ -1024,10 +1067,14 @@ def get_hazard(config_file):
                 continue
             info = source_infos[(source_model, fault_source_model)]
             region = info["tectonic_region"]
-            branches = gmm_trees[region]
+            branches = model_trees.get(
+                (source_model, fault_source_model), gmm_trees.get(region)
+            )
             # all ground motion models of the region determine the distance types
             gmms = [branch.key for branch in branches]
-            region_cutoff = tectonic_regions.region_value(dist_cutoff, region)
+            region_cutoff = config["source_models"][source_model][
+                fault_source_model
+            ].get("dist_cutoff", tectonic_regions.region_value(dist_cutoff, region))
             cluster = info["cluster"]
             if cluster:
                 data, extras = get_source_data(

@@ -9,6 +9,7 @@ of its region.
 
 import json
 import os
+import re
 import warnings
 
 from ucla_plha import pygmm_gmms
@@ -73,6 +74,20 @@ NSHM_MAX_DISTANCE = {
 }
 
 
+#: nshmp-lib grid optimization settings (grid-config.json opt-distance-bin, smoothing-density,
+#: smoothing-limit, grid-spacing) of NSHM grid models whose source_info.json describes them
+#: only in text. nshmp-lib applies them by default (optimizeGrids, smoothGrids).
+NSHMP_GRID_OPTIMIZATION = {
+    "nshm23_ceus_grid": {
+        "distance_bin": 5.0,
+        "smoothing": {"density": 4, "limit": 40.0, "grid_spacing": 0.1},
+    },
+    "nshm23_ceus_grid_system": {
+        "distance_bin": 5.0,
+        "smoothing": {"density": 4, "limit": 40.0, "grid_spacing": 0.1},
+    },
+}
+
 # ---------------------------------------------------------------------------------------
 # Source model information
 # ---------------------------------------------------------------------------------------
@@ -131,17 +146,27 @@ def normalize_point_source(ps):
         return out
     if method != "nshmp":
         raise ValueError(f'unknown point source distance_method "{method}"')
-    out["type"] = (source_type or "finite").lower()
+    # The first word of descriptive values is used, e.g. "FINITE (GridSourceFinite)"
+    out["type"] = re.split(r"[\s(]", str(source_type or "finite").strip())[0].lower()
+    if out["type"] not in ("point", "finite", "fixed_strike"):
+        raise ValueError(f'unsupported point source type "{out["type"]}"')
     out["rupture_scaling"] = _first(ps, "rupture_scaling", "rupture-scaling", default="none").lower()
-    out["max_depth"] = _first(ps, "max_depth", "max-depth")
+    depth_info = ps.get("depth") if isinstance(ps.get("depth"), dict) else {}
+    out["max_depth"] = _first(ps, "max_depth", "max-depth", "max_depth_km") or _first(
+        depth_info, "max_depth_km", "max_depth", "max-depth"
+    )
     out["max_width"] = _first(ps, "max_width", "max-width", "width_km")
 
-    depth_map = _first(ps, "grid_depth_map", "grid-depth-map")
+    depth_map = _first(ps, "grid_depth_map", "grid-depth-map") or _first(
+        depth_info, "depth_map", "grid_depth_map", "grid-depth-map"
+    )
     if isinstance(depth_map, dict):
         # nshmp-lib format: {"label": {"mMin": .., "mMax": .., "depth-tree": [{"weight", "value"}]}}
         entries = []
         for entry in depth_map.values():
             tree = entry.get("depth-tree", entry.get("depth_tree"))
+            if tree is None and "ztor_km_and_weight" in entry:
+                tree = [{"value": d, "weight": w} for d, w in entry["ztor_km_and_weight"]]
             entries.append(
                 {
                     "m_min": float(_first(entry, "mMin", "mmin", "m_min")),
@@ -176,8 +201,28 @@ def normalize_point_source(ps):
         }
     else:
         smoothing = None
+    distance_bin = _first(ps, "distance_bin", "opt_distance_bin", "opt-distance-bin")
+    text = ps.get("optimization")
+    if distance_bin is None and isinstance(text, str):
+        # descriptive nshmp-lib grid optimization settings, e.g. "opt-distance-bin 5.0 km",
+        # "smoothing-limit 40.0 km", "smoothing-density 4"
+        found = re.search(r"opt-distance-bin\s+([0-9.]+)", text)
+        if found:
+            distance_bin = float(found.group(1))
+        dens = re.search(r"smoothing-density\s+([0-9]+)", text)
+        if smoothing is None and dens:
+            limit = re.search(r"smoothing-limit\s+([0-9.]+)", text)
+            spacing = re.search(r"grid spacing\s+([0-9.]+)", text)
+            smoothing = {
+                "density": int(dens.group(1)),
+                "limit": float(limit.group(1)) if limit else 40.0,
+                "grid_spacing": float(spacing.group(1)) if spacing else 0.1,
+            }
+    if out["type"] == "fixed_strike":
+        # nshmp-lib only optimizes GRID rupture sets (not zones)
+        distance_bin, smoothing = None, None
     out["smoothing"] = smoothing
-    out["distance_bin"] = _first(ps, "distance_bin", "opt_distance_bin", "opt-distance-bin")
+    out["distance_bin"] = distance_bin
     return out
 
 
@@ -203,6 +248,13 @@ def read_source_info(path, source_type, name):
     info["cluster_rupture_rate"] = str(info.get("cluster_rupture_rate", "conditional")).lower()
     if source_type == "point_source_models":
         info["point_source"] = normalize_point_source(info.get("point_source"))
+        ps = info["point_source"]
+        if (
+            ps["distance_method"] == "nshmp"
+            and ps.get("distance_bin") is None
+            and name in NSHMP_GRID_OPTIMIZATION
+        ):
+            ps.update(NSHMP_GRID_OPTIMIZATION[name])
     return info
 
 
@@ -335,6 +387,25 @@ def parse_ground_motion_models(config, regions_used):
     for note in notes:
         warnings.warn(note, UserWarning, stacklevel=3)
     return trees, notes
+
+
+def source_model_gmm_entries(entry, info):
+    """Ground motion model entries {name: {"weight": w}} specific to a source model, or None.
+
+    The config entry of the source model can have "ground_motion_models" (same format as a
+    tectonic region); otherwise a source_info.json "gmm_tree" list of {"id", "weight"} is
+    used. Descriptive (string) gmm_tree values are ignored.
+    """
+    if isinstance(entry.get("ground_motion_models"), dict):
+        return entry["ground_motion_models"]
+    tree = info.get("gmm_tree")
+    if isinstance(tree, list):
+        entries = {}
+        for branch in tree:
+            key = str(branch["id"]).lower()
+            entries[key] = {"weight": entries.get(key, {}).get("weight", 0.0) + float(branch["weight"])}
+        return entries
+    return None
 
 
 def region_value(value, region):

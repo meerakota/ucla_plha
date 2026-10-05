@@ -151,8 +151,12 @@ def run_ucla_plha(lon, lat, vs30, pga, models, active_gmms, grid_distances="sour
         if value is not None:
             site[key] = value
     source_models = {"fault_source_models": {}, "point_source_models": {}}
-    for name, (source_type, _) in models.items():
+    for name, (source_type, info) in models.items():
         source_models[source_type][name] = {"weight": 1.0}
+        # model-specific NSHM maximum distance (e.g. 300 km for the stable crust system grid)
+        cutoff = info.get("gmm_max_distance_km")
+        if cutoff is not None:
+            source_models[source_type][name]["dist_cutoff"] = float(cutoff)
     source_models = {k: v for k, v in source_models.items() if v}
     gmms = {"active_crust": {k: {"weight": w} for k, w in ACTIVE_GMMS[active_gmms].items()}}
     for region in tectonic_regions.TECTONIC_REGIONS[1:]:

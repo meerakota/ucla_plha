@@ -292,3 +292,89 @@ def finite_point_source_distances(
         "zbor": zbot_k,
         "width": width_dd[index],
     }
+
+
+def location_at(lat, lon, azimuth_deg, distance):
+    """nshmp-lib Locations.location: point at a distance (km) along an azimuth (degrees)."""
+    lat1 = np.radians(np.asarray(lat, dtype=float))
+    lon1 = np.radians(np.asarray(lon, dtype=float))
+    az = np.radians(np.asarray(azimuth_deg, dtype=float))
+    ad = np.asarray(distance, dtype=float) / EARTH_RADIUS_MEAN
+    lat2 = np.arcsin(np.sin(lat1) * np.cos(ad) + np.cos(lat1) * np.sin(ad) * np.cos(az))
+    lon2 = lon1 + np.arctan2(
+        np.sin(az) * np.sin(ad) * np.cos(lat1), np.cos(ad) - np.sin(lat1) * np.sin(lat2)
+    )
+    return np.degrees(lat2), np.degrees(lon2)
+
+
+def _segment_frame(lat1, lon1, lat2, lon2, site_lat, site_lon):
+    p1, l1, p2, l2, p3, l3 = (
+        np.radians(np.asarray(v, dtype=float)) for v in (lat1, lon1, lat2, lon2, site_lat, site_lon)
+    )
+    scale = np.cos(0.5 * p3 + 0.25 * p1 + 0.25 * p2)
+    x2 = (l2 - l1) * scale
+    y2 = p2 - p1
+    x3 = (l3 - l1) * scale
+    y3 = p3 - p1
+    return x2, y2, x3, y3
+
+
+def distance_to_line_fast(lat1, lon1, lat2, lon2, site_lat, site_lon):
+    """nshmp-lib Locations.distanceToLineFast (signed, km)."""
+    x2, y2, x3, y3 = _segment_frame(lat1, lon1, lat2, lon2, site_lat, site_lon)
+    return (x3 * y2 - x2 * y3) / np.sqrt(x2 * x2 + y2 * y2) * EARTH_RADIUS_MEAN
+
+
+def distance_to_segment_fast(lat1, lon1, lat2, lon2, site_lat, site_lon):
+    """nshmp-lib Locations.distanceToSegmentFast (java.awt.geom.Line2D.ptSegDist, km)."""
+    x2, y2, x3, y3 = _segment_frame(lat1, lon1, lat2, lon2, site_lat, site_lon)
+    length2 = x2 * x2 + y2 * y2
+    with np.errstate(divide="ignore", invalid="ignore"):
+        t = np.where(length2 > 0, (x3 * x2 + y3 * y2) / length2, 0.0)
+    t = np.clip(t, 0.0, 1.0)
+    return np.hypot(x3 - t * x2, y3 - t * y2) * EARTH_RADIUS_MEAN
+
+
+def fixed_strike_distances(m, style, node_lat, node_lon, strike, site_lat, site_lon, ztor,
+                           scaling, max_depth=None, max_width=None):
+    """Distances of nshmp-lib FIXED_STRIKE point sources (GridSourceFixedStrike), strike slip.
+
+    The rupture is vertical with a top trace of length L (rupture scaling relation) centered
+    on the node along the strike; rJB = distanceToSegmentFast, rRup = hypot(rJB, zTor),
+    rX = distanceToLineFast. No point-source distance correction is applied. Only
+    strike-slip (vertical) ruptures are supported, which is what the NSHM zones use.
+
+    Returns a dict like finite_point_source_distances.
+    """
+    m = np.asarray(m, dtype=float)
+    style = np.asarray(style)
+    if np.any(style != 3):
+        raise ValueError("FIXED_STRIKE point sources are implemented for strike-slip ruptures only")
+    ztor = np.asarray(ztor, dtype=float)
+    n = len(m)
+    if max_depth is not None:
+        max_width_dd = max_depth - ztor
+    else:
+        max_width_dd = np.full(n, float(max_width))
+    scaling = scaling.lower()
+    if scaling not in ("nshm_point_wc94_length", "nshm_fault_wc94_length"):
+        raise ValueError(f'FIXED_STRIKE rupture length for "{scaling}" is not implemented')
+    length = 10.0 ** (-3.22 + 0.69 * m)
+    width = rupture_width(m, max_width_dd, scaling)
+    lat1, lon1 = location_at(node_lat, node_lon, strike, length / 2.0)
+    lat2, lon2 = location_at(node_lat, node_lon, np.asarray(strike) + 180.0, length / 2.0)
+    rjb = distance_to_segment_fast(lat1, lon1, lat2, lon2, site_lat, site_lon)
+    rx = distance_to_line_fast(lat1, lon1, lat2, lon2, site_lat, site_lon)
+    return {
+        "index": np.arange(n),
+        "rate_scale": np.ones(n),
+        "rjb": rjb,
+        "rrup": np.hypot(rjb, ztor),
+        "rx": rx,
+        "rx1": rx,
+        "ry0": np.zeros(n),
+        "dip": np.full(n, 90.0),
+        "ztor": ztor,
+        "zbor": ztor + width,
+        "width": width,
+    }

@@ -167,6 +167,11 @@ def test_every_source_model_is_registered(synthetic, tmp_path, source_type):
         config["ground_motion_models"] = {
             info["tectonic_region"]: config["ground_motion_models"]
         }
+        if isinstance(info.get("gmm_tree"), list):
+            # source models with their own ground motion model tree (source_info.json)
+            config["source_models"][source_type][model]["ground_motion_models"] = {
+                "bssa14": {"weight": 1.0}
+            }
         out = _hazard(tmp_path, config)
         assert out is not None, f"{model} rejected by config schema"
         np.testing.assert_allclose(

@@ -127,6 +127,14 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
@@ -139,6 +147,14 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
@@ -151,6 +167,14 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
@@ -163,6 +187,14 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
@@ -240,6 +272,14 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
@@ -252,6 +292,14 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
@@ -264,6 +312,34 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "nshm23_ceus_grid_system": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                },
+                                "dist_cutoff": {
+                                    "type": "number",
+                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
+                                },
+                                "ground_motion_models": {
+                                    "type": "object",
+                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
