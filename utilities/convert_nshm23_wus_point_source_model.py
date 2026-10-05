@@ -10,13 +10,16 @@ https://code.usgs.gov/ghsc/nshmp/nshms/nshm-conus/-/tree/main/active-crust/grid
         seismicity (sub-seismogenic plus unassociated), so there is a single NSHM23 point source model.
     features/grid-system-active.geojson: polygon defining the active crust region where the
         WUS gridded seismicity is applied. Nodes outside the polygon are in the stable crust and
-        are modeled by the central and eastern U.S. sources, so they are excluded here.
+        are modeled by the central and eastern U.S. sources (nshm23_ceus_grid_system), so they are
+        excluded here. Nodes are selected with java.awt.geom.Area.contains, as in nshmp-lib, so
+        that nodes on the polygon edges are assigned to the same region as in the NSHM.
 '''
 import json
 import os
 import numpy as np
 import pandas as pd
-import shapely
+
+from convert_nshm23_ceus_point_source_models import awt_contains, polygon_ring
 
 input_dir = 'nshm23_wus_branch_avg'
 output_dir = '../src/ucla_plha/source_models/point_source_models/nshm23_wus_grid'
@@ -27,8 +30,8 @@ def get_points(points_input_filename, region_filename, points_output_filename, n
     and rate of each point source event with non-zero rate.
     '''
     df_points = pd.read_csv(points_input_filename)
-    region = shapely.geometry.shape(json.load(open(region_filename))['geometry'])
-    df_points = df_points[shapely.contains_xy(region, df_points['lon'].values, df_points['lat'].values)]
+    region = polygon_ring(json.load(open(region_filename))['geometry'])
+    df_points = df_points[awt_contains(region, df_points['lon'].values, df_points['lat'].values)]
 
     node_index = np.arange(len(df_points))
     lat = df_points['lat'].values

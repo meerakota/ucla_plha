@@ -255,3 +255,24 @@ def test_grid_system_model():
     info = json.loads((POINT / "nshm23_ceus_grid_system" / "source_info.json").read_text(encoding="utf-8"))
     assert info["gmm_max_distance_km"] == 300.0
     assert sum(b["weight"] for b in info["gmm_tree"]) == pytest.approx(1.0, abs=1e-3)
+
+
+def _lon_lat(model):
+    xyz = np.load(POINT / model / "points.npy")
+    lat = np.degrees(np.arctan2(xyz[:, 2], np.hypot(xyz[:, 0], xyz[:, 1])))
+    lon = np.degrees(np.arctan2(xyz[:, 1], xyz[:, 0]))
+    return set(zip(np.round(lon, 3), np.round(lat, 3)))
+
+
+def test_wus_grid_and_ceus_grid_system_partition_the_nodes():
+    # nshmp-lib assigns each node of the WUS fault system grid (branch-avg-grid.csv, 68,883
+    # nodes) to either the active (grid-system-active) or the stable (grid-system-stable)
+    # region with java.awt.geom.Area.contains, so no node is in both models
+    active = _lon_lat("nshm23_wus_grid")
+    stable = _lon_lat("nshm23_ceus_grid_system")
+    assert (len(active), len(stable)) == (54997, 13886)
+    assert not active & stable
+    assert len(active | stable) == 68883
+    # nodes on the region boundary that are in the stable region in nshmp-lib
+    assert (-105.5, 33.7) in stable and (-105.5, 33.7) not in active
+    assert (-105.0, 38.9) in stable and (-105.0, 38.9) not in active
