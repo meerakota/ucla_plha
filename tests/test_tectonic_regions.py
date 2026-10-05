@@ -131,7 +131,35 @@ def test_mixed_config_is_rejected():
         tectonic_regions.is_region_config({"active_crust": {}, "bssa14": {"weight": 1.0}})
 
 
-def test_default_tree_drops_unavailable_models_and_renormalizes():
+def test_default_interface_tree_weights():
+    config = {"ground_motion_models": {"active_crust": {"bssa14": {"weight": 1.0}}}}
+    trees, notes = tectonic_regions.parse_ground_motion_models(config, {"subduction_interface"})
+    tree = {b.spec.name: b.weight for b in trees["subduction_interface"]}
+    assert tree == pytest.approx(tectonic_regions.DEFAULT_GMM_TREES["subduction_interface"])
+    assert tree["AM_09_INTERFACE_BASIN"] == pytest.approx(0.125)
+    assert any("default" in n for n in notes)
+
+
+def test_default_slab_tree_weights():
+    trees, _ = tectonic_regions.parse_ground_motion_models(
+        {"ground_motion_models": {"subduction_slab": "default"}}, {"subduction_slab"}
+    )
+    tree = {b.spec.name: b.weight for b in trees["subduction_slab"]}
+    np.testing.assert_allclose(tree["ZHAO_06_SLAB_BASIN"], 0.25)
+    np.testing.assert_allclose(tree["AG_20_CASCADIA_SLAB_BASIN"], 0.0825)
+    np.testing.assert_allclose(sum(tree.values()), 1.0)
+
+
+@pytest.fixture
+def pygmm_without_am09_zhao06(monkeypatch):
+    """A registry without Atkinson and Macias (2009) and Zhao et al. (2006), as for a pygmm
+    older than 1b30f5b."""
+    reg = pygmm_gmms.registry()
+    ids = {k: v for k, v in reg["ids"].items() if k not in pygmm_gmms.UNAVAILABLE}
+    monkeypatch.setattr(pygmm_gmms, "_REGISTRY", {"ids": ids, "classes": reg["classes"]})
+
+
+def test_default_tree_drops_unavailable_models_and_renormalizes(pygmm_without_am09_zhao06):
     config = {"ground_motion_models": {"active_crust": {"bssa14": {"weight": 1.0}}}}
     with pytest.warns(UserWarning, match="AM_09"):
         trees, notes = tectonic_regions.parse_ground_motion_models(config, {"subduction_interface"})
@@ -143,16 +171,6 @@ def test_default_tree_drops_unavailable_models_and_renormalizes():
         "PSBAH_20_CASCADIA_INTERFACE_BASIN",
     }
     np.testing.assert_allclose(list(tree.values()), 1.0 / 3.0)
-    assert any("default" in n for n in notes)
-
-
-def test_default_slab_tree_weights():
-    trees, _ = tectonic_regions.parse_ground_motion_models(
-        {"ground_motion_models": {"subduction_slab": "default"}}, {"subduction_slab"}
-    )
-    tree = {b.spec.name: b.weight for b in trees["subduction_slab"]}
-    np.testing.assert_allclose(tree["AG_20_CASCADIA_SLAB_BASIN"], 0.0825 / 0.75)
-    np.testing.assert_allclose(sum(tree.values()), 1.0)
 
 
 # ---------------------------------------------------------------------------------------
@@ -168,6 +186,9 @@ def test_default_slab_tree_weights():
         ("KBCG_20_CASCADIA_INTERFACE_BASIN", "KuehnEtAl2020", {"basin": True}, {"event_type": "interface", "region": "cascadia"}),
         ("AG_20_CASCADIA_SLAB_ADJUSTED_BASIN", "AbrahamsonGulerce2020", {"adjusted": True, "basin": True}, {"event_type": "intraslab", "region": "cascadia"}),
         ("PSBAH_20_CASCADIA_SLAB_BASIN", "ParkerEtAl2020", {"basin": True}, {"event_type": "intraslab", "region": "cascadia"}),
+        ("AM_09_INTERFACE_BASIN", "AtkinsonMacias2009", {"basin": True}, {}),
+        ("ZHAO_06_INTERFACE_BASIN", "ZhaoEtAl2006", {"basin": True}, {"event_type": "interface"}),
+        ("ZHAO_06_SLAB_BASIN", "ZhaoEtAl2006", {"basin": True}, {"event_type": "intraslab"}),
     ],
 )
 def test_resolve_nshmp_ids(gmm_id, cls, options, scenario):
@@ -181,10 +202,14 @@ def test_resolve_nshmp_ids(gmm_id, cls, options, scenario):
 def test_resolve_names():
     assert pygmm_gmms.resolve("bssa14").kind == "native"
     assert pygmm_gmms.resolve("parkeretal2020").cls is pygmm.ParkerEtAl2020
-    with pytest.raises(pygmm_gmms.UnavailableGmmError):
-        pygmm_gmms.resolve("zhao_06_slab_basin")
+    assert pygmm_gmms.resolve("zhao_06_slab_basin").cls is pygmm.ZhaoEtAl2006
     with pytest.raises(ValueError):
         pygmm_gmms.resolve("not_a_model")
+
+
+def test_resolve_unavailable(pygmm_without_am09_zhao06):
+    with pytest.raises(pygmm_gmms.UnavailableGmmError):
+        pygmm_gmms.resolve("zhao_06_slab_basin")
 
 
 RUPTURES = dict(
@@ -239,7 +264,8 @@ def test_distance_needs():
     assert plha._distance_needs(["bssa14"]) == {"rjb"}
     assert plha._distance_needs(["kbcg_20_cascadia_slab_basin"]) == {"rrup"}
     assert plha._distance_needs(["nga_east_2026"]) == {"rjb", "rrup"}
-    assert plha._distance_needs(["zhao_06_slab_basin"]) == set()
+    assert plha._distance_needs(["zhao_06_slab_basin"]) == {"rrup"}
+    assert plha._distance_needs(["am_09_interface_basin"]) == {"rrup"}
 
 
 # ---------------------------------------------------------------------------------------

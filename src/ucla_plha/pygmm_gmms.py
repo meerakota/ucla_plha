@@ -13,9 +13,9 @@ A ground motion model in a ucla_plha config is one of
   follows the tables in their docstrings. NGA-West2 ids that pygmm does not provide yet
   (e.g. "ASK_14_BASIN") are replaced by the ucla_plha model (:data:`SUBSTITUTES`) with a
   warning, and are used from pygmm automatically once pygmm provides them in ``GMM_IDS``.
-  Ids of models that are not in pygmm (AM_09, ZHAO_06; :data:`UNAVAILABLE`) are removed from
-  the logic tree with a warning, and the remaining weights of the tectonic region are
-  renormalized;
+  Ids of models that the installed pygmm does not provide (AM_09 and ZHAO_06 before pygmm
+  1b30f5b; :data:`UNAVAILABLE`) are removed from the logic tree with a warning, and the
+  remaining weights of the tectonic region are renormalized;
 * a pygmm class name (case insensitive), e.g. "ParkerEtAl2020" or
   "AbrahamsonSilvaKamai2014" (the published pygmm models), with optional constructor
   ``options`` and ``scenario`` values in the config.
@@ -46,15 +46,35 @@ NATIVE_DISTANCES = {
 # pygmm scenario keys of the distances computed by ucla_plha
 PYGMM_DISTANCES = {"dist_jb": "rjb", "dist_rup": "rrup", "dist_x": "rx", "dist_y0": "ry0"}
 
-# nshmp-lib Gmm ids that are not implemented in pygmm. They are removed from the logic tree
-# (with a warning) and the remaining weights of the tectonic region are renormalized.
+# nshmp-lib Gmm ids of the NSHM trees that older versions of pygmm do not provide (pygmm added
+# them in 1b30f5b). If the installed pygmm does not provide one of them, it is removed from
+# the logic tree (with a warning) and the remaining weights of the tectonic region are
+# renormalized.
 UNAVAILABLE = {
-    "AM_09_INTERFACE": "Atkinson and Macias (2009) is not implemented in pygmm",
-    "AM_09_INTERFACE_BASIN": "Atkinson and Macias (2009) is not implemented in pygmm",
-    "ZHAO_06_INTERFACE": "Zhao et al. (2006) is not implemented in pygmm",
-    "ZHAO_06_INTERFACE_BASIN": "Zhao et al. (2006) is not implemented in pygmm",
-    "ZHAO_06_SLAB": "Zhao et al. (2006) is not implemented in pygmm",
-    "ZHAO_06_SLAB_BASIN": "Zhao et al. (2006) is not implemented in pygmm",
+    gmm_id: f"{name} is not provided by the installed pygmm"
+    for name, ids in [
+        (
+            "Atkinson and Macias (2009)",
+            [
+                "AM_09_INTERFACE",
+                "AM_09_INTERFACE_BASIN",
+                "AM_09_INTERFACE_BASIN_M9",
+                "AM_09_INTERFACE_BASIN_SITE_FIX",
+                "AM_09_INTERFACE_BASIN_M9_SITE_FIX",
+            ],
+        ),
+        (
+            "Zhao et al. (2006)",
+            [
+                "ZHAO_06_INTERFACE",
+                "ZHAO_06_INTERFACE_BASIN",
+                "ZHAO_06_INTERFACE_BASIN_M9",
+                "ZHAO_06_SLAB",
+                "ZHAO_06_SLAB_BASIN",
+            ],
+        ),
+    ]
+    for gmm_id in ids
 }
 
 # nshmp-lib NGA-West2 ids that are replaced by the ucla_plha models when pygmm does not
@@ -237,19 +257,18 @@ def resolve(key, options=None, scenario=None):
     """Resolve a ground motion model name from a config into a :class:`GmmSpec`.
 
     Raises:
-        UnavailableGmmError: for nshmp-lib ids of models that are not in pygmm
+        UnavailableGmmError: for nshmp-lib ids of NSHM models that the installed pygmm does
+            not provide
         ValueError: for unknown names
     """
     key = key.lower()
     if key in NATIVE_GMMS:
         return GmmSpec(key=key, kind="native", name=key)
     gmm_id = key.upper()
-    if gmm_id in UNAVAILABLE:
-        raise UnavailableGmmError(f"{gmm_id}: {UNAVAILABLE[gmm_id]}")
     try:
         reg = registry()
     except ImportError:
-        if gmm_id in SUBSTITUTES:
+        if gmm_id in SUBSTITUTES or gmm_id in UNAVAILABLE:
             reg = {"ids": {}, "classes": {}}
         else:
             raise
@@ -260,6 +279,8 @@ def resolve(key, options=None, scenario=None):
             key=key, kind="pygmm", name=gmm_id, cls=cls, options={**opts, **(options or {})},
             scenario=scen,
         )
+    if gmm_id in UNAVAILABLE:
+        raise UnavailableGmmError(f"{gmm_id}: {UNAVAILABLE[gmm_id]}")
     if gmm_id in SUBSTITUTES:
         native = SUBSTITUTES[gmm_id]
         return GmmSpec(

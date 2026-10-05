@@ -32,9 +32,9 @@ NSHM_COMPONENTS = [
 ]
 
 #: Ground motion model logic trees of the current USGS NSHM (nshm-conus 6.2.0 gmm-tree.json
-#: files; the stable crust weights 0.3333 and 0.1667 are 1/3 and 1/6). Models that are not in
-#: pygmm (AM_09, ZHAO_06) are removed when the tree is used, and the remaining weights are
-#: renormalized (with a warning). NGA-West2 ids that pygmm does not provide yet are replaced
+#: files; the stable crust weights 0.3333 and 0.1667 are 1/3 and 1/6). Models that the
+#: installed pygmm does not provide (AM_09 and ZHAO_06 before pygmm 1b30f5b) are removed when
+#: the tree is used, and the remaining weights are renormalized (with a warning). NGA-West2 ids that pygmm does not provide yet are replaced
 #: by the ucla_plha models (with a warning).
 DEFAULT_GMM_TREES = {
     "active_crust": {
