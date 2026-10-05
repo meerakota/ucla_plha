@@ -1,0 +1,150 @@
+{
+  "name": "nshm23_ceus_zone",
+  "tectonic_region": "stable_crust",
+  "nshm_component": "Zone",
+  "source": "nshm-conus 6.2.0 stable-crust/zone (AR/Crowleys Ridge (south), AR/Crowleys Ridge (west), AR/Joiner Ridge, AR/Marianna, AR/Saline River, IL/Wabash Valley, ME/Charlevoix, SC/Charleston, VA/Central Virginia), zone-config.json",
+  "nshm_release": "6.2.0",
+  "nshmp_lib_commit": "44728a7d",
+  "cluster": false,
+  "gmm_tree": "stable-crust/gmm-tree.json: NGA_EAST_2026 0.3333, NGA_EAST_2026_ADJUSTED 0.3333, NGA_EAST_SEEDS_2026 0.1667, NGA_EAST_SEEDS_2026_ADJUSTED 0.1667; stable-crust/gmm-config.json max-distance 1000 km",
+  "point_source": {
+    "point_source_type": "FIXED_STRIKE for nodes with a finite strike in strike.npy (all zones except Charlevoix; the strike is the zone feature \"strike\" property); FINITE for nodes with strike NaN (ME Charlevoix has no strike).",
+    "rupture_scaling": "NSHM_POINT_WC94_LENGTH",
+    "rupture_dimensions": "NSHM_POINT_WC94_LENGTH: L = 10^(-3.22 + 0.69 M) km, W = min((22 - zTor) / sin(dip), L / 1.5)",
+    "focal_mech_tree": [
+      {
+        "id": "STRIKE_SLIP",
+        "weight": 1.0
+      }
+    ],
+    "style": "all ruptures are strike-slip (style 3), dip 90, rake 0",
+    "depth": {
+      "depth_map": {
+        "all": {
+          "mMin": 4.5,
+          "mMax": 10.0,
+          "ztor_km_and_weight": [
+            [
+              5.0,
+              1.0
+            ]
+          ]
+        }
+      },
+      "max_depth_km": 22.0,
+      "depth_array": "none: every rupture has zTor = 5 km (grid-depth-map \"all\": M 4.5-10, depth-tree 5 km, weight 1.0), so no depth array is stored"
+    },
+    "magnitudes": "the SINGLE magnitudes of each zone mfd-tree (zones.json); no aleatory or epistemic magnitude variability",
+    "distances_fixed_strike": "GridSourceFixedStrike: a vertical rupture whose top trace runs from p1 to p2, the points L/2 from the node along azimuths strike and strike+180 (spherical, Locations.location), at depth zTor = 5 km, bottom zBot = zTor + W. rJB = Locations.distanceToSegmentFast(p1, p2, site) (longitudes scaled by the cosine of 0.5 lat_site + 0.25 lat_p1 + 0.25 lat_p2, then Line2D.ptSegDist, times R = 6371.0072 km), rRup = hypot(rJB, zTor), rX = Locations.distanceToLineFast(p1, p2, site). No distance correction.",
+    "distances_finite": "Charlevoix nodes (strike NaN): rJB = rjb_correction.npz[\"rjb\"][i_m, i_r] if M >= 6.0, else rJB = r_epi, with i_m = min(round((M - 6.05) / 0.1), 25) and i_r = min(floor(r_epi), 1000) (no interpolation; RuptureScaling.correctedRjb). The table is nshmp-lib resources/fault/surface/rjb_wc94length.dat: the mean rJB of a finite rupture of random strike centered on the node. GridSourceFinite, strike-slip (dip 90, rake 0): rRup = hypot(rJB, zTor), rX = -rJB (footwall), zTor = 5 km, down-dip width W = RuptureScaling.NSHM_POINT_WC94_LENGTH.dimensions(M, (22 - zTor) / sin(dip)).width, zBot = zTor + W, zHyp = zTor + W / 2 (Faults.hypocentralDepth).",
+    "r_epi": "r_epi is the horizontal node-to-site distance from Locations.horzDistanceFast: R * sqrt(dlat^2 + (dlon * cos(mean lat))^2), R = 6371.0072 km, angles in radians. (ucla_plha points.npy are at the surface, so the chord distance used by plha.get_source_data differs from this by < 0.1% within 300 km.)",
+    "optimization": "none: nshmp-lib builds distance-binned rate tables only for GRID rupture sets; zone nodes are used individually."
+  },
+  "files": {
+    "ruptures.npz": "node_index, m, style (3 = strike slip), rate (annual, mean over the logic tree)",
+    "points.npy": "node xyz (geometry.point_to_xyz convention) at the surface",
+    "node_index.npy": "0..N-1",
+    "strike.npy": "per node (aligned with node_index.npy): fixed strike in degrees, NaN for FINITE nodes",
+    "rjb_correction.npz": "RuptureScaling RJB_WC94LENGTH table (m 6.05..8.55, r 0..1000 km, rjb), used only for the FINITE (Charlevoix) nodes",
+    "zones.json": "per zone source: path, NSHM id, leaf weight, strike, mfd tree, node count, rates"
+  },
+  "notes": "Each zone is a list of nodes with annual rates (the zone csv files). nshmp-lib ZoneRuptureSet scales the weighted SINGLE mfd-tree of the zone to each node rate, so rate(node, M_i) = node_rate x w_i x leaf_weight, with leaf_weight the product of source-tree branch weights (\"active\" 0.5 vs null 0.5 for the AR zones and Central Virginia; Charleston regional 0.2, local 0.5, narrow 0.3; Central Virginia regional 0.5, local 0.5; Wabash Valley and Charlevoix 1.0). Nodes shared by zones with the same strike are merged. Validated against the USGS NSHM rate web service (https://earthquake.usgs.gov/ws/nshmp/conus-2023/dynamic/rate/lon/lat/r) Zone component at Charleston, the AR zones, Wabash Valley, Charlevoix, Central Virginia, Memphis, and within 1000 km of Ohio: total and per-0.1-magnitude-bin rates agree to < 1e-5.",
+  "zones": [
+    {
+      "name": "Crowley's Ridge (south)",
+      "id": 3520,
+      "leaf_weight": 0.5,
+      "strike": 5.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 10
+    },
+    {
+      "name": "Crowley's Ridge (west)",
+      "id": 3530,
+      "leaf_weight": 0.5,
+      "strike": 25.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 12
+    },
+    {
+      "name": "Joiner Ridge",
+      "id": 3540,
+      "leaf_weight": 0.5,
+      "strike": 350.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 5
+    },
+    {
+      "name": "Marianna",
+      "id": 3510,
+      "leaf_weight": 0.5,
+      "strike": 48.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 19
+    },
+    {
+      "name": "Saline River",
+      "id": 3550,
+      "leaf_weight": 0.5,
+      "strike": 290.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 39
+    },
+    {
+      "name": "Wabash Valley",
+      "id": 3560,
+      "leaf_weight": 1.0,
+      "strike": 27.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 164
+    },
+    {
+      "name": "Charlevoix",
+      "id": 3500,
+      "leaf_weight": 1.0,
+      "strike": null,
+      "point_source_type": "FINITE",
+      "n_nodes": 67
+    },
+    {
+      "name": "Charleston (regional)",
+      "id": 3712,
+      "leaf_weight": 0.2,
+      "strike": 50.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 385
+    },
+    {
+      "name": "Charleston (local)",
+      "id": 3710,
+      "leaf_weight": 0.5,
+      "strike": 50.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 48
+    },
+    {
+      "name": "Charleston (narrow)",
+      "id": 3711,
+      "leaf_weight": 0.3,
+      "strike": 17.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 17
+    },
+    {
+      "name": "Central Virginia (regional)",
+      "id": 3572,
+      "leaf_weight": 0.25,
+      "strike": 42.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 57
+    },
+    {
+      "name": "Central Virginia (local)",
+      "id": 3571,
+      "leaf_weight": 0.25,
+      "strike": 42.0,
+      "point_source_type": "FIXED_STRIKE",
+      "n_nodes": 4
+    }
+  ]
+}

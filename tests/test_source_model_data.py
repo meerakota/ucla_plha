@@ -154,7 +154,10 @@ def test_fault_rupture_properties_are_physical(fault_model):
     assert np.all(r["ztor"] >= 0.0)
     assert np.all(r["zbor"] > r["ztor"])
     assert np.all(r["zbor"] < 40.0)
-    # Depths and dips should vary across ruptures rather than taking a handful of values
+    # Depths and dips should vary across ruptures rather than taking a handful of values (the CEUS
+    # fault models have only a few faults, so this applies to the WUS fault system models)
+    if fault_model["model"].startswith("nshm23_ceus"):
+        return
     # Cluster models have few ruptures, most of them with the same upper trace depth
     if not fault_model["model"].endswith("_cluster"):
         assert len(np.unique(r["ztor"])) > 5
@@ -229,7 +232,8 @@ def test_fault_source_data_is_finite(model, site):
 def test_rrup_only_models_get_rupture_distance(model):
     # idriss14 needs only Rrup, so get_source_data must compute Rrup when it is the only GMM,
     # and the result must match Rrup computed for the other GMMs
-    site = NEAR_SITES.get(model, (36.80547, -121.786074))
+    # a site near the faults of each model (New Madrid for the CEUS models)
+    site = (36.6, -89.6) if model.startswith("nshm23_ceus") else NEAR_SITES.get(model, (36.80547, -121.786074))
     p_xyz = geometry.point_to_xyz(np.array([site[0], site[1], 0.0]))
     out_all = plha.get_source_data(
         "fault_source_models", model, p_xyz, None, 6.0, ALL_GMMS
@@ -253,7 +257,7 @@ def test_point_source_model_is_consistent(model):
     assert points.shape == (len(node_index), 3)
     assert len(np.unique(node_index)) == len(node_index)
     lat, lon = _xyz_to_latlon(points)
-    assert np.all((lat > 20.0) & (lat < 55.0) & (lon > -130.0) & (lon < -100.0))
+    assert np.all((lat > 20.0) & (lat < 55.0) & (lon > -130.0) & (lon < -59.0))
     n = len(r["m"])
     for name in ["rate", "style", "node_index"]:
         assert len(r[name]) == n, name

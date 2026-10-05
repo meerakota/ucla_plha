@@ -1,0 +1,79 @@
+{
+  "name": "nshm23_ceus_grid_system",
+  "tectonic_region": "stable_crust",
+  "nshm_component": "Grid",
+  "source": "nshm-conus 6.2.0 stable-crust/grid/system-stable/branch-avg (tree 8059 \"CEUS System Grid Sources\"): rupture set 8051 = active-crust/grid/grid-data/branch-avg-grid.csv nodes inside stable-crust/grid/features/grid-system-stable.geojson (feature 8050)",
+  "nshm_release": "6.2.0",
+  "nshmp_lib_commit": "44728a7d",
+  "cluster": false,
+  "gmm_tree": [
+    {
+      "id": "NGA_EAST_2026",
+      "weight": 0.1111
+    },
+    {
+      "id": "NGA_EAST_2026_ADJUSTED",
+      "weight": 0.1111
+    },
+    {
+      "id": "NGA_EAST_SEEDS_2026",
+      "weight": 0.05555
+    },
+    {
+      "id": "NGA_EAST_SEEDS_2026_ADJUSTED",
+      "weight": 0.05555
+    },
+    {
+      "id": "ASK_14_BASIN",
+      "weight": 0.1667
+    },
+    {
+      "id": "BSSA_14_BASIN",
+      "weight": 0.1667
+    },
+    {
+      "id": "CB_14_BASIN",
+      "weight": 0.1667
+    },
+    {
+      "id": "CY_14_BASIN",
+      "weight": 0.1666
+    }
+  ],
+  "gmm_max_distance_km": 300.0,
+  "gmm_note": "This rupture set has its own gmm-tree.json and gmm-config.json (system-stable/): 1/3 NGA-East (NGA_EAST_2026 0.1111, NGA_EAST_2026_ADJUSTED 0.1111, NGA_EAST_SEEDS_2026 0.05555, NGA_EAST_SEEDS_2026_ADJUSTED 0.05555) and 2/3 NGA-West2 with basin terms (ASK_14_BASIN, BSSA_14_BASIN, CB_14_BASIN 0.1667, CY_14_BASIN 0.1666), and a 300 km maximum distance (the ceus-stable grid uses the stable-crust tree and 1000 km).",
+  "point_source": {
+    "point_source_type": "FINITE (GridSourceFinite)",
+    "rupture_scaling": "NSHM_SOMERVILLE",
+    "rupture_dimensions": "NSHM_SOMERVILLE: A = 10^(M - 4.366) km^2; W = sqrt(A) if sqrt(A) < maxWidth else maxWidth, with maxWidth = (22 - zTor) / sin(dip)",
+    "focal_mech": "from the ss_wt, r_wt, n_wt columns of branch-avg-grid.csv (stored as separate ruptures with style 3, 1, 2); FocalMech dips: STRIKE_SLIP 90 (rake 0), REVERSE 50 (rake 90), NORMAL 50 (rake -90). In 6.2.0 every node of this model has ss_wt = 1, so all ruptures are strike-slip; the reverse/normal rules below are given for completeness.",
+    "depth": {
+      "depth_map": {
+        "all": {
+          "mMin": 4.5,
+          "mMax": 10.0,
+          "ztor_km_and_weight": [
+            [
+              5.0,
+              1.0
+            ]
+          ]
+        }
+      },
+      "max_depth_km": 22.0,
+      "depth_array": "none: every rupture has zTor = 5 km (grid-depth-map \"all\": M 4.5-10, depth-tree 5 km, weight 1.0), so no depth array is stored"
+    },
+    "magnitudes": "INCR bins 5.05, 5.15, ..., 7.85 (system-stable/mfd-map.json)",
+    "r_epi": "r_epi is the horizontal node-to-site distance from Locations.horzDistanceFast: R * sqrt(dlat^2 + (dlon * cos(mean lat))^2), R = 6371.0072 km, angles in radians. (ucla_plha points.npy are at the surface, so the chord distance used by plha.get_source_data differs from this by < 0.1% within 300 km.)",
+    "rjb": "rJB = rjb_correction.npz[\"rjb\"][i_m, i_r] if M >= 6.0, else rJB = r_epi, with i_m = min(round((M - 6.05) / 0.1), 25) and i_r = min(floor(r_epi), 1000) (no interpolation; RuptureScaling.correctedRjb). The table is nshmp-lib resources/fault/surface/rjb_somerville.dat: the mean rJB of a finite rupture of random strike centered on the node.",
+    "rrup_rx_zhyp": "GridSourceFinite: strike-slip as in nshm23_ceus_grid. Reverse and normal ruptures are split into two equally weighted (0.5) representations: footwall (rX = -rJB, rRup = hypot(rJB, zTor)) and hanging wall (rX = rJB + W cos(dip); with rCut = zBot tan(dip): rRup = hypot(rJB, zBot) if rJB > rCut, else linear in rJB from rRup0 = min(hypot(W cos(dip), zTor), zBot cos(dip)) at rJB = 0 to zBot / cos(dip) at rCut), zBot = zTor + W sin(dip), zTor = 5 km.",
+    "optimization": "as nshm23_ceus_grid (5 km distance-bin tables with 4 x 4 smoothing within 40 km), with separate strike-slip, reverse, and normal tables (gridFocalMechUpdate = true)."
+  },
+  "files": {
+    "ruptures.npz": "node_index, m, style (1 reverse, 2 normal, 3 strike slip), rate (annual)",
+    "points.npy": "node xyz (geometry.point_to_xyz convention) at the surface",
+    "node_index.npy": "0..N-1",
+    "rjb_correction.npz": "RuptureScaling RJB_SOMERVILLE table (m 6.05..8.55, r 0..1000 km, rjb)"
+  },
+  "notes": "The WUS fault-system (inversion) branch-averaged gridded seismicity covers lon -125 to -104; nshm-conus applies the nodes inside grid-system-active.geojson as active-crust grid sources (ucla_plha nshm23_wus_grid) and the 13886 nodes inside grid-system-stable.geojson (lon -116 to -104: Colorado Plateau, Rocky Mountains, western Great Plains) as this stable-crust source with the mixed GMM tree. Node membership follows java.awt.geom.Area.contains; with that rule the two polygons partition the 68883 csv nodes exactly. Total annual rate M >= 5: 1.849000e-01. Validated against the USGS NSHM rate web service (https://earthquake.usgs.gov/ws/nshmp/conus-2023/dynamic/rate/lon/lat/r) Grid component in Colorado, West Texas, and Montana."
+}
