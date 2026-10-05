@@ -1,0 +1,9 @@
+{
+    "name": "ucerf3_fm31",
+    "tectonic_region": "active_crust",
+    "nshm_component": "FaultSystem",
+    "source": "UCERF3 fault model 3.1 branch-averaged fault system solution (utilities/FM3_1_branch_averaged)",
+    "max_distance": 300.0,
+    "cluster": false,
+    "notes": "Collapsed (branch-averaged) model; weights are normalized together with the other active crust fault system models."
+}

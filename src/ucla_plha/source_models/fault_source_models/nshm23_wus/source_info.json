@@ -1,0 +1,9 @@
+{
+    "name": "nshm23_wus",
+    "tectonic_region": "active_crust",
+    "nshm_component": "FaultSystem",
+    "source": "nshm-conus active-crust/fault branch-averaged WUS fault system solution (2023 NSHM)",
+    "max_distance": 300.0,
+    "cluster": false,
+    "notes": "Collapsed (branch-averaged) model; weights are normalized together with the other active crust fault system models."
+}

@@ -22,16 +22,20 @@
                     "type": "number"
                 },
                 "vs30": {
-                    "type": "number" 
+                    "type": "number"
                 },
-                "measured_vs30": { 
-                    "type": "boolean" 
+                "measured_vs30": {
+                    "type": "boolean"
                 },
                 "z1p0": {
-                    "type": "number" 
+                    "type": "number"
                 },
-                "z2p5": { 
-                    "type": "number" 
+                "z2p5": {
+                    "type": "number"
+                },
+                "zsed": {
+                    "type": "number",
+                    "description": "Thickness of the Atlantic and Gulf coastal plain sediments (km) for the NGA-East models (pygmm depth_sed); omit for sites off the coastal plain"
                 }
             },
             "additionalProperties": true,
@@ -45,15 +49,37 @@
         "constraints": {
             "type": "object",
             "properties": {
-                "dist_cutoff": { 
-                    "type": "number" 
+                "dist_cutoff": {
+                    "type": [
+                        "number",
+                        "object"
+                    ],
+                    "description": "Maximum distance (km), either a number for all source models or an object with a number for each tectonic region",
+                    "properties": {
+                        "active_crust": {
+                            "type": "number"
+                        },
+                        "stable_crust": {
+                            "type": "number"
+                        },
+                        "subduction_interface": {
+                            "type": "number"
+                        },
+                        "subduction_slab": {
+                            "type": "number"
+                        }
+                    }
                 },
                 "m_min": {
-                    "type": "number" 
+                    "type": "number"
+                },
+                "truncation_level": {
+                    "type": "number",
+                    "description": "Upper truncation of the ground motion distribution in standard deviations (nshmp-lib TRUNCATION_UPPER_ONLY; the USGS NSHM uses 3). Omit for no truncation."
                 }
-        },
+            },
             "additionalProperties": false
-        }, 
+        },
         "source_models": {
             "type": "object",
             "properties": {
@@ -85,6 +111,42 @@
                             "additionalProperties": false
                         },
                         "nshm23_wus": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "nshm23_cascadia_interface": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "nshm23_ceus_fault": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "nshm23_ceus_fault_cluster": {
                             "type": "object",
                             "properties": {
                                 "weight": {
@@ -160,6 +222,42 @@
                                 "weight"
                             ],
                             "additionalProperties": false
+                        },
+                        "nshm23_cascadia_slab": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "nshm23_ceus_zone": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
+                        },
+                        "nshm23_ceus_grid": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
                         }
                     }
                 }
@@ -168,8 +266,36 @@
         },
         "ground_motion_models": {
             "type": "object",
-            "additionalProperties": false,
+            "description": "Either an object with one key per tectonic region (active_crust, stable_crust, subduction_interface, subduction_slab), or, in the earlier format, an object of ground motion models that are used for the active crust",
             "properties": {
+                "active_crust": {
+                    "type": [
+                        "object",
+                        "string"
+                    ],
+                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
+                },
+                "stable_crust": {
+                    "type": [
+                        "object",
+                        "string"
+                    ],
+                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
+                },
+                "subduction_interface": {
+                    "type": [
+                        "object",
+                        "string"
+                    ],
+                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
+                },
+                "subduction_slab": {
+                    "type": [
+                        "object",
+                        "string"
+                    ],
+                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
+                },
                 "bssa14": {
                     "type": "object",
                     "properties": {
@@ -230,6 +356,23 @@
                     ],
                     "additionalProperties": false
                 }
+            },
+            "additionalProperties": {
+                "type": "object",
+                "properties": {
+                    "weight": {
+                        "type": "number"
+                    },
+                    "options": {
+                        "type": "object"
+                    },
+                    "scenario": {
+                        "type": "object"
+                    }
+                },
+                "required": [
+                    "weight"
+                ]
             }
         },
         "liquefaction_models": {
@@ -486,6 +629,10 @@
                                 "epsilon_bin_edges"
                             ],
                             "additionalProperties": false
+                        },
+                        "source_model_hazard": {
+                            "type": "boolean",
+                            "description": "Also output the weighted hazard curve of each source model (and of the clusters of cluster models)"
                         }
                     }
                 },

@@ -14,7 +14,8 @@ from ucla_plha.liquefaction_models import (
     boulanger_idriss_2016,
 )
 from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14, idriss14
-from ucla_plha.geometry import geometry
+from ucla_plha.geometry import geometry, point_source
+from ucla_plha import pygmm_gmms, tectonic_regions
 
 
 def decompress_ucerf3_source_data():
@@ -37,20 +38,78 @@ def decompress_ucerf3_source_data():
         np.savez(str(path.joinpath("ruptures_segments.npy")), **ruptures_segments)
 
 
-def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
+def _source_model_path(source_type, source_model):
+    """Directory of a source model in the package (source_models/<source_type>/<source_model>)."""
+    return files("ucla_plha").joinpath(
+        "source_models/" + source_type + "/" + source_model
+    )
+
+
+def get_source_info(source_type, source_model):
+    """Returns the source_info.json contents of a source model, with defaults.
+
+    Args:
+        source_type (string): Either "fault_source_models" or "point_source_models"
+        source_model (string): Directory for source_model within the source_type directory
+
+    Returns:
+        info (dict): see tectonic_regions.read_source_info. Source models without a
+            source_info.json file are active crust models.
+    """
+    path = _source_model_path(source_type, source_model)
+    if not os.path.isdir(str(path)):
+        raise ValueError(f'source model "{source_model}" not found in {source_type}')
+    return tectonic_regions.read_source_info(str(path), source_type, source_model)
+
+
+def _distance_needs(gmms):
+    """Set of distances ("rjb", "rrup", "rx", "ry0") used by the ground motion models."""
+    needs = set()
+    for gmm in gmms:
+        try:
+            needs |= pygmm_gmms.resolve(gmm).distances
+        except (pygmm_gmms.UnavailableGmmError, ValueError, ImportError):
+            continue
+    return needs
+
+
+def _filter_mask(n, distance, m, dist_cutoff, m_min):
+    if (dist_cutoff is not None) and (m_min is not None):
+        return (distance < dist_cutoff) & (m >= m_min)
+    elif (dist_cutoff is not None) and (m_min is None):
+        return distance < dist_cutoff
+    elif (dist_cutoff is None) and (m_min is not None):
+        return m >= m_min
+    return np.full(n, True)
+
+
+def get_source_data(
+    source_type,
+    source_model,
+    p_xyz,
+    dist_cutoff,
+    m_min,
+    gmms,
+    extras=False,
+    source_info=None,
+):
     """Returns magnitude, fault type, rate, distance, and fault geometry terms.
 
     Args:
         source_type (string): Either "fault_source_models" or "point_source_models"
         source_model (string): Directory for source_model within the source_type directory.
-            Currently "ucerf3_fm31", "ucerf3_fm32", or "nshm23_wus" for fault_source_models, and
+            For example "ucerf3_fm31", "ucerf3_fm32", or "nshm23_wus" for fault_source_models, and
             "ucerf3_fm31_grid_sub_seis", "ucerf3_fm31_grid_unassociated", "ucerf3_fm32_grid_sub_seis",
             "ucerf3_fm32_grid_unassociated", or "nshm23_wus_grid" for point_source_models
         p_xyz (numpy array, dtype=float): Array containing x, y, z coordinates for point of interest, length = 3
         dist_cutoff (float): maximum distance to consider in seismic hazard analysis
         m_min (float): minimum magnitude to consider in seismic hazard analysis
         gmms (array, dtype=string): An array of strings defining ground motion models to use in seismic
-            hazard analysis. Currently one or more of "ask14", "bssa14", "cb14", "cy14", "idriss14"
+            hazard analysis: "ask14", "bssa14", "cb14", "cy14", "idriss14", nshmp-lib Gmm ids, or
+            pygmm class names. They determine which distances are computed and whether the distance
+            cutoff is applied to rjb (if any model uses rjb) or rrup.
+        extras (bool): if True, also return a dict of additional rupture data (see Returns)
+        source_info (dict): source_info of the source model (read from source_info.json if None)
 
     Returns: A tuple containing the following arrays
         m (array, dtype=float): Numpy array of magnitudes, length = N
@@ -68,14 +127,31 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ztor (array, dtype=float): Numpy array of depth to the top of each rupture in km, length = N
         zbor (array, dtype=float): Numpy array of depth to the bottom of each rupture in km, length = N
 
+        If extras is True, a tuple (arrays, extras) is returned, where extras is a dict with
+        "index" (index of each returned rupture in ruptures.npz) and, for cluster models,
+        "cluster_id" (-1 for independent ruptures), "cluster_fault_id", "cluster_weight"
+        (weight of the rupture within its fault of the cluster), and "cluster_rate" (rate times
+        logic tree weight of the cluster of the rupture), each of length N.
+
     Notes:
         N = number of events
+        Point source models use the distance treatment given by "point_source" in their
+        source_info.json: the ucla_plha crustal approximations (default, used by the UCERF3 and
+        NSHM23 WUS grids) or the nshmp-lib point source conventions (geometry.point_source).
     """
+    if source_type not in ("fault_source_models", "point_source_models"):
+        return None
+    path = _source_model_path(source_type, source_model)
+    if source_info is None:
+        source_info = tectonic_regions.read_source_info(
+            str(path), source_type, source_model
+        )
+    needs = _distance_needs(gmms)
+    need_rjb = "rjb" in needs
+    need_rrup = bool(needs & {"rrup", "rx", "ry0"})
+
     if source_type == "fault_source_models":
         # Read files required by all ground motion models
-        path = files("ucla_plha").joinpath(
-            "source_models/fault_source_models/" + source_model
-        )
         # Read decompressed version of files if they exist. Otherwise read zipped version.
         if os.path.exists(str(path.joinpath("ruptures.npy.npz"))):
             ruptures = np.load(str(path.joinpath("ruptures.npy.npz")))
@@ -94,19 +170,20 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ztor = ruptures["ztor"]
         zbor = ruptures["zbor"]
 
-        # Now read files required by ask14, bssa14, cb14, cy14, and / or idriss14
+        # Now read files required by the ground motion models
         # bssa14: rjb
         # ask14: rrup,rx,rx1,ry0,
         # cb14: rjb,rrup,rx
         # cy14: rjb,rrup,rx
         # idriss14: rrup
+        # pygmm models: the distances in their parameters
         empty_array = np.empty(len(m))
-        if any(gmm in ["ask14", "bssa14", "cb14", "cy14", "idriss14"] for gmm in gmms):
+        if need_rjb or need_rrup:
             tri_segment_id = np.load(str(path.joinpath("tri_segment_id.npy")))
-        if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
+        if need_rjb:
             tri_rjb = np.load(str(path.joinpath("tri_rjb.npy")))
             rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
-        if any(gmm in ["ask14", "cb14", "cy14", "idriss14"] for gmm in gmms):
+        if need_rrup:
             rect_segment_id = np.load(str(path.joinpath("rect_segment_id.npy")))
             tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
             rect = np.load(str(path.joinpath("rect_rjb.npy")))
@@ -116,7 +193,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             )
         split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
         boundaries = np.r_[0, split_indices]
-        if any(gmm in ["ask14", "cb14", "cy14", "idriss14"] for gmm in gmms):
+        if need_rrup:
             rrup = np.minimum.reduceat(rrup_all[segment_index], boundaries)
             rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
             rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
@@ -127,26 +204,13 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             rx1 = empty_array
             ry0 = empty_array
 
-        if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
+        if need_rjb:
             rjb = np.minimum.reduceat(rjb_all[segment_index], boundaries)
         else:
             rjb = empty_array
 
-        if (dist_cutoff is not None) and (m_min is not None):
-            if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
-                filter = (rjb < dist_cutoff) & (m >= m_min)
-            else:
-                filter = (rrup < dist_cutoff) & (m >= m_min)
-        elif (dist_cutoff is not None) and (m_min is None):
-            if any(gmm in ["bssa14", "cb14", "cy14"] for gmm in gmms):
-                filter = rjb < dist_cutoff
-            else:
-                filter = rrup < dist_cutoff
-        elif (dist_cutoff is None) and (m_min is not None):
-            filter = m >= m_min
-        else:
-            filter = np.full(len(rjb), True)
-        return (
+        filter = _filter_mask(len(m), rjb if need_rjb else rrup, m, dist_cutoff, m_min)
+        arrays = (
             m[filter],
             fault_type[filter],
             rate[filter],
@@ -159,11 +223,24 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             ztor[filter],
             zbor[filter],
         )
+        if not extras:
+            return arrays
+        index = np.flatnonzero(filter)
+        out_extras = {"index": index}
+        if source_info.get("cluster", False):
+            out_extras.update(_cluster_extras(path, ruptures, index, source_info))
+        return arrays, out_extras
 
     elif source_type == "point_source_models":
-        path = files("ucla_plha").joinpath(
-            "source_models/point_source_models/" + source_model
-        )
+        point_source_info = source_info.get("point_source") or {
+            "distance_method": "ucla_plha_crustal"
+        }
+        if point_source_info["distance_method"] == "nshmp":
+            arrays, index = _nshmp_point_source_data(
+                path, p_xyz, dist_cutoff, m_min, point_source_info
+            )
+            return (arrays, {"index": index}) if extras else arrays
+
         ruptures = np.load(str(path.joinpath("ruptures.npz")))
         rate = ruptures["rate"]
         m = ruptures["m"]
@@ -182,14 +259,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ]
         rjb = repi / (1.0 + np.exp(-1.05 * (np.log(repi) - 1.037 * m + 4.2776)))
 
-        if (dist_cutoff is not None) and (m_min is not None):
-            filter = (rjb < dist_cutoff) & (m >= m_min)
-        elif (dist_cutoff is not None) and (m_min is None):
-            filter = rjb < dist_cutoff
-        elif (dist_cutoff is None) and (m_min is not None):
-            filter = m >= m_min
-        else:
-            filter = np.full(len(rjb), True)
+        filter = _filter_mask(len(rjb), rjb, m, dist_cutoff, m_min)
         dip = np.empty(len(m), dtype=float)
 
         # using Kaklamanos et al. 2011 guidance for unknown dip, ztor, and zbor
@@ -226,7 +296,7 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
         ry0 = rjb / np.sqrt(2.0)
         ry0[rjb == 0] = 0.5 * 1.7 * w[rjb == 0] * np.cos(d)
 
-        return (
+        arrays = (
             m[filter],
             fault_type[filter],
             rate[filter],
@@ -239,6 +309,190 @@ def get_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
             ztor[filter],
             zbor[filter],
         )
+        return (arrays, {"index": np.flatnonzero(filter)}) if extras else arrays
+
+
+def _cluster_extras(path, ruptures, index, source_info):
+    """Cluster data of the ruptures of a cluster fault source model (see get_source_data).
+
+    ruptures.npz has "cluster_id" (cluster of each rupture; -1 for independent ruptures) and
+    "cluster_fault_id" (fault, i.e. nshmp-lib rupture set, of each rupture within its
+    cluster). clusters.npz has "cluster_id", "rate" (annual rate of the cluster), and "weight"
+    (source logic tree weight of the cluster). With source_info "cluster_rupture_rate" =
+    "conditional" (default), the "rate" of a cluster rupture is its weight within its fault
+    (nshmp-lib stores the magnitude-variant weight in the rate field); with "absolute" it is
+    the cluster rate times the cluster weight times that weight.
+    """
+    keys = ruptures.files
+    if "cluster_id" not in keys:
+        raise ValueError(f"cluster source model {path} has no cluster_id in ruptures.npz")
+    cluster_id = np.asarray(ruptures["cluster_id"])[index].astype(np.int64)
+    if "cluster_fault_id" in keys:
+        cluster_fault_id = np.asarray(ruptures["cluster_fault_id"])[index].astype(np.int64)
+    else:
+        # every rupture is its own fault
+        cluster_fault_id = index.astype(np.int64)
+    clusters = np.load(str(path.joinpath("clusters.npz")))
+    ids = np.asarray(clusters["cluster_id"]).astype(np.int64)
+    c_rate = np.asarray(clusters["rate"], dtype=float)
+    c_weight = (
+        np.asarray(clusters["weight"], dtype=float)
+        if "weight" in clusters.files
+        else np.ones(len(ids))
+    )
+    order = np.argsort(ids)
+    in_cluster = cluster_id >= 0
+    pos = order[np.searchsorted(ids, cluster_id[in_cluster], sorter=order)]
+    if not np.all(ids[pos] == cluster_id[in_cluster]):
+        raise ValueError(f"ruptures.npz of {path} has cluster ids missing in clusters.npz")
+    cluster_rate = np.zeros(len(index))
+    cluster_rate[in_cluster] = c_rate[pos] * c_weight[pos]
+    rate = np.asarray(ruptures["rate"], dtype=float)[index]
+    if source_info.get("cluster_rupture_rate", "conditional") == "absolute":
+        with np.errstate(divide="ignore", invalid="ignore"):
+            cluster_weight = np.where(in_cluster, rate / cluster_rate, 0.0)
+    else:
+        cluster_weight = np.where(in_cluster, rate, 0.0)
+    return {
+        "cluster_id": cluster_id,
+        "cluster_fault_id": cluster_fault_id,
+        "cluster_weight": cluster_weight,
+        "cluster_rate": cluster_rate,
+    }
+
+
+def _nshmp_point_source_data(path, p_xyz, dist_cutoff, m_min, ps):
+    """Point source ruptures and distances with the nshmp-lib conventions.
+
+    See geometry.point_source and tectonic_regions.normalize_point_source. The distance
+    cutoff is applied to the horizontal distance from the site to the node (as nshmp-lib
+    selects grid nodes within the maximum distance).
+
+    Returns:
+        (arrays, index): the get_source_data arrays, and the index of the rupture in
+        ruptures.npz of each returned rupture
+    """
+    ruptures = np.load(str(path.joinpath("ruptures.npz")))
+    rate = np.asarray(ruptures["rate"], dtype=float)
+    m = np.asarray(ruptures["m"], dtype=float)
+    style = np.asarray(ruptures["style"])
+    node_index = ruptures["node_index"]
+    nodes_index = np.load(str(path.joinpath("node_index.npy")))
+    points = np.load(str(path.joinpath("points.npy")))
+    sorter = np.argsort(nodes_index)
+    pos = sorter[np.searchsorted(nodes_index, node_index, sorter=sorter)]
+    node_lat, node_lon = point_source.xyz_to_latlon(points)
+    site_lat, site_lon = point_source.xyz_to_latlon(p_xyz)
+    site_lat, site_lon = site_lat[0], site_lon[0]
+
+    # Depth to top of rupture
+    index = np.arange(len(m))
+    if ps["depth"] == "rupture":
+        if "depth" not in ruptures.files:
+            raise ValueError(f"{path}: ruptures.npz has no depth")
+        ztor = np.asarray(ruptures["depth"], dtype=float)
+    elif ps["depth"] == "node":
+        ztor = np.load(str(path.joinpath("depth.npy")))[pos].astype(float)
+    elif ps["depth"] == "depth_map":
+        index, ztor, depth_weight = point_source.expand_depths(m, ps["grid_depth_map"])
+        rate = rate[index] * depth_weight
+        m, style, pos = m[index], style[index], pos[index]
+    else:
+        raise ValueError(f'unknown point source depth "{ps["depth"]}"')
+
+    # Magnitude filter first (cheap)
+    if m_min is not None:
+        keep = m >= m_min
+        index, ztor, rate, m, style, pos = (
+            a[keep] for a in (index, ztor, rate, m, style, pos)
+        )
+
+    r_node = point_source.horz_distance_fast(site_lat, site_lon, node_lat, node_lon)
+    if dist_cutoff is not None:
+        keep = r_node[pos] < dist_cutoff
+        index, ztor, rate, m, style, pos = (
+            a[keep] for a in (index, ztor, rate, m, style, pos)
+        )
+
+    bin_width = ps.get("distance_bin")
+    smoothing = ps.get("smoothing") if bin_width else None
+    if smoothing and len(pos):
+        # Distribute nodes near the site (nshmp-lib grid optimization smoothing)
+        used = np.unique(pos)
+        sub_node, sub_lat, sub_lon, sub_scale = point_source.smooth_nodes(
+            site_lat,
+            site_lon,
+            node_lat[used],
+            node_lon[used],
+            smoothing["density"],
+            smoothing["limit"],
+            smoothing["grid_spacing"],
+        )
+        sub_node = used[sub_node]
+        order = np.argsort(sub_node, kind="stable")
+        sub_node, sub_lat, sub_lon, sub_scale = (
+            a[order] for a in (sub_node, sub_lat, sub_lon, sub_scale)
+        )
+        counts = np.bincount(sub_node, minlength=len(points))
+        starts = np.searchsorted(sub_node, np.arange(len(points)))
+        n_sub = counts[pos]
+        rup = np.repeat(np.arange(len(pos)), n_sub)
+        offset = np.arange(len(rup)) - np.repeat(np.cumsum(n_sub) - n_sub, n_sub)
+        sub = starts[pos][rup] + offset
+        index, ztor, rate, m, style = (a[rup] for a in (index, ztor, rate, m, style))
+        rate = rate * sub_scale[sub]
+        r_h = point_source.horz_distance_fast(
+            site_lat, site_lon, sub_lat[sub], sub_lon[sub]
+        )
+    else:
+        r_h = r_node[pos]
+
+    if bin_width and len(r_h):
+        # nshmp-lib grid optimization: horizontal distances at the centers of distance bins,
+        # and ruptures with the same magnitude, mechanism, depth, and distance bin combined
+        i_bin = np.floor(r_h / bin_width).astype(np.int64)
+        r_h = (i_bin + 0.5) * bin_width
+        key = np.stack(
+            [
+                np.round(m * 1000.0).astype(np.int64),
+                style.astype(np.int64),
+                np.round(ztor * 1000.0).astype(np.int64),
+                i_bin,
+            ],
+            axis=1,
+        )
+        _, first, inverse = np.unique(
+            key, axis=0, return_index=True, return_inverse=True
+        )
+        rate = np.bincount(inverse.ravel(), weights=rate)
+        index, ztor, m, style, r_h = (a[first] for a in (index, ztor, m, style, r_h))
+
+    max_depth = ps.get("max_depth")
+    d = point_source.finite_point_source_distances(
+        m,
+        style,
+        r_h,
+        ztor,
+        ps["rupture_scaling"],
+        ps["type"],
+        max_depth=max_depth,
+        max_width=None if max_depth is not None else ps.get("max_width"),
+    )
+    k = d["index"]
+    arrays = (
+        m[k],
+        np.asarray(style[k]),
+        rate[k] * d["rate_scale"],
+        d["rjb"],
+        d["rrup"],
+        d["rx"],
+        d["rx1"],
+        d["ry0"],
+        d["dip"],
+        d["ztor"],
+        d["zbor"],
+    )
+    return arrays, index[k]
 
 
 def get_ground_motion_data(
@@ -471,6 +725,89 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
     return disagg
 
 
+def get_exceedance(pga, mu_ln_pga, sigma_ln_pga, truncation_level=None):
+    """Probability that each ground motion value is exceeded for each event.
+
+    Inputs:
+        pga (Numpy array, dtype=float): ground motion values (g), length = L
+        mu_ln_pga (Numpy array, dtype=float): mean of ln(PGA) of each event, length = N
+        sigma_ln_pga (Numpy array, dtype=float): standard deviation of ln(PGA), length = N
+        truncation_level (float): if given, the log-normal distribution is truncated at
+            mu + truncation_level * sigma and renormalized, as in the nshmp-lib
+            TRUNCATION_UPPER_ONLY exceedance model (USGS NSHM: 3). None (default) is untruncated.
+
+    Returns:
+        eps (Numpy ndarray): epsilon of each ground motion value and event, shape = L x N
+        p (Numpy ndarray): probability of exceedance, shape = L x N
+    """
+    eps = (np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga
+    p = 1 - ndtr(eps)
+    if truncation_level is not None:
+        p_hi = ndtr(-float(truncation_level))
+        p = np.clip((p - p_hi) / (1.0 - p_hi), 0.0, 1.0)
+    return eps, p
+
+
+def get_cluster_hazard(p, weight, cluster_index, fault_index, cluster_rate):
+    """Hazard of cluster sources (nshmp-lib ClusterRuptureSet hazard).
+
+    In nshmp-lib (calc/Transforms.ClusterGroundMotionsToCurves and
+    ExceedanceModel.clusterExceedance), a cluster is a set of faults that rupture together
+    with the rate of the cluster. For each ground motion model, the probability that a fault
+    of the cluster produces an exceedance is the weighted sum over its magnitude variants,
+    P_f = sum_i w_i P_i; the probability that the cluster event produces an exceedance is
+    P_c = 1 - prod_f (1 - P_f); and the hazard is sum_c rate_c P_c, where rate_c includes the
+    logic tree weight of the cluster. This must be evaluated separately for each ground
+    motion model, before the ground motion model weights are applied.
+
+    Inputs:
+        p (Numpy ndarray): conditional probability of exceedance (PSHA) or of non-exceedance of
+            the factor of safety (PLHA) for each cluster rupture, shape = L x N
+        weight (Numpy array): weight w_i of each rupture within its fault, length = N
+        cluster_index (Numpy array, dtype=int): cluster of each rupture, length = N
+        fault_index (Numpy array, dtype=int): fault of each rupture within its cluster, length = N
+        cluster_rate (Numpy array): rate (times logic tree weight) of the cluster of each
+            rupture, length = N
+
+    Returns:
+        hazard (Numpy array): annual rate, length = L
+        contributions (Numpy ndarray): hazard attributed to each rupture for disaggregation,
+            shape = L x N. The hazard of a cluster is shared among its ruptures in proportion
+            to w_i P_i, so the contributions sum to the hazard.
+    """
+    p = np.atleast_2d(p)
+    n_values = p.shape[0]
+    if p.shape[1] == 0:
+        return np.zeros(n_values), np.zeros_like(p)
+    _, c = np.unique(cluster_index, return_inverse=True)
+    c = c.ravel()
+    n_clusters = c.max() + 1
+    _, g = np.unique(np.stack([c, fault_index], axis=1), axis=0, return_inverse=True)
+    g = g.ravel()
+    n_groups = g.max() + 1
+    group_cluster = np.zeros(n_groups, dtype=int)
+    group_cluster[g] = c
+    rate_c = np.zeros(n_clusters)
+    rate_c[c] = cluster_rate
+    wp = weight * p
+    p_fault = np.empty((n_values, n_groups))
+    p_sum = np.empty((n_values, n_clusters))
+    log_survival = np.empty((n_values, n_clusters))
+    for i in range(n_values):
+        p_fault[i] = np.bincount(g, weights=wp[i], minlength=n_groups)
+        p_sum[i] = np.bincount(c, weights=wp[i], minlength=n_clusters)
+    p_fault = np.clip(p_fault, 0.0, 1.0)
+    with np.errstate(divide="ignore"):
+        log_fault = np.log1p(-p_fault)
+    for i in range(n_values):
+        log_survival[i] = np.bincount(group_cluster, weights=log_fault[i], minlength=n_clusters)
+    cluster_hazard = -np.expm1(log_survival) * rate_c
+    with np.errstate(divide="ignore", invalid="ignore"):
+        share = np.where(p_sum[:, c] > 0.0, wp / p_sum[:, c], 0.0)
+    contributions = share * cluster_hazard[:, c]
+    return cluster_hazard.sum(axis=1), contributions
+
+
 def get_hazard(config_file):
     """Reads config file and runs PSHA and PLHA
 
@@ -483,6 +820,16 @@ def get_hazard(config_file):
         output (dict): Python dictionary containing output of analysis. The output contains all
             of the inputs for preservation, along with the hazard curve(s) and any requested
             disaggregation data. See documentation for more thorough description of output.
+
+    Notes:
+        Every source model has a tectonic region (source_info.json in its directory; active
+        crust if there is none). Ground motion models are given per tectonic region in the
+        config file ("ground_motion_models": {"active_crust": {...}, "stable_crust": {...},
+        ...}), or, in the earlier format, as a single set of models that is used for the active
+        crust. Each source model uses the ground motion models of its region (the default USGS
+        NSHM models if the region is not in the config file). Weights are normalized within
+        each tectonic region, and within each group of alternative source models (source type,
+        tectonic region, and NSHM component).
     """
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is
     # validated in the get_liquefaction_hazards function.
@@ -499,67 +846,31 @@ def get_hazard(config_file):
         print("Config File Error:", e.message)
         return
 
-    # normalize weights in config file
-    fault_source_model_weight_sum = 0.0
-    fault_source_models = ["ucerf3_fm31", "ucerf3_fm32", "nshm23_wus"]
-    for fault_source_model in fault_source_models:
-        fault_source_model_weight_sum += (
-            config["source_models"]
-            .get("fault_source_models", {})
-            .get(fault_source_model, {})
-            .get("weight", 0.0)
-        )
-    if fault_source_model_weight_sum > 0:
-        for fault_source_model in fault_source_models:
-            if (
-                config["source_models"]
-                .get("fault_source_models", {})
-                .get(fault_source_model, {})
-            ):
-                config["source_models"].get("fault_source_models", {})[
-                    fault_source_model
-                ]["weight"] /= fault_source_model_weight_sum
+    # Source model information, and normalization of source model weights within each group
+    # of alternative source models
+    source_infos = {}
+    group_sums = {}
+    for source_type, models in config["source_models"].items():
+        for source_model, entry in models.items():
+            info = get_source_info(source_type, source_model)
+            source_infos[(source_type, source_model)] = info
+            group = tectonic_regions.weight_group(info, source_type)
+            group_sums[group] = group_sums.get(group, 0.0) + entry.get("weight", 0.0)
+    for (source_type, source_model), info in source_infos.items():
+        group = tectonic_regions.weight_group(info, source_type)
+        if group_sums[group] > 0:
+            config["source_models"][source_type][source_model]["weight"] /= group_sums[
+                group
+            ]
 
-    point_source_model_weight_sum = 0.0
-    point_source_models = [
-        "ucerf3_fm31_grid_sub_seis",
-        "ucerf3_fm31_grid_unassociated",
-        "ucerf3_fm32_grid_sub_seis",
-        "ucerf3_fm32_grid_unassociated",
-        "nshm23_wus_grid",
-    ]
-    for point_source_model in point_source_models:
-        point_source_model_weight_sum += (
-            config["source_models"]
-            .get("point_source_models", {})
-            .get(point_source_model, {})
-            .get("weight", 0.0)
-        )
-    if point_source_model_weight_sum > 0:
-        for point_source_model in point_source_models:
-            if (
-                config["source_models"]
-                .get("point_source_models", {})
-                .get(point_source_model, {})
-            ):
-                config["source_models"]["point_source_models"][point_source_model][
-                    "weight"
-                ] /= point_source_model_weight_sum
-
-    ground_motion_model_weight_sum = 0.0
-    ground_motion_models = ["bssa14", "ask14", "cb14", "cy14", "idriss14"]
-    for ground_motion_model in ground_motion_models:
-        ground_motion_model_weight_sum += (
-            config["ground_motion_models"]
-            .get(ground_motion_model, {})
-            .get("weight", 0.0)
-        )
-    if ground_motion_model_weight_sum > 0:
-        for ground_motion_model in ground_motion_models:
-            if config["ground_motion_models"].get(ground_motion_model, {}):
-                config["ground_motion_models"][ground_motion_model][
-                    "weight"
-                ] /= ground_motion_model_weight_sum
+    # Ground motion model logic trees of the tectonic regions, weights normalized within
+    # each region
+    regions_used = {
+        info["tectonic_region"]
+        for key, info in source_infos.items()
+        if config["source_models"][key[0]][key[1]]["weight"] > 0
+    }
+    gmm_trees, notes = tectonic_regions.parse_ground_motion_models(config, regions_used)
 
     liquefaction_model_weight_sum = 0.0
     liquefaction_models = [
@@ -587,20 +898,30 @@ def get_hazard(config_file):
     longitude = config["site"]["longitude"]
     elevation = config["site"]["elevation"]
     point = np.asarray([latitude, longitude, elevation])
-    # dist_cutoff = config["site"]["dist_cutoff"]
-    # m_min = config["site"]["m_min"]
     p_xyz = geometry.point_to_xyz(point)
     vs30 = config["site"]["vs30"]
     measured_vs30 = config["site"].get("measured_vs30", False)
     z1p0 = config["site"].get("z1p0", None)
     z2p5 = config["site"].get("z2p5", None)
+    site = {
+        "vs30": vs30,
+        "measured_vs30": measured_vs30,
+        "z1p0": z1p0,
+        "z2p5": z2p5,
+        "zsed": config["site"].get("zsed", None),
+    }
     dist_cutoff = config.get("constraints", {}).get("dist_cutoff", None)
     m_min = config.get("constraints", {}).get("m_min", None)
+    truncation_level = config.get("constraints", {}).get("truncation_level", None)
 
     # Read output properties
     if "psha" in config["output"].keys():
         pga = np.asarray(config["output"]["psha"]["pga"], dtype=float)
         output_psha = True
+        output_source_hazard = config["output"]["psha"].get(
+            "source_model_hazard", False
+        )
+        source_hazard = {}
         if "disaggregation" in config["output"]["psha"].keys():
             output_psha_disaggregation = True
             psha_magnitude_bin_edges = np.asarray(
@@ -639,6 +960,7 @@ def get_hazard(config_file):
     else:
         output_psha = False
         output_psha_disaggregation = False
+        output_source_hazard = False
 
     if "plha" in config["output"].keys():
         fsl = np.asarray(config["output"]["plha"]["fsl"], dtype=float)
@@ -668,7 +990,7 @@ def get_hazard(config_file):
             )
             plha_disagg = np.zeros(
                 (
-                    len(pga),
+                    len(fsl),
                     len(plha_magnitude_bin_center),
                     len(plha_distance_bin_center),
                     len(plha_epsilon_bin_center),
@@ -682,83 +1004,118 @@ def get_hazard(config_file):
         output_plha = False
         output_plha_disaggregation = False
 
-    # Loop over all ground motion models to get list of distance types
-    gmms = []
-    for gmm in config["ground_motion_models"].keys():
-        gmms.append(gmm)
     # Loop over source models. We have fault_source_models and point_source_models, so there are two loops
     for source_model in config["source_models"].keys():
         for fault_source_model in config["source_models"][source_model].keys():
-            m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = (
-                get_source_data(
-                    source_model, fault_source_model, p_xyz, dist_cutoff, m_min, gmms
-                )
-            )
             source_model_weight = config["source_models"][source_model][
                 fault_source_model
             ]["weight"]
+            # move on to next source model if weight is less than or equal to zero
+            if source_model_weight <= 0:
+                continue
+            info = source_infos[(source_model, fault_source_model)]
+            region = info["tectonic_region"]
+            branches = gmm_trees[region]
+            # all ground motion models of the region determine the distance types
+            gmms = [branch.key for branch in branches]
+            region_cutoff = tectonic_regions.region_value(dist_cutoff, region)
+            cluster = info["cluster"]
+            if cluster:
+                data, extras = get_source_data(
+                    source_model,
+                    fault_source_model,
+                    p_xyz,
+                    region_cutoff,
+                    m_min,
+                    gmms,
+                    extras=True,
+                    source_info=info,
+                )
+                in_cluster = extras["cluster_id"] >= 0
+            else:
+                data = get_source_data(
+                    source_model, fault_source_model, p_xyz, region_cutoff, m_min, gmms
+                )
+            m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = data
+            # distance used for disaggregation: rjb, or rrup if no model uses rjb
+            r_disagg = rjb if "rjb" in _distance_needs(gmms) or not len(gmms) else rrup
+            rupture = {
+                "m": m,
+                "fault_type": fault_type,
+                "rjb": rjb,
+                "rrup": rrup,
+                "rx": rx,
+                "ry0": ry0,
+                "dip": dip,
+                "ztor": ztor,
+                "zbor": zbor,
+            }
+            source_key = fault_source_model
             # Loop over ground motion models.
-            for ground_motion_model in config["ground_motion_models"].keys():
-                # retrieve parameters common to all models
-                ground_motion_model_weight = config["ground_motion_models"][
-                    ground_motion_model
-                ]["weight"]
+            for branch in branches:
+                ground_motion_model_weight = branch.weight
                 # move on to next ground motion model if weight is less than or equal to zero
                 if ground_motion_model_weight <= 0:
                     continue
-                # vs30 = config["ground_motion_models"][ground_motion_model]["vs30"]
-                # z1p0 = None
-                # z2p5 = None
-                # measured_vs30 = False
-                # # retrieve model-specific parameters
-                # if (ground_motion_model == "ask14") or (ground_motion_model == "cy14"):
-                #     if (
-                #         "measured_vs30"
-                #         in config["ground_motion_models"][ground_motion_model].keys()
-                #     ):
-                #         measured_vs30 = config["ground_motion_models"][ground_motion_model][
-                #             "measured_vs30"
-                #         ]
-                #     if (
-                #         "z1p0"
-                #         in config["ground_motion_models"][ground_motion_model].keys()
-                #     ):
-                #         z1p0 = config["ground_motion_models"][ground_motion_model][
-                #             "z1p0"
-                #         ]
-                # if ground_motion_model == "cb14":
-                #     if (
-                #         "z2p5"
-                #         in config["ground_motion_models"][ground_motion_model].keys()
-                #     ):
-                #         z2p5 = config["ground_motion_models"][ground_motion_model][
-                #             "z2p5"
-                #         ]
-                mu_ln_pga, sigma_ln_pga = get_ground_motion_data(
-                    ground_motion_model,
-                    vs30,
-                    measured_vs30,
-                    z1p0,
-                    z2p5,
-                    fault_type,
-                    rjb,
-                    rrup,
-                    rx,
-                    rx1,
-                    ry0,
-                    m,
-                    ztor,
-                    zbor,
-                    dip,
-                )
+                if branch.spec.kind == "native":
+                    mu_ln_pga, sigma_ln_pga = get_ground_motion_data(
+                        branch.spec.name,
+                        vs30,
+                        measured_vs30,
+                        z1p0,
+                        z2p5,
+                        fault_type,
+                        rjb,
+                        rrup,
+                        rx,
+                        rx1,
+                        ry0,
+                        m,
+                        ztor,
+                        zbor,
+                        dip,
+                    )
+                else:
+                    mu_ln_pga, sigma_ln_pga = pygmm_gmms.get_ground_motion(
+                        branch.spec, rupture, site, region
+                    )
                 # Compute seismic hazard if requested in config file
                 if output_psha:
-                    eps = (np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga
-                    seismic_hazards = (1 - ndtr(eps)) * rate
+                    if truncation_level is None and not cluster:
+                        eps = (np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga
+                        seismic_hazards = (1 - ndtr(eps)) * rate
+                    else:
+                        eps, p = get_exceedance(
+                            pga, mu_ln_pga, sigma_ln_pga, truncation_level
+                        )
+                        seismic_hazards = p * rate
+                    if cluster:
+                        seismic_hazards[:, in_cluster] = 0.0
+                        cluster_curve, contributions = get_cluster_hazard(
+                            p[:, in_cluster],
+                            extras["cluster_weight"][in_cluster],
+                            extras["cluster_id"][in_cluster],
+                            extras["cluster_fault_id"][in_cluster],
+                            extras["cluster_rate"][in_cluster],
+                        )
+                        if output_source_hazard:
+                            key = source_key + ":cluster"
+                            source_hazard[key] = source_hazard.get(
+                                key, 0.0
+                            ) + source_model_weight * ground_motion_model_weight * (
+                                cluster_curve
+                            )
+                    curve = np.sum(seismic_hazards, axis=1)
+                    if output_source_hazard:
+                        source_hazard[source_key] = (
+                            source_hazard.get(source_key, 0.0)
+                            + source_model_weight * ground_motion_model_weight * curve
+                        )
+                    if cluster:
+                        seismic_hazards[:, in_cluster] = contributions
+                        curve = curve + cluster_curve
                     seismic_hazard += (
-                        source_model_weight
-                        * ground_motion_model_weight
-                        * np.sum(seismic_hazards, axis=1)
+                        source_model_weight * ground_motion_model_weight * curve
                     )
                     # Compute seismic hazard disaggregation if requested in config file
                     if output_psha_disaggregation:
@@ -768,7 +1125,7 @@ def get_hazard(config_file):
                             * get_disagg(
                                 seismic_hazards,
                                 m,
-                                rjb,
+                                r_disagg,
                                 eps,
                                 psha_magnitude_bin_edges,
                                 psha_distance_bin_edges,
@@ -792,7 +1149,19 @@ def get_hazard(config_file):
                                 liquefaction_model,
                                 config,
                             )
+                            if cluster:
+                                p_liq = liquefaction_hazards[in_cluster].T
                             liquefaction_hazards *= rate[:, np.newaxis]
+                            if cluster:
+                                liquefaction_hazards[in_cluster] = 0.0
+                                cluster_curve, contributions = get_cluster_hazard(
+                                    p_liq,
+                                    extras["cluster_weight"][in_cluster],
+                                    extras["cluster_id"][in_cluster],
+                                    extras["cluster_fault_id"][in_cluster],
+                                    extras["cluster_rate"][in_cluster],
+                                )
+                                liquefaction_hazards[in_cluster] = contributions.T
                             liquefaction_hazard += (
                                 source_model_weight
                                 * ground_motion_model_weight
@@ -810,7 +1179,7 @@ def get_hazard(config_file):
                                     * get_disagg(
                                         liquefaction_hazards,
                                         m,
-                                        rjb,
+                                        r_disagg,
                                         eps,
                                         plha_magnitude_bin_edges,
                                         plha_distance_bin_edges,
@@ -835,6 +1204,19 @@ def get_hazard(config_file):
                 "PGA": pga.tolist(),
                 "annual_rate_of_exceedance": seismic_hazard.tolist(),
             }
+        if output_source_hazard:
+            output["output"]["psha"]["source_model_hazard"] = {}
+            for key, curve in source_hazard.items():
+                name, _, part = key.partition(":")
+                info = next(i for k, i in source_infos.items() if k[1] == name)
+                component = (
+                    info["cluster_nshm_component"] if part else info["nshm_component"]
+                )
+                output["output"]["psha"]["source_model_hazard"][key] = {
+                    "tectonic_region": info["tectonic_region"],
+                    "nshm_component": component,
+                    "annual_rate_of_exceedance": np.asarray(curve).tolist(),
+                }
     if output_plha:
         if output_plha_disaggregation:
             for i in range(len(fsl)):
@@ -849,6 +1231,8 @@ def get_hazard(config_file):
                 "FSL": fsl.tolist(),
                 "annual_rate_of_nonexceedance": liquefaction_hazard.tolist(),
             }
+    if notes:
+        output["notes"] = notes
 
     if "outputfile" in config["output"].keys():
         if config["output"]["outputfile"] == "default":

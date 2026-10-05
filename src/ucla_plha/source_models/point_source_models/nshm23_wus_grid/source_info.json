@@ -1,0 +1,46 @@
+{
+    "name": "nshm23_wus_grid",
+    "tectonic_region": "active_crust",
+    "nshm_component": "Grid",
+    "source": "nshm-conus active-crust/grid branch-averaged WUS gridded seismicity (2023 NSHM)",
+    "max_distance": 300.0,
+    "cluster": false,
+    "point_source": {
+        "distance_method": "ucla_plha_crustal",
+        "notes": "Distances from the epicentral distance with the ucla_plha crustal approximations: Rjb from the Thompson and Worden (2017) style magnitude-dependent correction, dip, Ztor and Zbor from Kaklamanos et al. (2011), and Rrup fit to Thompson and Worden (2017)."
+    },
+    "nshmp_point_source": {
+        "point-source-type": "FINITE",
+        "rupture-scaling": "NSHM_POINT_WC94_LENGTH",
+        "max-depth": 14.0,
+        "grid-depth-map": {
+            "small-magnitude": {
+                "mMin": 4.5,
+                "mMax": 6.5,
+                "depth-tree": [
+                    {
+                        "id": "5 km",
+                        "weight": 1.0,
+                        "value": 5.0
+                    }
+                ]
+            },
+            "large-magnitude": {
+                "mMin": 6.5,
+                "mMax": 10.0,
+                "depth-tree": [
+                    {
+                        "id": "1 km",
+                        "weight": 1.0,
+                        "value": 1.0
+                    }
+                ]
+            }
+        },
+        "grid-spacing": 0.1,
+        "smoothing-density": 10,
+        "smoothing-limit": 40.0,
+        "opt-distance-bin": 1.0
+    },
+    "notes": "point_source keeps the ucla_plha crustal distance treatment. nshmp_point_source records the nshm-conus 6.2.0 active-crust/grid/grid-config.json settings used by nshmp-lib (not used by default; set point_source to these values to use the nshmp-lib point-source distances)."
+}
