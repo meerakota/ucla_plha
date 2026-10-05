@@ -1,0 +1,66 @@
+{
+  "name": "nshm23_cascadia_interface_cluster",
+  "tectonic_region": "subduction_interface",
+  "nshm_component": "FaultCluster",
+  "source": "nshm-conus 6.2.0 subduction/interface/Cascadia/{top,middle,bottom}/full-rupture/cluster-in (cluster-7a, cluster-7b, cluster-8)",
+  "cluster": true,
+  "interface_events": true,
+  "clusters": [
+    {
+      "cluster_id": 0,
+      "rate": 0.0019,
+      "weight": 0.009999,
+      "branch": "bottom/full-rupture/cluster-in/cluster-7a:R1"
+    },
+    {
+      "cluster_id": 1,
+      "rate": 0.0019,
+      "weight": 0.010002,
+      "branch": "bottom/full-rupture/cluster-in/cluster-7b:R1"
+    },
+    {
+      "cluster_id": 2,
+      "rate": 0.0019,
+      "weight": 0.009999,
+      "branch": "bottom/full-rupture/cluster-in/cluster-8:R1"
+    },
+    {
+      "cluster_id": 3,
+      "rate": 0.0019,
+      "weight": 0.016665,
+      "branch": "middle/full-rupture/cluster-in/cluster-7a:R1"
+    },
+    {
+      "cluster_id": 4,
+      "rate": 0.0019,
+      "weight": 0.01667,
+      "branch": "middle/full-rupture/cluster-in/cluster-7b:R1"
+    },
+    {
+      "cluster_id": 5,
+      "rate": 0.0019,
+      "weight": 0.016665,
+      "branch": "middle/full-rupture/cluster-in/cluster-8:R1"
+    },
+    {
+      "cluster_id": 6,
+      "rate": 0.0019,
+      "weight": 0.006666,
+      "branch": "top/full-rupture/cluster-in/cluster-7a:R1"
+    },
+    {
+      "cluster_id": 7,
+      "rate": 0.0019,
+      "weight": 0.006668,
+      "branch": "top/full-rupture/cluster-in/cluster-7b:R1"
+    },
+    {
+      "cluster_id": 8,
+      "rate": 0.0019,
+      "weight": 0.006666,
+      "branch": "top/full-rupture/cluster-in/cluster-8:R1"
+    }
+  ],
+  "cluster_hazard": "nshmp-lib ClusterRuptureSet (source type FAULT_CLUSTER, reported in the FaultCluster component) and calc.Transforms.ClusterGroundMotionsToCurves. Each cluster (clusters.npz cluster_id) is a sequence of rupture sets (cluster_section) that all rupture when the cluster occurs, with annual rate clusters.npz \"rate\" (0.0019) and logic tree weight clusters.npz \"weight\" (geometry weight x 0.1 x cluster-set weight). Each cluster section has magnitude variants (M1..M4) whose ruptures.npz \"rate\" holds the magnitude branch weight (0.25; equal magnitudes in a section are merged by adding weights). For each GMM g (and each of its epistemic branches, combined after), the probability that a section s causes exceedance is P_s(x) = sum_{r in s} rate_r * P_g(Y > x | r); the cluster exceedance probability is P_c(x) = 1 - prod_s (1 - P_s(x)); the annual rate of exceedance is lambda(x) = sum_c weight_c * rate_c * sum_g w_g * P_c,g(x). The product over sections is taken per GMM, not after combining GMMs. Ruptures are not independent Poissonian events.",
+  "notes": "Converted from nshm-conus release 6.2.0 (identical to main) by utilities/convert_nshm23_cascadia_interface.py following nshmp-lib commit 44728a7d (InterfaceRuptureSet, ApproxGriddedSurface, RuptureFloating, RuptureScaling, ModelLoader). The source logic tree is collapsed to mean rates: rupture rates include all source logic tree branch weights and source-group scale factors (geometry branches top 0.2, middle 0.5, bottom 0.3 are separate ruptures). Segments are the strips between adjacent columns of the nshmp-lib 5 km gridded surface of each rupture set; nshmp-lib computes rRup and rJB as minimum distances to the grid points, rX from the upper edge of the rupture. GMM inputs as used by nshmp-lib: ztor, dip, width (ruptures.npz \"width\"; zbor = ztor + width sin(dip)), zhyp = ztor + width/2 sin(dip), rake = 90. fault_type = 1 (reverse) because these are interface events. GMM tree (subduction/interface/gmm-tree.json): AM_09_INTERFACE_BASIN 0.125, ZHAO_06_INTERFACE_BASIN 0.125, AG_20_CASCADIA_INTERFACE_ADJUSTED_BASIN 0.25, KBCG_20_CASCADIA_INTERFACE_BASIN 0.25, PSBAH_20_CASCADIA_INTERFACE_BASIN 0.25; gmm-config.json max-distance 1000 km. ruptures.npz \"rate\" is the magnitude branch weight within a cluster section, not an annual rate. ruptures.npz extra keys: cluster_id, cluster_section (unique over all clusters), width, zhyp, rake."
+}

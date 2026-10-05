@@ -1,0 +1,7 @@
+[
+  { "id": "AM_09_INTERFACE_BASIN", "weight": 0.125 },
+  { "id": "ZHAO_06_INTERFACE_BASIN", "weight": 0.125 },
+  { "id": "AG_20_CASCADIA_INTERFACE_ADJUSTED_BASIN", "weight": 0.25 },
+  { "id": "KBCG_20_CASCADIA_INTERFACE_BASIN", "weight": 0.25 },
+  { "id": "PSBAH_20_CASCADIA_INTERFACE_BASIN", "weight": 0.25 }
+]

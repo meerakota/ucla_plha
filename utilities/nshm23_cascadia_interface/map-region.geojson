@@ -1,0 +1,16 @@
+{
+  "type": "Feature",
+  "properties": {
+    "name": "CONUS Subduction Interface Map Region"
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[
+      [-125.4, 24.0],
+      [-100.0, 24.0],
+      [-100.0, 50.4],
+      [-125.4, 50.4],
+      [-125.4, 24.0]
+    ]]
+  }
+}

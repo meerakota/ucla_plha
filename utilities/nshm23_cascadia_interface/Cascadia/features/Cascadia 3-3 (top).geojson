@@ -1,0 +1,19 @@
+{
+  "type": "Feature",
+  "id": 3272,
+  "geometry": {
+    "type": "MultiLineString",
+    "coordinates": [[
+      [-125.65200, 45.88020, 5.0],
+      [-125.72885, 46.30000, 5.0]
+    ],[
+      [-124.49730, 45.87230, 17.52807],
+      [-124.43943, 46.30000, 18.44058]
+    ]]
+  },
+  "properties": {
+    "name": "Cascadia 3-3 (top)",
+    "state": "OR",
+    "states": ["OR", "WA"]
+  }
+}

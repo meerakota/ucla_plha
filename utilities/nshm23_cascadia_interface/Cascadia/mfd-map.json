@@ -1,0 +1,606 @@
+{
+  "unsegmented": [
+    { "id": "B0", "weight": 0.5, "value": { "type": "GR", "a": -3.806, "b": 0.0, "mMin": 7.95, "mMax": 8.75, "Δm": 0.1 }},
+    { "id": "B1", "weight": 0.5, "value": { "type": "GR", "a": 4.485, "b": 1.0, "mMin": 7.95, "mMax": 8.75, "Δm": 0.1 }}
+  ],
+
+  "full-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.85, "rate": 0.0019 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.01, "rate": 0.0019 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.34, "rate": 0.0019 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.21, "rate": 0.0019 }}
+  ],
+  "full-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.69, "rate": 0.0019 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.82, "rate": 0.0019 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.12, "rate": 0.0019 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.03, "rate": 0.0019 }}
+  ],
+  "full-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.61, "rate": 0.0019 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.73, "rate": 0.0019 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.01, "rate": 0.0019 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.93, "rate": 0.0019 }}
+  ],
+
+  "segmented-GEA12-B-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.65, "rate": 0.0002174 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.77, "rate": 0.0002174 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.07, "rate": 0.0002174 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.98, "rate": 0.0002174 }}
+  ],
+  "segmented-GEA12-B-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.44, "rate": 0.0002174 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.53, "rate": 0.0002174 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.78, "rate": 0.0002174 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.73, "rate": 0.0002174 }}
+  ],
+  "segmented-GEA12-B-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.38, "rate": 0.0002174 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.45, "rate": 0.0002174 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.69, "rate": 0.0002174 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.65, "rate": 0.0002174 }}
+  ],
+  "segmented-GEA12-C-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.55, "rate": 0.0004888 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.65, "rate": 0.0004888 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.92, "rate": 0.0004888 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.85, "rate": 0.0004888 }}
+  ],
+  "segmented-GEA12-C-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.33, "rate": 0.0004888 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.39, "rate": 0.0004888 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.62, "rate": 0.0004888 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.59, "rate": 0.0004888 }}
+  ],
+  "segmented-GEA12-C-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.26, "rate": 0.0004888 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.30, "rate": 0.0004888 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.52, "rate": 0.0004888 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.51, "rate": 0.0004888 }}
+  ],
+  "segmented-GEA12-D-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.42, "rate": 0.0005438 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.51, "rate": 0.0005438 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.75, "rate": 0.0005438 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.71, "rate": 0.0005438 }}
+  ],
+  "segmented-GEA12-D-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.19, "rate": 0.0005438 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.23, "rate": 0.0005438 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.43, "rate": 0.0005438 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.43, "rate": 0.0005438 }}
+  ],
+  "segmented-GEA12-D-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.12, "rate": 0.0005438 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.14, "rate": 0.0005438 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.33, "rate": 0.0005438 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.34, "rate": 0.0005438 }}
+  ],
+  "segmented-GEA12-northern-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.53, "rate": 0.001 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.64, "rate": 0.001 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.91, "rate": 0.001 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.84, "rate": 0.001 }}
+  ],
+  "segmented-GEA12-northern-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.43, "rate": 0.001 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.52, "rate": 0.001 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.77, "rate": 0.001 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.72, "rate": 0.001 }}
+  ],
+  "segmented-GEA12-northern-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.34, "rate": 0.001 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.40, "rate": 0.001 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.63, "rate": 0.001 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.60, "rate": 0.001 }}
+  ],
+
+  "segmented-GEA17-B-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.75, "rate": 0.000156 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.89, "rate": 0.000156 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.20, "rate": 0.000156 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.10, "rate": 0.000156 }}
+  ],
+  "segmented-GEA17-B-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.57, "rate": 0.000156 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.67, "rate": 0.000156 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.95, "rate": 0.000156 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.88, "rate": 0.000156 }}
+  ],
+  "segmented-GEA17-B-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.49, "rate": 0.000156 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.59, "rate": 0.000156 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.85, "rate": 0.000156 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.79, "rate": 0.000156 }}
+  ],
+  "segmented-GEA17-C-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.62, "rate": 0.000364 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.73, "rate": 0.000364 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 9.02, "rate": 0.000364 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.94, "rate": 0.000364 }}
+  ],
+  "segmented-GEA17-C-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.41, "rate": 0.000364 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.48, "rate": 0.000364 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.73, "rate": 0.000364 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.69, "rate": 0.000364 }}
+  ],
+  "segmented-GEA17-C-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.34, "rate": 0.000364 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.40, "rate": 0.000364 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.63, "rate": 0.000364 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.61, "rate": 0.000364 }}
+  ],
+  "segmented-GEA17-C'-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.55, "rate": 0.000104 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.65, "rate": 0.000104 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.92, "rate": 0.000104 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.85, "rate": 0.000104 }}
+  ],
+  "segmented-GEA17-C'-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.33, "rate": 0.000104 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.39, "rate": 0.000104 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.62, "rate": 0.000104 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.59, "rate": 0.000104 }}
+  ],
+  "segmented-GEA17-C'-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.26, "rate": 0.000104 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.30, "rate": 0.000104 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.52, "rate": 0.000104 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.51, "rate": 0.000104 }}
+  ],
+  "segmented-GEA17-D-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.37, "rate": 0.000468 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.45, "rate": 0.000468 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.68, "rate": 0.000468 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.65, "rate": 0.000468 }}
+  ],
+  "segmented-GEA17-D-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.14, "rate": 0.000468 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.17, "rate": 0.000468 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.36, "rate": 0.000468 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.37, "rate": 0.000468 }}
+  ],
+  "segmented-GEA17-D-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.06, "rate": 0.000468 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.07, "rate": 0.000468 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.25, "rate": 0.000468 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.28, "rate": 0.000468 }}
+  ],
+  "segmented-GEA17-E-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.94, "rate": 0.000208 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.93, "rate": 0.000208 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.09, "rate": 0.000208 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.14, "rate": 0.000208 }}
+  ],
+  "segmented-GEA17-E-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.68, "rate": 0.000208 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.63, "rate": 0.000208 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.73, "rate": 0.000208 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.83, "rate": 0.000208 }}
+  ],
+  "segmented-GEA17-E-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.59, "rate": 0.000208 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.52, "rate": 0.000208 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.61, "rate": 0.000208 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 7.73, "rate": 0.000208 }}
+  ],
+  "segmented-GEA17-F-bottom": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.40, "rate": 0.0001 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.47, "rate": 0.0001 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.71, "rate": 0.0001 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.67, "rate": 0.0001 }}
+  ],
+  "segmented-GEA17-F-middle": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.28, "rate": 0.0001 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.33, "rate": 0.0001 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.55, "rate": 0.0001 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.54, "rate": 0.0001 }}
+  ],
+  "segmented-GEA17-F-top": [
+    { "id": "M1", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.19, "rate": 0.0001 }},
+    { "id": "M2", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.23, "rate": 0.0001 }},
+    { "id": "M3", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.43, "rate": 0.0001 }},
+    { "id": "M4", "weight": 0.25, "value": { "type": "SINGLE", "m": 8.43, "rate": 0.0001 }}
+  ],
+
+  "cluster-7a-1-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.16 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.20 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.40 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.40 }}
+  ],
+  "cluster-7a-1-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.94 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.93 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.09 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }}
+  ],
+  "cluster-7a-1-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.86 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.84 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.98 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.05 }}
+  ],
+  "cluster-7a-2-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.07 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.08 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.27 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.29 }}
+  ],
+  "cluster-7a-2-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.81 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.78 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.92 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.99 }}
+  ],
+  "cluster-7a-2-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.74 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.69 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.81 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.90 }}
+  ],
+  "cluster-7a-3-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.08 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.28 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.30 }}
+  ],
+  "cluster-7a-3-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.87 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.86 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.00 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.06 }}
+  ],
+  "cluster-7a-3-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.81 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.78 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.91 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.99 }}
+  ],
+  "cluster-7a-4-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.12 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.33 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.34 }}
+  ],
+  "cluster-7a-4-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.94 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.93 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.09 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }}
+  ],
+  "cluster-7a-4-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.88 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.86 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.01 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.06 }}
+  ],
+  "cluster-7a-5-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.20 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.25 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.45 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.45 }}
+  ],
+  "cluster-7a-5-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.06 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.08 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.26 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.28 }}
+  ],
+  "cluster-7a-5-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.98 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.98 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.18 }}
+  ],
+  "cluster-7a-6-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.19 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.44 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.44 }}
+  ],
+  "cluster-7a-6-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.11 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.33 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.34 }}
+  ],
+  "cluster-7a-6-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.02 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.02 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.19 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }}
+  ],
+  "cluster-7a-7-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.11 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.33 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.34 }}
+  ],
+  "cluster-7a-7-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.02 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.20 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }}
+  ],
+  "cluster-7a-7-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.91 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.90 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.05 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }}
+  ],
+  
+  "cluster-7b-1-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.25 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.30 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.51 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.50 }}
+  ],
+  "cluster-7b-1-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.02 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.02 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.19 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }}
+  ],
+  "cluster-7b-1-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.94 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.93 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.09 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.13 }}
+  ],
+  "cluster-7b-2-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.07 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.09 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.27 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.29 }}
+  ],
+  "cluster-7b-2-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.83 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.80 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.94 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.01 }}
+  ],
+  "cluster-7b-2-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.76 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.72 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.85 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.93 }}
+  ],
+  "cluster-7b-3-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.08 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.29 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.31 }}
+  ],
+  "cluster-7b-3-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.89 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.88 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.08 }}
+  ],
+  "cluster-7b-3-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.83 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.80 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.94 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.01 }}
+  ],
+  "cluster-7b-4-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.17 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.36 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.37 }}
+  ],
+  "cluster-7b-4-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.97 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.97 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.18 }}
+  ],
+  "cluster-7b-4-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.91 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.89 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.04 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }}
+  ],
+  "cluster-7b-5-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.27 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.48 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.47 }}
+  ],
+  "cluster-7b-5-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.11 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.13 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.32 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.33 }}
+  ],
+  "cluster-7b-5-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.02 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.20 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }}
+  ],
+  "cluster-7b-6-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.15 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.18 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.38 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.39 }}
+  ],
+  "cluster-7b-6-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.07 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.08 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.26 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.29 }}
+  ],
+  "cluster-7b-6-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.96 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.96 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.12 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.16 }}
+  ],
+  "cluster-7b-7-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.97 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.97 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.13 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.17 }}
+  ],
+  "cluster-7b-7-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.88 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.86 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.00 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.06 }}
+  ],
+  "cluster-7b-7-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.77 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.73 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.85 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.93 }}
+  ],
+
+  "cluster-8-1-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.04 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.05 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.25 }}
+  ],
+  "cluster-8-1-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.83 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.80 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.93 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.00 }}
+  ],
+  "cluster-8-1-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.75 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.71 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.83 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.92 }}
+  ],
+  "cluster-8-2-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.08 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.28 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.30 }}
+  ],
+  "cluster-8-2-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.82 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.79 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.92 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.99 }}
+  ],
+  "cluster-8-2-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.74 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.69 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.81 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.89 }}
+  ],
+  "cluster-8-3-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.07 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.09 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.27 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.29 }}
+  ],
+  "cluster-8-3-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.85 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.83 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.97 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }}
+  ],
+  "cluster-8-3-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.79 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.76 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.88 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.96 }}
+  ],
+  "cluster-8-4-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.12 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.30 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.32 }}
+  ],
+  "cluster-8-4-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.91 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.90 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.05 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }}
+  ],
+  "cluster-8-4-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.85 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.83 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.97 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }}
+  ],
+  "cluster-8-5-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.18 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.21 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.41 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.42 }}
+  ],
+  "cluster-8-5-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.02 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.20 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.23 }}
+  ],
+  "cluster-8-5-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.94 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.94 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.09 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.14 }}
+  ],
+  "cluster-8-6-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.22 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.26 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.47 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.47 }}
+  ],
+  "cluster-8-6-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.12 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.15 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.34 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.35 }}
+  ],
+  "cluster-8-6-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.04 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.22 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.25 }}
+  ],
+  "cluster-8-7-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.10 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.12 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.31 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.32 }}
+  ],
+  "cluster-8-7-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.01 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.01 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.18 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.22 }}
+  ],
+  "cluster-8-7-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.90 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.88 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.03 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 8.09 }}
+  ],
+  "cluster-8-8-bottom": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.79 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.75 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.88 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.96 }}
+  ],
+  "cluster-8-8-middle": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.70 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.65 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.76 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.85 }}
+  ],
+  "cluster-8-8-top": [
+    { "id": "M1", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.60 }},
+    { "id": "M2", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.52 }},
+    { "id": "M3", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.61 }},
+    { "id": "M4", "weight": 0.250, "value": { "type": "SINGLE", "m": 7.73 }}
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "Feature",
+  "id": 3242,
+  "geometry": {
+    "type": "MultiLineString",
+    "coordinates": [[
+      [-125.65200, 45.88020, 5.0],
+      [-125.72885, 46.30000, 5.0]
+    ],[
+      [-124.23930, 45.87060, 21.49000],
+      [-124.13677, 46.30000, 22.92826]
+    ]]
+  },
+  "properties": {
+    "name": "Cascadia 3-3 (middle)",
+    "state": "OR",
+    "states": ["OR", "WA"]
+  }
+}

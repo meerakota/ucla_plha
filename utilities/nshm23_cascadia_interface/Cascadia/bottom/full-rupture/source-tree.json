@@ -1,0 +1,10 @@
+[
+  {
+    "id": "cluster-in",
+    "weight": 0.1
+  },
+  {
+    "id": "cluster-out",
+    "weight": 0.9
+  }
+]

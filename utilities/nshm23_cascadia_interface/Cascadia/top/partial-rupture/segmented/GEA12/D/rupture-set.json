@@ -1,0 +1,8 @@
+{
+  "name": "Cascadia (segmented, GEA12, D, top)",
+  "id": 100300,
+  "sections": [
+    3260, 3261, 3262, 3263, 3264, 3265, 3266
+  ],
+  "mfd-tree": "segmented-GEA12-D-top"
+}
