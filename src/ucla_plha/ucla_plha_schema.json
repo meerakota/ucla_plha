@@ -157,6 +157,18 @@
                                 "weight"
                             ],
                             "additionalProperties": false
+                        },
+                        "nshm23_cascadia_interface_cluster": {
+                            "type": "object",
+                            "properties": {
+                                "weight": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "weight"
+                            ],
+                            "additionalProperties": false
                         }
                     }
                 },

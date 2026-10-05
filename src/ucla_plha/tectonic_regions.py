@@ -102,7 +102,7 @@ def _first(d, *keys, default=None):
 def normalize_point_source(ps):
     """Normalize the point_source settings of a source_info.json.
 
-    Accepts the ucla_plha names (point_source_type, rupture_scaling, max_depth, max_width,
+    Accepts the ucla_plha names (point_source_type, rupture_scaling, max_depth, max_width or width_km,
     grid_depth_map, smoothing, distance_bin, depth) and the nshmp-lib config names
     (point-source-type, rupture-scaling, max-depth, max-width, grid-depth-map,
     smoothing-density, smoothing-limit, grid-spacing, opt-distance-bin).
@@ -114,7 +114,8 @@ def normalize_point_source(ps):
         rupture_scaling: lower-case nshmp-lib RuptureScaling name
         max_depth, max_width: finite rupture limits (km), one of them is None
         depth: where the depth to the top of rupture comes from: "rupture" (ruptures.npz
-            "depth"), "node" (node depth, depth.npy in the model directory), or "depth_map"
+            "depth"), "node" (node depth, depth.npy in the model directory), "depth_map", or
+            "auto" (the first of these that is available)
         grid_depth_map: list of {"m_min", "m_max", "depths", "weights"} or None
         smoothing: {"density", "limit", "grid_spacing"} or None
         distance_bin: distance bin width (km) of the nshmp-lib grid optimization, or None
@@ -133,7 +134,7 @@ def normalize_point_source(ps):
     out["type"] = (source_type or "finite").lower()
     out["rupture_scaling"] = _first(ps, "rupture_scaling", "rupture-scaling", default="none").lower()
     out["max_depth"] = _first(ps, "max_depth", "max-depth")
-    out["max_width"] = _first(ps, "max_width", "max-width")
+    out["max_width"] = _first(ps, "max_width", "max-width", "width_km")
 
     depth_map = _first(ps, "grid_depth_map", "grid-depth-map")
     if isinstance(depth_map, dict):
@@ -152,10 +153,12 @@ def normalize_point_source(ps):
         depth_map = entries
     out["grid_depth_map"] = depth_map
 
-    depth = _first(ps, "depth")
-    if depth is None:
-        depth = "depth_map" if depth_map else "rupture"
-    out["depth"] = depth.lower()
+    # "rupture", "node", "depth_map", or "auto" (ruptures.npz "depth" if present, else
+    # depth.npy, else the depth map); descriptive text is treated as "auto"
+    depth = str(_first(ps, "depth", default="auto")).lower()
+    if depth not in ("rupture", "node", "depth_map"):
+        depth = "auto"
+    out["depth"] = depth
 
     smoothing = _first(ps, "smoothing")
     density = _first(ps, "smoothing_density", "smoothing-density")
@@ -279,7 +282,7 @@ def build_region_tree(region, entries, notes):
         try:
             spec = pygmm_gmms.resolve(key, entry.get("options"), entry.get("scenario"))
         except pygmm_gmms.UnavailableGmmError as e:
-            dropped.append((key, entry, str(e)))
+            dropped.append((key, entry, e.args[0]))
             continue
         if spec.note:
             notes.append(f"{region}: {spec.note}")

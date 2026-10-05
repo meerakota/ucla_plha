@@ -151,13 +151,23 @@ def test_every_source_model_is_registered(synthetic, tmp_path, source_type):
     # Each source model directory must be accepted by the config schema and have its weight
     # normalized in get_hazard. An unregistered model would be rejected by the schema, or its
     # weight would be applied without normalization.
+    # Each source model uses the ground motion models of its tectonic region (source_info.json),
+    # so bssa14 is given for the region of the model. Cluster models do not have independent
+    # ruptures and are tested in test_tectonic_regions.py.
     models = sorted(
         p.name for p in (SOURCE_MODELS / source_type).iterdir() if p.is_dir()
     )
     assert models
     for model in models:
+        info = plha.get_source_info(source_type, model)
+        if info["cluster"]:
+            continue
         key = "fault_models" if source_type == "fault_source_models" else "point_models"
-        out = _hazard(tmp_path, _config(**{key: {model: 4.0}}))
+        config = _config(**{key: {model: 4.0}})
+        config["ground_motion_models"] = {
+            info["tectonic_region"]: config["ground_motion_models"]
+        }
+        out = _hazard(tmp_path, config)
         assert out is not None, f"{model} rejected by config schema"
         np.testing.assert_allclose(
             out["psha"]["annual_rate_of_exceedance"],

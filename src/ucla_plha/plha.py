@@ -143,9 +143,7 @@ def get_source_data(
         return None
     path = _source_model_path(source_type, source_model)
     if source_info is None:
-        source_info = tectonic_regions.read_source_info(
-            str(path), source_type, source_model
-        )
+        source_info = get_source_info(source_type, source_model)
     needs = _distance_needs(gmms)
     need_rjb = "rjb" in needs
     need_rrup = bool(needs & {"rrup", "rx", "ry0"})
@@ -316,8 +314,8 @@ def _cluster_extras(path, ruptures, index, source_info):
     """Cluster data of the ruptures of a cluster fault source model (see get_source_data).
 
     ruptures.npz has "cluster_id" (cluster of each rupture; -1 for independent ruptures) and
-    "cluster_fault_id" (fault, i.e. nshmp-lib rupture set, of each rupture within its
-    cluster). clusters.npz has "cluster_id", "rate" (annual rate of the cluster), and "weight"
+    "cluster_section" or "cluster_fault_id" (fault section, i.e. nshmp-lib rupture set, of
+    each rupture within its cluster). clusters.npz has "cluster_id", "rate" (annual rate of the cluster), and "weight"
     (source logic tree weight of the cluster). With source_info "cluster_rupture_rate" =
     "conditional" (default), the "rate" of a cluster rupture is its weight within its fault
     (nshmp-lib stores the magnitude-variant weight in the rate field); with "absolute" it is
@@ -327,8 +325,9 @@ def _cluster_extras(path, ruptures, index, source_info):
     if "cluster_id" not in keys:
         raise ValueError(f"cluster source model {path} has no cluster_id in ruptures.npz")
     cluster_id = np.asarray(ruptures["cluster_id"])[index].astype(np.int64)
-    if "cluster_fault_id" in keys:
-        cluster_fault_id = np.asarray(ruptures["cluster_fault_id"])[index].astype(np.int64)
+    fault_key = next((k for k in ("cluster_fault_id", "cluster_section") if k in keys), None)
+    if fault_key is not None:
+        cluster_fault_id = np.asarray(ruptures[fault_key])[index].astype(np.int64)
     else:
         # every rupture is its own fault
         cluster_fault_id = index.astype(np.int64)
@@ -387,13 +386,23 @@ def _nshmp_point_source_data(path, p_xyz, dist_cutoff, m_min, ps):
 
     # Depth to top of rupture
     index = np.arange(len(m))
-    if ps["depth"] == "rupture":
+    depth_source = ps["depth"]
+    if depth_source == "auto":
+        if "depth" in ruptures.files:
+            depth_source = "rupture"
+        elif os.path.exists(str(path.joinpath("depth.npy"))):
+            depth_source = "node"
+        elif ps.get("grid_depth_map"):
+            depth_source = "depth_map"
+        else:
+            raise ValueError(f"{path}: no rupture depths (ruptures.npz depth, depth.npy, or grid_depth_map)")
+    if depth_source == "rupture":
         if "depth" not in ruptures.files:
             raise ValueError(f"{path}: ruptures.npz has no depth")
         ztor = np.asarray(ruptures["depth"], dtype=float)
-    elif ps["depth"] == "node":
+    elif depth_source == "node":
         ztor = np.load(str(path.joinpath("depth.npy")))[pos].astype(float)
-    elif ps["depth"] == "depth_map":
+    elif depth_source == "depth_map":
         index, ztor, depth_weight = point_source.expand_depths(m, ps["grid_depth_map"])
         rate = rate[index] * depth_weight
         m, style, pos = m[index], style[index], pos[index]
