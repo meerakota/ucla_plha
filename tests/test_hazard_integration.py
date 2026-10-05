@@ -33,7 +33,7 @@ GMM_DIR = Path(str(files("ucla_plha").joinpath("ground_motion_models")))
 SIGMA = 0.6
 
 
-def _fake_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms):
+def _fake_source_data(source_type, source_model, p_xyz, dist_cutoff, m_min, gmms, **kwargs):
     one = lambda v: np.array([v], dtype=float)
     return (
         one(RUPTURE["m"]),

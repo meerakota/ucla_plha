@@ -217,8 +217,12 @@ USGS NSHM 2023 logic trees. With a pygmm older than 1b30f5b, AM_09 and ZHAO_06 a
 removed and the remaining weights renormalized, with a warning. The flat format above is the active crust
 format and works as before. A source model entry can also have its own
 ``"ground_motion_models"`` and ``"dist_cutoff"``. ``"constraints"`` accepts
-``"dist_cutoff"`` as a number or ``{region: number}``, and ``"truncation_level"``
-(upper truncation in standard deviations; the NSHM uses 3). The site accepts ``"zsed"``
+``"dist_cutoff"`` as a number or ``{region: number}``, ``"truncation_level"``
+(upper truncation in standard deviations; the NSHM uses 3), and ``"rupture_rx"``:
+``"closest_section"`` (default) takes Rx and Rx1 of a fault rupture with several fault
+segments from the segment with the smallest Rrup, as nshmp-lib does, and ``"minimum"`` takes
+the minimum over the segments (earlier versions; because Rx is signed, this is the most
+footwall-side segment of the rupture). The site accepts ``"zsed"``
 (coastal plain sediment thickness, km) for NGA-East. ``"output": {"psha":
 {"source_model_hazard": true}}`` adds the hazard curve of each source model.
 

@@ -76,6 +76,11 @@
                 "truncation_level": {
                     "type": "number",
                     "description": "Upper truncation of the ground motion distribution in standard deviations (nshmp-lib TRUNCATION_UPPER_ONLY; the USGS NSHM uses 3). Omit for no truncation."
+                },
+                "rupture_rx": {
+                    "type": "string",
+                    "enum": ["closest_section", "minimum"],
+                    "description": "Rx and Rx1 of fault source ruptures with several fault segments: those of the segment closest to the site (smallest Rrup), as in nshmp-lib (default), or the minimum over the segments (ucla_plha 1.x)."
                 }
             },
             "additionalProperties": false

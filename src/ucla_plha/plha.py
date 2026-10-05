@@ -83,6 +83,18 @@ def _filter_mask(n, distance, m, dist_cutoff, m_min):
     return np.full(n, True)
 
 
+def _closest_segment(rrup_seg, rrup, segment_index, boundaries):
+    """Segment of each rupture with the smallest rrup (the lowest segment index if tied).
+
+    rrup_seg: rrup of each (rupture, segment) entry; rrup: minimum rrup of each rupture;
+    segment_index: segment of each entry; boundaries: first entry of each rupture.
+    """
+    counts = np.diff(np.r_[boundaries, len(rrup_seg)])
+    is_min = rrup_seg == np.repeat(rrup, counts)
+    big = np.iinfo(segment_index.dtype).max
+    return np.minimum.reduceat(np.where(is_min, segment_index, big), boundaries)
+
+
 def get_source_data(
     source_type,
     source_model,
@@ -92,6 +104,7 @@ def get_source_data(
     gmms,
     extras=False,
     source_info=None,
+    rupture_rx="closest_section",
 ):
     """Returns magnitude, fault type, rate, distance, and fault geometry terms.
 
@@ -110,6 +123,13 @@ def get_source_data(
             cutoff is applied to rjb (if any model uses rjb) or rrup.
         extras (bool): if True, also return a dict of additional rupture data (see Returns)
         source_info (dict): source_info of the source model (read from source_info.json if None)
+        rupture_rx (str): how rx and rx1 of a rupture with several fault segments are found.
+            "closest_section" (default): rx and rx1 of the segment with the smallest rrup (ties go
+            to the lowest segment index), as nshmp-lib does for fault system ruptures
+            (SystemRuptureSet.InputGenerator). "minimum": the minimum rx and rx1 over the
+            segments of the rupture (ucla_plha 1.x and earlier); because rx is signed, this is
+            the most footwall-side segment of the rupture, which may be far from the site.
+            rjb, rrup, and ry0 are always the minima over the segments.
 
     Returns: A tuple containing the following arrays
         m (array, dtype=float): Numpy array of magnitudes, length = N
@@ -192,9 +212,19 @@ def get_source_data(
         split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
         boundaries = np.r_[0, split_indices]
         if need_rrup:
-            rrup = np.minimum.reduceat(rrup_all[segment_index], boundaries)
-            rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
-            rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
+            rrup_seg = rrup_all[segment_index]
+            rrup = np.minimum.reduceat(rrup_seg, boundaries)
+            if rupture_rx == "closest_section":
+                closest = _closest_segment(rrup_seg, rrup, segment_index, boundaries)
+                rx = rx_all[closest]
+                rx1 = rx1_all[closest]
+            elif rupture_rx == "minimum":
+                rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
+                rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
+            else:
+                raise ValueError(
+                    f'rupture_rx must be "closest_section" or "minimum", not "{rupture_rx}"'
+                )
             ry0 = np.minimum.reduceat(ry0_all[segment_index], boundaries)
         else:
             rrup = empty_array
@@ -965,6 +995,7 @@ def get_hazard(config_file):
     dist_cutoff = config.get("constraints", {}).get("dist_cutoff", None)
     m_min = config.get("constraints", {}).get("m_min", None)
     truncation_level = config.get("constraints", {}).get("truncation_level", None)
+    rupture_rx = config.get("constraints", {}).get("rupture_rx", "closest_section")
 
     # Read output properties
     if "psha" in config["output"].keys():
@@ -1086,11 +1117,18 @@ def get_hazard(config_file):
                     gmms,
                     extras=True,
                     source_info=info,
+                    rupture_rx=rupture_rx,
                 )
                 in_cluster = extras["cluster_id"] >= 0
             else:
                 data = get_source_data(
-                    source_model, fault_source_model, p_xyz, region_cutoff, m_min, gmms
+                    source_model,
+                    fault_source_model,
+                    p_xyz,
+                    region_cutoff,
+                    m_min,
+                    gmms,
+                    rupture_rx=rupture_rx,
                 )
             m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = data
             # distance used for disaggregation: rjb, or rrup if no model uses rjb
