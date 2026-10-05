@@ -1,0 +1,534 @@
+{
+  "name": "nshm23_ceus_grid",
+  "tectonic_region": "stable_crust",
+  "nshm_component": "Grid",
+  "source": "nshm-conus 6.2.0 stable-crust/grid/ceus-stable (usgs and sscn Mmax-zone branches), grid-data/pdf-{gk,nn,r85}-{adaptive,fixed}.csv, features/ (Mmax zone polygons), ceus-stable/mfd-map.json, grid-config.json",
+  "nshm_release": "6.2.0",
+  "nshmp_lib_commit": "44728a7d",
+  "cluster": false,
+  "gmm_tree": "stable-crust/gmm-tree.json: NGA_EAST_2026 0.3333, NGA_EAST_2026_ADJUSTED 0.3333, NGA_EAST_SEEDS_2026 0.1667, NGA_EAST_SEEDS_2026_ADJUSTED 0.1667; stable-crust/gmm-config.json max-distance 1000 km",
+  "point_source": {
+    "point_source_type": "FINITE (GridSourceFinite)",
+    "rupture_scaling": "NSHM_SOMERVILLE",
+    "rupture_dimensions": "NSHM_SOMERVILLE: A = 10^(M - 4.366) km^2; W = sqrt(A) if sqrt(A) < maxWidth else maxWidth, with maxWidth = (22 - zTor) / sin(dip) = 17 km",
+    "focal_mech_tree": [
+      {
+        "id": "STRIKE_SLIP",
+        "weight": 1.0
+      }
+    ],
+    "style": "all ruptures are strike-slip (style 3), dip 90, rake 0",
+    "depth": {
+      "depth_map": {
+        "all": {
+          "mMin": 4.5,
+          "mMax": 10.0,
+          "ztor_km_and_weight": [
+            [
+              5.0,
+              1.0
+            ]
+          ]
+        }
+      },
+      "max_depth_km": 22.0,
+      "depth_array": "none: every rupture has zTor = 5 km (grid-depth-map \"all\": M 4.5-10, depth-tree 5 km, weight 1.0), so no depth array is stored"
+    },
+    "magnitudes": "GR bin centers 4.75, 4.85, ..., 7.95 (mMin 4.7, dm 0.1, branch mMax 6.5-8.0; bins above a branch mMax have zero rate in that branch)",
+    "r_epi": "r_epi is the horizontal node-to-site distance from Locations.horzDistanceFast: R * sqrt(dlat^2 + (dlon * cos(mean lat))^2), R = 6371.0072 km, angles in radians. (ucla_plha points.npy are at the surface, so the chord distance used by plha.get_source_data differs from this by < 0.1% within 300 km.)",
+    "rjb": "rJB = rjb_correction.npz[\"rjb\"][i_m, i_r] if M >= 6.0, else rJB = r_epi, with i_m = min(round((M - 6.05) / 0.1), 25) and i_r = min(floor(r_epi), 1000) (no interpolation; RuptureScaling.correctedRjb). The table is nshmp-lib resources/fault/surface/rjb_somerville.dat: the mean rJB of a finite rupture of random strike centered on the node.",
+    "rrup_rx_zhyp": "GridSourceFinite, strike-slip (dip 90, rake 0): rRup = hypot(rJB, zTor), rX = -rJB (footwall), zTor = 5 km, down-dip width W = RuptureScaling.NSHM_SOMERVILLE.dimensions(M, (22 - zTor) / sin(dip)).width, zBot = zTor + W, zHyp = zTor + W / 2 (Faults.hypocentralDepth).",
+    "optimization": "nshmp-lib defaults (calc-config optimizeGrids = true, smoothGrids = true) replace the nodes, for each site, by a table of rates in 5 km distance bins (opt-distance-bin 5.0 km; rows are bin centers 2.5, 7.5, ... km out to 1000 km; r_epi from horzDistanceFast). Nodes closer than smoothing-limit 40.0 km are first split into 4 x 4 sub-points at lat/lon offsets of -0.0375, -0.0125, 0.0125, 0.0375 degrees (smoothing-density 4, grid spacing 0.1) with 1/16 of the rate each. Each table row becomes a GridSourceFinite at the bin-center distance. ucla_plha can use the nodes directly (exact) or emulate the table."
+  },
+  "files": {
+    "ruptures.npz": "node_index (int32), m (float64), style (int32, 3 = strike slip), rate (float32, annual, mean over the logic tree; max relative rounding error 6.0e-08)",
+    "points.npy": "node xyz (geometry.point_to_xyz convention) at the surface",
+    "node_index.npy": "0..N-1",
+    "rjb_correction.npz": "RuptureScaling RJB_SOMERVILLE table (m 6.05..8.55, r 0..1000 km, rjb)",
+    "rupture_sets.json": "per source-tree leaf rupture set: Mmax zone, mfd tree, spatial pdf, leaf weight, node count, weighted rates"
+  },
+  "logic_tree": "ceus-stable: usgs 0.5 / sscn 0.5 (Mmax zone polygons and Mmax trees) x declustering gk 0.4, nn 0.4, r85 0.2 x smoothing fixed 0.6 / adaptive 0.4; each leaf is a group of rupture sets (one per Mmax zone polygon, weight 1.0) sharing the leaf spatial pdf. Each Mmax zone has a 12-branch GR mfd-tree (4 mMax x 3 (a, b) pairs; a-values are total-catalog rates for pdf = 1). nshmp-lib GridLoader node MFD: rate(M) = pdf_node x sum_b w_b 10^(a_b - b_b M) [M <= mMax_b]. Mean rate(node, M) = sum over leaves of leaf_weight x that. A node is in a polygon per java.awt.geom.Area.contains (reproduced exactly; every pdf node is in exactly one polygon of each group).",
+  "notes": "Total annual rate M >= 4.7: 8.992453e-01. Bins with a mean rate below 1e-12/yr are dropped: 3.58e-08/yr in total (4.0e-08 of the model total; low-seismicity offshore and border nodes), leaving 127580 of 132440 pdf nodes. Validated against the USGS NSHM rate web service (https://earthquake.usgs.gov/ws/nshmp/conus-2023/dynamic/rate/lon/lat/r) Grid component at Charleston, the AR zones, Wabash Valley, Charlevoix, Central Virginia, Kansas, Memphis, West Texas, Montana, and within 1000 km of Ohio: total and per-0.1-magnitude-bin rates agree to < 1e-5 (adding nshm23_ceus_grid_system and nshm23_wus_grid where the service Grid component includes them).",
+  "rupture_sets": [
+    {
+      "name": "USGS Craton [1,3,4] (gk, fixed)",
+      "id": 80201,
+      "feature_name": "USGS Craton [1,3,4]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "USGS Extended Margin [2] (gk, fixed)",
+      "id": 80211,
+      "feature_name": "USGS Extended Margin [2]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "USGS default (gk, fixed)",
+      "id": 80221,
+      "feature_name": "USGS default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "USGS Craton [1,3,4] (gk, adaptive)",
+      "id": 80301,
+      "feature_name": "USGS Craton [1,3,4]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "USGS Extended Margin [2] (gk, adaptive)",
+      "id": 80311,
+      "feature_name": "USGS Extended Margin [2]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "USGS default (gk, adaptive)",
+      "id": 80321,
+      "feature_name": "USGS default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "USGS Craton [1,3,4] (nn, fixed)",
+      "id": 80202,
+      "feature_name": "USGS Craton [1,3,4]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "USGS Extended Margin [2] (nn, fixed)",
+      "id": 80212,
+      "feature_name": "USGS Extended Margin [2]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "USGS default (nn, fixed)",
+      "id": 80222,
+      "feature_name": "USGS default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "USGS Craton [1,3,4] (nn, adaptive)",
+      "id": 80302,
+      "feature_name": "USGS Craton [1,3,4]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "USGS Extended Margin [2] (nn, adaptive)",
+      "id": 80312,
+      "feature_name": "USGS Extended Margin [2]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "USGS default (nn, adaptive)",
+      "id": 80322,
+      "feature_name": "USGS default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "USGS Craton [1,3,4] (r85, fixed)",
+      "id": 80203,
+      "feature_name": "USGS Craton [1,3,4]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "USGS Extended Margin [2] (r85, fixed)",
+      "id": 80213,
+      "feature_name": "USGS Extended Margin [2]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "USGS default (r85, fixed)",
+      "id": 80223,
+      "feature_name": "USGS default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "USGS Craton [1,3,4] (r85, adaptive)",
+      "id": 80303,
+      "feature_name": "USGS Craton [1,3,4]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "USGS Extended Margin [2] (r85, adaptive)",
+      "id": 80313,
+      "feature_name": "USGS Extended Margin [2]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "USGS default (r85, adaptive)",
+      "id": 80323,
+      "feature_name": "USGS default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "SSCn Craton [1,9,10] (gk, fixed)",
+      "id": 80231,
+      "feature_name": "SSCn Craton [1,9,10]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Gulf Coast [2,3] (gk, fixed)",
+      "id": 80241,
+      "feature_name": "SSCn Gulf Coast [2,3]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Mesozoic [4,5] (gk, fixed)",
+      "id": 80251,
+      "feature_name": "SSCn Mesozoic [4,5]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Mesozoic [6] (gk, fixed)",
+      "id": 80261,
+      "feature_name": "SSCn Mesozoic [6]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Paleozoic [7] (gk, fixed)",
+      "id": 80271,
+      "feature_name": "SSCn Paleozoic [7]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Paleozoic [8] (gk, fixed)",
+      "id": 80281,
+      "feature_name": "SSCn Paleozoic [8]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn default (gk, fixed)",
+      "id": 80291,
+      "feature_name": "SSCn default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Craton [1,9,10] (gk, adaptive)",
+      "id": 80331,
+      "feature_name": "SSCn Craton [1,9,10]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Gulf Coast [2,3] (gk, adaptive)",
+      "id": 80341,
+      "feature_name": "SSCn Gulf Coast [2,3]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Mesozoic [4,5] (gk, adaptive)",
+      "id": 80351,
+      "feature_name": "SSCn Mesozoic [4,5]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Mesozoic [6] (gk, adaptive)",
+      "id": 80361,
+      "feature_name": "SSCn Mesozoic [6]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Paleozoic [7] (gk, adaptive)",
+      "id": 80371,
+      "feature_name": "SSCn Paleozoic [7]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Paleozoic [8] (gk, adaptive)",
+      "id": 80381,
+      "feature_name": "SSCn Paleozoic [8]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn default (gk, adaptive)",
+      "id": 80391,
+      "feature_name": "SSCn default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-gk-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Craton [1,9,10] (nn, fixed)",
+      "id": 80232,
+      "feature_name": "SSCn Craton [1,9,10]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Gulf Coast [2,3] (nn, fixed)",
+      "id": 80242,
+      "feature_name": "SSCn Gulf Coast [2,3]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Mesozoic [4,5] (nn, fixed)",
+      "id": 80252,
+      "feature_name": "SSCn Mesozoic [4,5]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Mesozoic [6] (nn, fixed)",
+      "id": 80262,
+      "feature_name": "SSCn Mesozoic [6]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Paleozoic [7] (nn, fixed)",
+      "id": 80272,
+      "feature_name": "SSCn Paleozoic [7]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Paleozoic [8] (nn, fixed)",
+      "id": 80282,
+      "feature_name": "SSCn Paleozoic [8]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn default (nn, fixed)",
+      "id": 80292,
+      "feature_name": "SSCn default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-fixed.csv",
+      "leaf_weight": 0.12
+    },
+    {
+      "name": "SSCn Craton [1,9,10] (nn, adaptive)",
+      "id": 80332,
+      "feature_name": "SSCn Craton [1,9,10]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Gulf Coast [2,3] (nn, adaptive)",
+      "id": 80342,
+      "feature_name": "SSCn Gulf Coast [2,3]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Mesozoic [4,5] (nn, adaptive)",
+      "id": 80352,
+      "feature_name": "SSCn Mesozoic [4,5]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Mesozoic [6] (nn, adaptive)",
+      "id": 80362,
+      "feature_name": "SSCn Mesozoic [6]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Paleozoic [7] (nn, adaptive)",
+      "id": 80372,
+      "feature_name": "SSCn Paleozoic [7]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Paleozoic [8] (nn, adaptive)",
+      "id": 80382,
+      "feature_name": "SSCn Paleozoic [8]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn default (nn, adaptive)",
+      "id": 80392,
+      "feature_name": "SSCn default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-nn-adaptive.csv",
+      "leaf_weight": 0.08
+    },
+    {
+      "name": "SSCn Craton [1,9,10] (r85, fixed)",
+      "id": 80233,
+      "feature_name": "SSCn Craton [1,9,10]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "SSCn Gulf Coast [2,3] (r85, fixed)",
+      "id": 80243,
+      "feature_name": "SSCn Gulf Coast [2,3]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "SSCn Mesozoic [4,5] (r85, fixed)",
+      "id": 80253,
+      "feature_name": "SSCn Mesozoic [4,5]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "SSCn Mesozoic [6] (r85, fixed)",
+      "id": 80263,
+      "feature_name": "SSCn Mesozoic [6]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "SSCn Paleozoic [7] (r85, fixed)",
+      "id": 80273,
+      "feature_name": "SSCn Paleozoic [7]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "SSCn Paleozoic [8] (r85, fixed)",
+      "id": 80283,
+      "feature_name": "SSCn Paleozoic [8]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "SSCn default (r85, fixed)",
+      "id": 80293,
+      "feature_name": "SSCn default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-fixed.csv",
+      "leaf_weight": 0.06
+    },
+    {
+      "name": "SSCn Craton [1,9,10] (r85, adaptive)",
+      "id": 80333,
+      "feature_name": "SSCn Craton [1,9,10]",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "SSCn Gulf Coast [2,3] (r85, adaptive)",
+      "id": 80343,
+      "feature_name": "SSCn Gulf Coast [2,3]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "SSCn Mesozoic [4,5] (r85, adaptive)",
+      "id": 80353,
+      "feature_name": "SSCn Mesozoic [4,5]",
+      "mfd_tree": "grid-mmax-margin-1",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "SSCn Mesozoic [6] (r85, adaptive)",
+      "id": 80363,
+      "feature_name": "SSCn Mesozoic [6]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "SSCn Paleozoic [7] (r85, adaptive)",
+      "id": 80373,
+      "feature_name": "SSCn Paleozoic [7]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "SSCn Paleozoic [8] (r85, adaptive)",
+      "id": 80383,
+      "feature_name": "SSCn Paleozoic [8]",
+      "mfd_tree": "grid-mmax-margin-2",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    },
+    {
+      "name": "SSCn default (r85, adaptive)",
+      "id": 80393,
+      "feature_name": "SSCn default",
+      "mfd_tree": "grid-mmax-craton",
+      "spatial_pdf": "pdf-r85-adaptive.csv",
+      "leaf_weight": 0.04
+    }
+  ]
+}

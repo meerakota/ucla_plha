@@ -1,0 +1,368 @@
+[
+ {
+  "name": "Crowley's Ridge (south)",
+  "id": 3520,
+  "path": "AR/Crowleys Ridge (south)/active/crowleys_ridge_south.geojson",
+  "leaf_weight": 0.5,
+  "strike": 5.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 10,
+  "sum_node_rates": 8.879999999999999e-05,
+  "mfd_tree": [
+   [
+    "M1",
+    6.6,
+    0.25
+   ],
+   [
+    "M2",
+    6.85,
+    0.25
+   ],
+   [
+    "M3",
+    7.1,
+    0.25
+   ],
+   [
+    "M4",
+    7.35,
+    0.25
+   ]
+  ],
+  "weighted_total_rate": 4.440000000000003e-05
+ },
+ {
+  "name": "Crowley's Ridge (west)",
+  "id": 3530,
+  "path": "AR/Crowleys Ridge (west)/active/crowleys_ridge_west.geojson",
+  "leaf_weight": 0.5,
+  "strike": 25.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 12,
+  "sum_node_rates": 0.00010800000000000001,
+  "mfd_tree": [
+   [
+    "M1",
+    6.65,
+    0.33
+   ],
+   [
+    "M2",
+    6.9,
+    0.34
+   ],
+   [
+    "M3",
+    7.15,
+    0.33
+   ]
+  ],
+  "weighted_total_rate": 5.400000000000001e-05
+ },
+ {
+  "name": "Joiner Ridge",
+  "id": 3540,
+  "path": "AR/Joiner Ridge/active/joiner_ridge.geojson",
+  "leaf_weight": 0.5,
+  "strike": 350.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 5,
+  "sum_node_rates": 0.00044199999999999996,
+  "mfd_tree": [
+   [
+    "M1",
+    6.45,
+    0.33
+   ],
+   [
+    "M2",
+    6.7,
+    0.34
+   ],
+   [
+    "M3",
+    6.95,
+    0.33
+   ]
+  ],
+  "weighted_total_rate": 0.00022099999999999998
+ },
+ {
+  "name": "Marianna",
+  "id": 3510,
+  "path": "AR/Marianna/active/marianna.geojson",
+  "leaf_weight": 0.5,
+  "strike": 48.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 19,
+  "sum_node_rates": 0.00035330077200000003,
+  "mfd_tree": [
+   [
+    "M1",
+    6.7,
+    0.15
+   ],
+   [
+    "M2",
+    6.9,
+    0.2
+   ],
+   [
+    "M3",
+    7.1,
+    0.2
+   ],
+   [
+    "M4",
+    7.3,
+    0.2
+   ],
+   [
+    "M5",
+    7.5,
+    0.2
+   ],
+   [
+    "M6",
+    7.7,
+    0.05
+   ]
+  ],
+  "weighted_total_rate": 0.00017665038600000018
+ },
+ {
+  "name": "Saline River",
+  "id": 3550,
+  "path": "AR/Saline River/active/saline_river.geojson",
+  "leaf_weight": 0.5,
+  "strike": 290.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 39,
+  "sum_node_rates": 0.0011465999999999998,
+  "mfd_tree": [
+   [
+    "M1",
+    6.5,
+    1.0
+   ]
+  ],
+  "weighted_total_rate": 0.0005732999999999996
+ },
+ {
+  "name": "Wabash Valley",
+  "id": 3560,
+  "path": "IL/Wabash Valley/wabash.geojson",
+  "leaf_weight": 1.0,
+  "strike": 27.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 164,
+  "sum_node_rates": 0.00016883200600000003,
+  "mfd_tree": [
+   [
+    "M1",
+    6.75,
+    0.05
+   ],
+   [
+    "M2",
+    7.0,
+    0.25
+   ],
+   [
+    "M3",
+    7.25,
+    0.35
+   ],
+   [
+    "M4",
+    7.5,
+    0.35
+   ]
+  ],
+  "weighted_total_rate": 0.0001688320059999998
+ },
+ {
+  "name": "Charlevoix",
+  "id": 3500,
+  "path": "ME/Charlevoix/charlevoix.geojson",
+  "leaf_weight": 1.0,
+  "strike": null,
+  "point_source_type": "FINITE",
+  "n_nodes": 67,
+  "sum_node_rates": 0.001372000004,
+  "mfd_tree": [
+   [
+    "M1",
+    6.75,
+    0.2
+   ],
+   [
+    "M2",
+    7.0,
+    0.5
+   ],
+   [
+    "M3",
+    7.25,
+    0.2
+   ],
+   [
+    "M4",
+    7.5,
+    0.1
+   ]
+  ],
+  "weighted_total_rate": 0.0013720000039999943
+ },
+ {
+  "name": "Charleston (regional)",
+  "id": 3712,
+  "path": "SC/Charleston/regional/regional.geojson",
+  "leaf_weight": 0.2,
+  "strike": 50.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 385,
+  "sum_node_rates": 0.0018903612026,
+  "mfd_tree": [
+   [
+    "M1",
+    6.7,
+    0.1
+   ],
+   [
+    "M2",
+    6.9,
+    0.25
+   ],
+   [
+    "M3",
+    7.1,
+    0.3
+   ],
+   [
+    "M4",
+    7.3,
+    0.25
+   ],
+   [
+    "M5",
+    7.5,
+    0.1
+   ]
+  ],
+  "weighted_total_rate": 0.0003780722405200002
+ },
+ {
+  "name": "Charleston (local)",
+  "id": 3710,
+  "path": "SC/Charleston/local/local.geojson",
+  "leaf_weight": 0.5,
+  "strike": 50.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 48,
+  "sum_node_rates": 0.0018903592480000002,
+  "mfd_tree": [
+   [
+    "M1",
+    6.7,
+    0.1
+   ],
+   [
+    "M2",
+    6.9,
+    0.25
+   ],
+   [
+    "M3",
+    7.1,
+    0.3
+   ],
+   [
+    "M4",
+    7.3,
+    0.25
+   ],
+   [
+    "M5",
+    7.5,
+    0.1
+   ]
+  ],
+  "weighted_total_rate": 0.0009451796239999988
+ },
+ {
+  "name": "Charleston (narrow)",
+  "id": 3711,
+  "path": "SC/Charleston/narrow/narrow.geojson",
+  "leaf_weight": 0.3,
+  "strike": 17.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 17,
+  "sum_node_rates": 0.0018903589400000001,
+  "mfd_tree": [
+   [
+    "M1",
+    6.7,
+    0.1
+   ],
+   [
+    "M2",
+    6.9,
+    0.25
+   ],
+   [
+    "M3",
+    7.1,
+    0.3
+   ],
+   [
+    "M4",
+    7.3,
+    0.25
+   ],
+   [
+    "M5",
+    7.5,
+    0.1
+   ]
+  ],
+  "weighted_total_rate": 0.0005671076820000002
+ },
+ {
+  "name": "Central Virginia (regional)",
+  "id": 3572,
+  "path": "VA/Central Virginia/active/regional/regional.geojson",
+  "leaf_weight": 0.25,
+  "strike": 42.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 57,
+  "sum_node_rates": 0.0008835,
+  "mfd_tree": [
+   [
+    "M1",
+    6.5,
+    1.0
+   ]
+  ],
+  "weighted_total_rate": 0.000220875
+ },
+ {
+  "name": "Central Virginia (local)",
+  "id": 3571,
+  "path": "VA/Central Virginia/active/local/local.geojson",
+  "leaf_weight": 0.25,
+  "strike": 42.0,
+  "point_source_type": "FIXED_STRIKE",
+  "n_nodes": 4,
+  "sum_node_rates": 0.000884,
+  "mfd_tree": [
+   [
+    "M1",
+    6.5,
+    1.0
+   ]
+  ],
+  "weighted_total_rate": 0.000221
+ }
+]
