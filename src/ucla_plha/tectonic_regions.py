@@ -263,14 +263,19 @@ def weight_group(info, source_type):
 
     Source models in the same group are alternative logic tree branches (their weights are
     normalized to sum to one, and their weighted hazards are summed); hazards of different
-    groups are summed. The default group is the source type, tectonic region, and NSHM
-    component, which reproduces the earlier normalization of all fault source models (all
+    groups are summed. The default group of active crust models is the source type, tectonic
+    region, and NSHM component, which reproduces the earlier normalization of all fault source models (all
     active crust FaultSystem models) and all point source models (all active crust Grid
-    models). source_info.json can set "logic_tree_group" explicitly.
+    models). Models of the other tectonic regions are each their own group (they are additive
+    parts of the NSHM). source_info.json can set "logic_tree_group" explicitly.
     """
     group = info.get("logic_tree_group")
     if group:
         return (source_type, str(group).lower())
+    if info["tectonic_region"] != "active_crust":
+        # The subduction and stable crust NSHM models are additive (e.g. nshm23_ceus_grid and
+        # nshm23_ceus_grid_system are both Grid sources), so each is its own group
+        return (source_type, "model", info["name"])
     return (source_type, info["tectonic_region"], str(info["nshm_component"]).lower())
 
 

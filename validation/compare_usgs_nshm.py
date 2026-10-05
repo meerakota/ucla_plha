@@ -89,6 +89,10 @@ def fetch_service(lon, lat, vs30, cache):
         data = json.loads(text)
         if data.get("status") != "success":
             raise RuntimeError(f"USGS service error for {url}: {text[:500]}")
+        # keep only the PGA curves (the comparison uses PGA)
+        data["response"]["hazardCurves"] = [
+            c for c in data["response"]["hazardCurves"] if c["imt"]["value"] == "PGA"
+        ]
         with open(filename, "w") as f:
             json.dump(data, f)
     with open(filename) as f:

@@ -173,8 +173,9 @@ Weights will be normalized within ``"fault_source_models"`` and within
 ``"ground_motion_models"`` keys
 --------------------------------
 
-The second nesting level defines the ground motion model and must be one or more of
-``"ask14"``, ``"bssa14"``, ``"cb14"``, ``"cy14"``. The third nesting level defines
+In the flat format, the second nesting level defines the active crust ground motion
+models, e.g. one or more of ``"ask14"``, ``"bssa14"``, ``"cb14"``, ``"cy14"``,
+``"idriss14"`` (see Tectonic regions below for the per-region format). The third nesting level defines
 the model parameters listed below. Weights within ``"ground_motion_models"`` will be
 normalized to sum to unity.
 
@@ -188,6 +189,38 @@ normalized to sum to unity.
    * - ``"weight"``
      - weight assigned to this ground motion model
      - required for all models
+
+
+Tectonic regions
+^^^^^^^^^^^^^^^^
+
+Each source model has a tectonic region (``source_info.json`` in its directory:
+``"active_crust"``, ``"stable_crust"``, ``"subduction_interface"``, or
+``"subduction_slab"``), and uses the ground motion models of its region. The
+per-region format is
+
+.. code-block:: json
+
+   "ground_motion_models": {
+       "active_crust": {"ask_14_basin": {"weight": 1}, "bssa14": {"weight": 1}},
+       "stable_crust": "default",
+       "subduction_interface": {"kbcg_20_cascadia_interface_basin": {"weight": 1}},
+       "subduction_slab": {"parkeretal2020": {"weight": 1, "options": {"basin": true},
+                                              "scenario": {"region": "cascadia"}}}
+   }
+
+Weights are normalized within each region. A model name is a ucla_plha model
+(``"ask14"``, ``"bssa14"``, ``"cb14"``, ``"cy14"``, ``"idriss14"``), an nshmp-lib Gmm id
+provided by pygmm (case insensitive), or a pygmm class name with optional ``"options"``
+and ``"scenario"``. Regions that are used but not given (or ``"default"``) use the
+USGS NSHM 2023 logic trees; AM_09 and ZHAO_06 (not in pygmm) are removed and the
+remaining weights renormalized, with a warning. The flat format above is the active crust
+format and works as before. A source model entry can also have its own
+``"ground_motion_models"`` and ``"dist_cutoff"``. ``"constraints"`` accepts
+``"dist_cutoff"`` as a number or ``{region: number}``, and ``"truncation_level"``
+(upper truncation in standard deviations; the NSHM uses 3). The site accepts ``"zsed"``
+(coastal plain sediment thickness, km) for NGA-East. ``"output": {"psha":
+{"source_model_hazard": true}}`` adds the hazard curve of each source model.
 
 
 ``"liquefaction_models"`` keys
