@@ -617,3 +617,19 @@ def test_coastal_plain_site_explicit_tree_and_no_site_data(package, monkeypatch)
     _hazard(package, config)
     assert {k for k, _ in calls} == {k.lower() for k in tectonic_regions.DEFAULT_GMM_TREES["stable_crust"]}
     assert all(z is None for _, z in calls)
+
+
+def test_nga_east_branches_from_pygmm():
+    # pygmm with the NGA-East logic tree (ln_branches): 17 median models x 2 standard
+    # deviation models, whose mixture collapses to the pygmm combined ground motion
+    spec = pygmm_gmms.resolve("nga_east_2026_cpa")
+    rup = {"m": np.array([7.5, 6.0]), "rrup": np.array([11.0, 90.0]), "rjb": np.array([10.0, 90.0])}
+    site = {"vs30": 760.0, "zsed": 0.9}
+    branches = pygmm_gmms.get_ground_motion_branches(spec, rup, site, "stable_crust")
+    if len(branches) == 1:
+        pytest.skip("the installed pygmm does not give the NGA-East branches")
+    assert len(branches) == 34
+    np.testing.assert_allclose(sum(w for w, _, _ in branches), 1.0)
+    mu, sigma = pygmm_gmms.get_ground_motion(spec, rup, site, "stable_crust")
+    np.testing.assert_allclose(np.log(sum(w * np.exp(m) for w, m, _ in branches)), mu)
+    np.testing.assert_allclose(np.sqrt(sum(w * s**2 for w, _, s in branches)), sigma)
