@@ -243,10 +243,19 @@ def test_rrup_only_models_get_rupture_distance(model):
     )
     np.testing.assert_array_equal(out_idriss[4], out_all[4])
     # With only an Rrup-based GMM, the distance cutoff is applied to Rrup
-    out_cut = plha.get_source_data(
-        "fault_source_models", model, p_xyz, 100.0, 6.0, ["idriss14"]
+    out_cut, extras = plha.get_source_data(
+        "fault_source_models", model, p_xyz, 100.0, 6.0, ["idriss14"], extras=True
     )
-    assert len(out_cut[4]) > 0 and np.all(out_cut[4] < 100.0)
+    assert len(out_cut[4]) > 0
+    if "cluster_id" in extras:
+        # nshmp-lib uses all ruptures of a cluster if any of them is within the cutoff
+        cid = extras["cluster_id"]
+        far = out_cut[4] >= 100.0
+        assert np.all(cid[far] >= 0)
+        assert set(cid[far]) <= set(cid[~far])
+        assert np.all(out_cut[4][cid < 0] < 100.0)
+    else:
+        assert np.all(out_cut[4] < 100.0)
 
 
 @pytest.mark.parametrize("model", POINT_MODELS)

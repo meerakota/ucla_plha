@@ -500,3 +500,68 @@ def test_cluster_model_hazard_and_disaggregation(package, monkeypatch):
     disagg = np.array(out["disaggregation"])
     # magnitude bin 6.5-8 holds the cluster share
     np.testing.assert_allclose(disagg[:, 1, 0, 0], 100.0 * expected_cluster / expected, rtol=1e-10)
+
+
+# ---------------------------------------------------------------------------------------
+# NSHM site data: coastal plain zSed and the Coastal Plain CPA region tree
+# ---------------------------------------------------------------------------------------
+
+
+def _recording_gmm(calls):
+    def ground_motion(spec, rupture, site, region=None):
+        calls.append((spec.key, site.get("zsed")))
+        n = len(rupture["m"])
+        return np.full(n, np.log(0.2)), np.full(n, SIGMA)
+
+    return ground_motion
+
+
+def test_coastal_plain_site_uses_region_tree_and_zsed(package, monkeypatch):
+    # SITE (-90, 36) is in the Mississippi embayment: zSed from the NSHM site data and, with
+    # the default stable crust tree, the Coastal Plain CPA region tree for all stable crust
+    # models, including one with its own source_info.json gmm_tree (as the system grid)
+    _write_fault_model(package, "stable", {"name": "stable", "tectonic_region": "stable_crust", "nshm_component": "Fault"}, n_rup=1)
+    own = [{"id": "NGA_EAST_2026", "weight": 0.5}, {"id": "ASK_14_BASIN", "weight": 0.5}]
+    _write_fault_model(package, "system", {"name": "system", "tectonic_region": "stable_crust", "nshm_component": "Fault", "gmm_tree": own}, n_rup=1)
+    calls = []
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion", _recording_gmm(calls))
+    config = {
+        "site": SITE,
+        "source_models": {"fault_source_models": {"stable": {"weight": 1.0}, "system": {"weight": 1.0}}},
+        "ground_motion_models": {"stable_crust": "default"},
+        "output": {"psha": {"pga": PGA}},
+    }
+    out = _hazard(package, config)
+    expected = {k.lower() for k in tectonic_regions_cpa_ids()}
+    assert {k for k, _ in calls} == expected
+    assert len(calls) == 2 * len(expected)
+    zsed = calls[0][1]
+    assert zsed is not None and 0.5 < zsed < 3.0 and all(z == zsed for _, z in calls)
+    assert any("Coastal Plain CPA region" in n for n in out["notes"])
+
+
+def tectonic_regions_cpa_ids():
+    from ucla_plha import nshm_site_data
+
+    return nshm_site_data.coastal_plain_stable_crust_tree()
+
+
+def test_coastal_plain_site_explicit_tree_and_no_site_data(package, monkeypatch):
+    _write_fault_model(package, "stable", {"name": "stable", "tectonic_region": "stable_crust", "nshm_component": "Fault"}, n_rup=1)
+    calls = []
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion", _recording_gmm(calls))
+    config = {
+        "site": SITE,
+        "source_models": {"fault_source_models": {"stable": {"weight": 1.0}}},
+        "ground_motion_models": {"stable_crust": {"nga_east_2026": {"weight": 1.0}}},
+        "output": {"psha": {"pga": PGA}},
+    }
+    _hazard(package, config)
+    # an explicit tree is used as given (with the NSHM zSed)
+    assert [k for k, _ in calls] == ["nga_east_2026"] and calls[0][1] is not None
+    calls.clear()
+    config["site"] = {**SITE, "nshm_site_data": False}
+    config["ground_motion_models"] = {"stable_crust": "default"}
+    _hazard(package, config)
+    assert {k for k, _ in calls} == {k.lower() for k in tectonic_regions.DEFAULT_GMM_TREES["stable_crust"]}
+    assert all(z is None for _, z in calls)

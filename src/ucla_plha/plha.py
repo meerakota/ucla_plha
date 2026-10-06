@@ -15,7 +15,7 @@ from ucla_plha.liquefaction_models import (
 )
 from ucla_plha.ground_motion_models import ask14, bssa14, cb14, cy14, idriss14
 from ucla_plha.geometry import geometry, point_source
-from ucla_plha import pygmm_gmms, tectonic_regions
+from ucla_plha import nshm_site_data, pygmm_gmms, tectonic_regions
 
 
 def decompress_ucerf3_source_data():
@@ -238,6 +238,14 @@ def get_source_data(
             rjb = empty_array
 
         filter = _filter_mask(len(m), rjb if need_rjb else rrup, m, dist_cutoff, m_min)
+        if source_info.get("cluster", False) and dist_cutoff is not None and "cluster_id" in ruptures.files:
+            # nshmp-lib (ClusterRuptureSet.checkDistance) uses all ruptures of a cluster if
+            # any of its faults is within the maximum distance
+            cluster_id = np.asarray(ruptures["cluster_id"])
+            near = (rjb if need_rjb else rrup) < dist_cutoff
+            near_clusters = np.unique(cluster_id[near & (cluster_id >= 0)])
+            whole = (cluster_id >= 0) & np.isin(cluster_id, near_clusters)
+            filter = filter | (whole & _filter_mask(len(m), rrup, m, None, m_min))
         arrays = (
             m[filter],
             fault_type[filter],
@@ -877,6 +885,48 @@ def get_cluster_hazard(p, weight, cluster_index, fault_index, cluster_rate):
     return cluster_hazard.sum(axis=1), contributions
 
 
+def nshm_site_parameters(site_config, regions_used=()):
+    """zSed and location-dependent ground motion model trees of a site from the NSHM site data.
+
+    The USGS NSHM (nshmp-lib SiteData, used by the USGS hazard web service for every site) gives
+    a site on the Gulf and Atlantic coastal plain its sediment thickness zSed (Boyd, 2023) and,
+    inside the "Coastal Plain CPA region", a stable crust ground motion model logic tree with
+    the Chapman and Guo (2021) coastal plain amplification models (see
+    :mod:`ucla_plha.nshm_site_data`).
+
+    Args:
+        site_config (dict): config["site"]. "zsed" (km, or null for a site off the coastal
+            plain) overrides the NSHM value. "nshm_site_data": false turns off both the zSed
+            look-up and the gmm-region trees (default true).
+        regions_used (iterable): tectonic regions of the source models that are used
+
+    Returns:
+        (zsed, site_trees, notes): zsed in km or None; site_trees is {region: (description,
+        {Gmm id: weight})} for :func:`tectonic_regions.parse_ground_motion_models`
+    """
+    use = site_config.get("nshm_site_data", True)
+    lon, lat = site_config["longitude"], site_config["latitude"]
+    notes = []
+    if "zsed" in site_config:
+        zsed = site_config["zsed"]
+    elif use:
+        zsed = nshm_site_data.coastal_plain_zsed(lon, lat)
+        if zsed is not None and "stable_crust" in regions_used:
+            notes.append(
+                f"site: zsed = {zsed:g} km (coastal plain sediment thickness of the USGS NSHM, "
+                "Boyd 2023)"
+            )
+    else:
+        zsed = None
+    site_trees = {}
+    if use and "stable_crust" in regions_used and nshm_site_data.in_coastal_plain_region(lon, lat):
+        site_trees["stable_crust"] = (
+            f'NSHM gmm-region "{nshm_site_data.region_name()}"',
+            nshm_site_data.coastal_plain_stable_crust_tree(),
+        )
+    return zsed, site_trees, notes
+
+
 def get_hazard(config_file):
     """Reads config file and runs PSHA and PLHA
 
@@ -939,14 +989,30 @@ def get_hazard(config_file):
         for key, info in source_infos.items()
         if config["source_models"][key[0]][key[1]]["weight"] > 0
     }
-    gmm_trees, notes = tectonic_regions.parse_ground_motion_models(config, regions_used)
+    # Location-dependent NSHM site data (nshmp-lib SiteData, as used by the USGS hazard
+    # service): the coastal plain sediment thickness zSed and the stable crust ground motion
+    # models of the Coastal Plain CPA region
+    site_zsed, site_trees, site_notes = nshm_site_parameters(config["site"], regions_used)
+    used_default = set()
+    gmm_trees, notes = tectonic_regions.parse_ground_motion_models(
+        config, regions_used, site_trees, used_default
+    )
+    notes = site_notes + notes
     # Ground motion models of individual source models: the "ground_motion_models" of the
     # source model in the config, or a "gmm_tree" list in its source_info.json (e.g. the NSHM
-    # system grid in the stable crust, which mixes NGA-East and NGA-West2 models)
+    # system grid in the stable crust, which mixes NGA-East and NGA-West2 models). As in
+    # nshmp-lib, the tree of a site's NSHM gmm-region replaces the source_info.json trees of
+    # its tectonic region (when the region uses the default tree).
     model_trees = {}
     for (source_type, source_model), info in source_infos.items():
         entry = config["source_models"][source_type][source_model]
         if entry["weight"] <= 0:
+            continue
+        if (
+            not isinstance(entry.get("ground_motion_models"), dict)
+            and info["tectonic_region"] in site_trees
+            and info["tectonic_region"] in used_default
+        ):
             continue
         tree = tectonic_regions.source_model_gmm_entries(entry, info)
         if tree is not None:
@@ -990,7 +1056,7 @@ def get_hazard(config_file):
         "measured_vs30": measured_vs30,
         "z1p0": z1p0,
         "z2p5": z2p5,
-        "zsed": config["site"].get("zsed", None),
+        "zsed": site_zsed,
     }
     dist_cutoff = config.get("constraints", {}).get("dist_cutoff", None)
     m_min = config.get("constraints", {}).get("m_min", None)

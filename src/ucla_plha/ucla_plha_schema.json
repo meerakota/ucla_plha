@@ -34,8 +34,15 @@
                     "type": "number"
                 },
                 "zsed": {
-                    "type": "number",
-                    "description": "Thickness of the Atlantic and Gulf coastal plain sediments (km) for the NGA-East models (pygmm depth_sed); omit for sites off the coastal plain"
+                    "type": [
+                        "number",
+                        "null"
+                    ],
+                    "description": "Thickness of the Atlantic and Gulf coastal plain sediments (km) for the NGA-East models (pygmm depth_sed); null for a site off the coastal plain. If omitted, the USGS NSHM value (Boyd 2023 model, as used by the USGS hazard service) is used, unless nshm_site_data is false"
+                },
+                "nshm_site_data": {
+                    "type": "boolean",
+                    "description": "Use the location-dependent site data of the USGS NSHM (default true): the coastal plain sediment thickness zsed (unless zsed is given) and, for sites inside the NSHM Coastal Plain CPA region, its stable crust ground motion model logic tree (with the Chapman and Guo 2021 coastal plain amplification models) for all stable crust source models that use the default trees"
                 }
             },
             "additionalProperties": true,

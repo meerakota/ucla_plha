@@ -312,17 +312,32 @@ def is_region_config(gmm_config):
     return bool(regions)
 
 
-def _region_entries(gmm_config, region, notes):
-    """Config entries {name: {"weight": ..}} of a region, or the default tree."""
+def _region_entries(gmm_config, region, notes, site_trees=None, used_default=None):
+    """Config entries {name: {"weight": ..}} of a region, or the default tree.
+
+    site_trees: {region: (description, {Gmm id: weight})} of location-dependent default trees
+    (the NSHM gmm-region trees of the site), used instead of DEFAULT_GMM_TREES. Regions that use
+    a default tree are added to the set used_default.
+    """
     value = gmm_config.get(region)
     if isinstance(value, str):
         if value.lower() not in ("default", "nshm", "nshm23", "usgs"):
             raise ValueError(f'ground_motion_models["{region}"] must be an object or "default"')
         value = None
     if value is None:
-        notes.append(f"{region}: using the default (USGS NSHM 2023) ground motion models")
-        value = {k.lower(): {"weight": w} for k, w in DEFAULT_GMM_TREES[region].items()}
+        if site_trees and region in site_trees:
+            description, tree = site_trees[region]
+            notes.append(
+                f"{region}: using the USGS NSHM 2023 ground motion models of the {description} "
+                "(the site is inside it)"
+            )
+        else:
+            tree = DEFAULT_GMM_TREES[region]
+            notes.append(f"{region}: using the default (USGS NSHM 2023) ground motion models")
+        value = {k.lower(): {"weight": w} for k, w in tree.items()}
         gmm_config[region] = value
+        if used_default is not None:
+            used_default.add(region)
     return value
 
 
@@ -361,7 +376,7 @@ def build_region_tree(region, entries, notes):
     return branches
 
 
-def parse_ground_motion_models(config, regions_used):
+def parse_ground_motion_models(config, regions_used, site_trees=None, used_default=None):
     """Build the ground motion model logic tree of every tectonic region that is used.
 
     Args:
@@ -369,6 +384,10 @@ def parse_ground_motion_models(config, regions_used):
             with normalized weights (and with the default trees of regions that were not
             specified, in the per-region format)
         regions_used (iterable): tectonic regions of the source models with non-zero weight
+        site_trees (dict): location-dependent default trees {region: (description,
+            {Gmm id: weight})} that replace DEFAULT_GMM_TREES (e.g. the NSHM Coastal Plain CPA
+            region tree of the stable crust)
+        used_default (set): if given, the regions that use a default tree are added to it
 
     Returns:
         (trees, notes): trees is {region: [GmmBranch, ...]}; notes are warning messages
@@ -379,7 +398,7 @@ def parse_ground_motion_models(config, regions_used):
     if is_region_config(gmm_config):
         for region in TECTONIC_REGIONS:
             if region in gmm_config or region in regions_used:
-                entries = _region_entries(gmm_config, region, notes)
+                entries = _region_entries(gmm_config, region, notes, site_trees, used_default)
                 trees[region] = build_region_tree(region, entries, notes)
     else:
         # Earlier flat format: the models are the active crust models
@@ -387,7 +406,7 @@ def parse_ground_motion_models(config, regions_used):
         defaults = {}
         for region in TECTONIC_REGIONS:
             if region != "active_crust" and region in regions_used:
-                entries = _region_entries(defaults, region, notes)
+                entries = _region_entries(defaults, region, notes, site_trees, used_default)
                 trees[region] = build_region_tree(region, entries, notes)
     for note in notes:
         warnings.warn(note, UserWarning, stacklevel=3)

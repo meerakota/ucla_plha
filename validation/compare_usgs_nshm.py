@@ -27,6 +27,10 @@ Options:
         nshm23_wus_grid)
     --models: source models to use (default: every source model with a name starting with
         nshm23_)
+    --zsed: coastal plain sediment thickness (km); by default ucla_plha uses the NSHM value at
+        the site, as the USGS service does
+    --no-nshm-site-data: do not use the NSHM site data (zSed and the Coastal Plain CPA region
+        ground motion models of the stable crust)
     --cache: directory for the service responses (default validation/usgs_nshm_cache)
 
 The service responses are cached, so the comparison can be repeated offline.
@@ -145,7 +149,7 @@ def nshmp_grid_distances(enabled):
 
 
 def run_ucla_plha(lon, lat, vs30, pga, models, active_gmms, grid_distances="source_info",
-                  z1p0=None, z2p5=None, zsed=None):
+                  z1p0=None, z2p5=None, zsed=None, nshm_site_data=True):
     """ucla_plha hazard per NSHM component.
 
     Returns ({component: curve}, {source model key: curve}, notes, seconds)
@@ -154,6 +158,8 @@ def run_ucla_plha(lon, lat, vs30, pga, models, active_gmms, grid_distances="sour
     for key, value in (("z1p0", z1p0), ("z2p5", z2p5), ("zsed", zsed)):
         if value is not None:
             site[key] = value
+    if not nshm_site_data:
+        site["nshm_site_data"] = False
     source_models = {"fault_source_models": {}, "point_source_models": {}}
     for name, (source_type, info) in models.items():
         source_models[source_type][name] = {"weight": 1.0}
@@ -204,11 +210,12 @@ def ground_motion_at(xs, ys, return_period):
 
 
 def compare_site(name, lon, lat, vs30, active_gmms, models, cache, grid_distances,
-                 z1p0=None, z2p5=None, zsed=None):
+                 z1p0=None, z2p5=None, zsed=None, nshm_site_data=True):
     usgs = fetch_service(lon, lat, vs30, cache)
     xs = usgs["Total"][0]
     components, by_model, notes, seconds = run_ucla_plha(
-        lon, lat, vs30, xs, models, active_gmms, grid_distances, z1p0, z2p5, zsed
+        lon, lat, vs30, xs, models, active_gmms, grid_distances, z1p0, z2p5, zsed,
+        nshm_site_data,
     )
     present = {info["nshm_component"] for _, info in models.values()} | {
         info["cluster_nshm_component"] for _, info in models.values() if info["cluster"]
@@ -278,6 +285,7 @@ def main(argv=None):
     parser.add_argument("--z1p0", type=float)
     parser.add_argument("--z2p5", type=float)
     parser.add_argument("--zsed", type=float)
+    parser.add_argument("--no-nshm-site-data", action="store_true")
     parser.add_argument("--active-gmms", default="nshmp", choices=list(ACTIVE_GMMS) + ["all"])
     parser.add_argument("--grid-distances", default="source_info", choices=["source_info", "nshmp"])
     parser.add_argument("--models", nargs="*")
@@ -301,7 +309,7 @@ def main(argv=None):
         for gmm_set in gmm_sets:
             result = compare_site(
                 name, lon, lat, args.vs30, gmm_set, models, args.cache, args.grid_distances,
-                args.z1p0, args.z2p5, args.zsed,
+                args.z1p0, args.z2p5, args.zsed, not args.no_nshm_site_data,
             )
             print_result(result)
             results.append(result)
