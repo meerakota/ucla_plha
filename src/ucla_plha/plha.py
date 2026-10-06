@@ -1147,12 +1147,11 @@ def get_hazard(config_file):
             source_key = fault_source_model
             # Loop over ground motion models.
             for branch in branches:
-                ground_motion_model_weight = branch.weight
                 # move on to next ground motion model if weight is less than or equal to zero
-                if ground_motion_model_weight <= 0:
+                if branch.weight <= 0:
                     continue
                 if branch.spec.kind == "native":
-                    mu_ln_pga, sigma_ln_pga = get_ground_motion_data(
+                    gm_branches = [(1.0, *get_ground_motion_data(
                         branch.spec.name,
                         vs30,
                         measured_vs30,
@@ -1168,118 +1167,124 @@ def get_hazard(config_file):
                         ztor,
                         zbor,
                         dip,
-                    )
+                    ))]
                 else:
-                    mu_ln_pga, sigma_ln_pga = pygmm_gmms.get_ground_motion(
+                    gm_branches = pygmm_gmms.get_ground_motion_branches(
                         branch.spec, rupture, site, region
                     )
-                # Compute seismic hazard if requested in config file
-                if output_psha:
-                    if truncation_level is None and not cluster:
-                        eps = (np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga
-                        seismic_hazards = (1 - ndtr(eps)) * rate
-                    else:
-                        eps, p = get_exceedance(
-                            pga, mu_ln_pga, sigma_ln_pga, truncation_level
-                        )
-                        seismic_hazards = p * rate
-                    if cluster:
-                        seismic_hazards[:, in_cluster] = 0.0
-                        cluster_curve, contributions = get_cluster_hazard(
-                            p[:, in_cluster],
-                            extras["cluster_weight"][in_cluster],
-                            extras["cluster_id"][in_cluster],
-                            extras["cluster_fault_id"][in_cluster],
-                            extras["cluster_rate"][in_cluster],
-                        )
-                        if output_source_hazard:
-                            key = source_key + ":cluster"
-                            source_hazard[key] = source_hazard.get(
-                                key, 0.0
-                            ) + source_model_weight * ground_motion_model_weight * (
-                                cluster_curve
+                # Loop over the branches of the ground motion distribution of the model (e.g. the
+                # USGS epistemic branches of the nshmp-lib models). As in nshmp-lib
+                # (ExceedanceModel.treeExceedanceCombined), the exceedance probabilities of the
+                # branches are weighted and summed (the collapsed median is not the mixture).
+                for gm_branch_weight, mu_ln_pga, sigma_ln_pga in gm_branches:
+                    ground_motion_model_weight = branch.weight * gm_branch_weight
+                    # Compute seismic hazard if requested in config file
+                    if output_psha:
+                        if truncation_level is None and not cluster:
+                            eps = (np.log(pga[:, np.newaxis]) - mu_ln_pga) / sigma_ln_pga
+                            seismic_hazards = (1 - ndtr(eps)) * rate
+                        else:
+                            eps, p = get_exceedance(
+                                pga, mu_ln_pga, sigma_ln_pga, truncation_level
                             )
-                    curve = np.sum(seismic_hazards, axis=1)
-                    if output_source_hazard:
-                        source_hazard[source_key] = (
-                            source_hazard.get(source_key, 0.0)
-                            + source_model_weight * ground_motion_model_weight * curve
-                        )
-                    if cluster:
-                        seismic_hazards[:, in_cluster] = contributions
-                        curve = curve + cluster_curve
-                    seismic_hazard += (
-                        source_model_weight * ground_motion_model_weight * curve
-                    )
-                    # Compute seismic hazard disaggregation if requested in config file
-                    if output_psha_disaggregation:
-                        psha_disagg += (
-                            source_model_weight
-                            * ground_motion_model_weight
-                            * get_disagg(
-                                seismic_hazards,
-                                m,
-                                r_disagg,
-                                eps,
-                                psha_magnitude_bin_edges,
-                                psha_distance_bin_edges,
-                                psha_epsilon_bin_edges,
+                            seismic_hazards = p * rate
+                        if cluster:
+                            seismic_hazards[:, in_cluster] = 0.0
+                            cluster_curve, contributions = get_cluster_hazard(
+                                p[:, in_cluster],
+                                extras["cluster_weight"][in_cluster],
+                                extras["cluster_id"][in_cluster],
+                                extras["cluster_fault_id"][in_cluster],
+                                extras["cluster_rate"][in_cluster],
                             )
-                        )
-                # Compute liquefaction hazard if requested in config file
-                if "liquefaction_models" in config.keys():
-                    for liquefaction_model in config["liquefaction_models"].keys():
-                        liquefaction_model_weight = config["liquefaction_models"][
-                            liquefaction_model
-                        ]["weight"]
-                        if liquefaction_model_weight <= 0:
-                            continue
-                        if output_plha:
-                            liquefaction_hazards, eps = get_liquefaction_cdfs(
-                                m,
-                                mu_ln_pga,
-                                sigma_ln_pga,
-                                fsl,
-                                liquefaction_model,
-                                config,
-                            )
-                            if cluster:
-                                p_liq = liquefaction_hazards[in_cluster].T
-                            liquefaction_hazards *= rate[:, np.newaxis]
-                            if cluster:
-                                liquefaction_hazards[in_cluster] = 0.0
-                                cluster_curve, contributions = get_cluster_hazard(
-                                    p_liq,
-                                    extras["cluster_weight"][in_cluster],
-                                    extras["cluster_id"][in_cluster],
-                                    extras["cluster_fault_id"][in_cluster],
-                                    extras["cluster_rate"][in_cluster],
+                            if output_source_hazard:
+                                key = source_key + ":cluster"
+                                source_hazard[key] = source_hazard.get(
+                                    key, 0.0
+                                ) + source_model_weight * ground_motion_model_weight * (
+                                    cluster_curve
                                 )
-                                liquefaction_hazards[in_cluster] = contributions.T
-                            liquefaction_hazard += (
+                        curve = np.sum(seismic_hazards, axis=1)
+                        if output_source_hazard:
+                            source_hazard[source_key] = (
+                                source_hazard.get(source_key, 0.0)
+                                + source_model_weight * ground_motion_model_weight * curve
+                            )
+                        if cluster:
+                            seismic_hazards[:, in_cluster] = contributions
+                            curve = curve + cluster_curve
+                        seismic_hazard += (
+                            source_model_weight * ground_motion_model_weight * curve
+                        )
+                        # Compute seismic hazard disaggregation if requested in config file
+                        if output_psha_disaggregation:
+                            psha_disagg += (
                                 source_model_weight
                                 * ground_motion_model_weight
-                                * liquefaction_model_weight
-                                * np.sum(liquefaction_hazards, axis=0)
+                                * get_disagg(
+                                    seismic_hazards,
+                                    m,
+                                    r_disagg,
+                                    eps,
+                                    psha_magnitude_bin_edges,
+                                    psha_distance_bin_edges,
+                                    psha_epsilon_bin_edges,
+                                )
                             )
-                            eps = eps.T
-                            liquefaction_hazards = liquefaction_hazards.T
-                            # Compute liquefaction hazard disaggregation if requested in config file
-                            if output_plha_disaggregation:
-                                plha_disagg += (
+                    # Compute liquefaction hazard if requested in config file
+                    if "liquefaction_models" in config.keys():
+                        for liquefaction_model in config["liquefaction_models"].keys():
+                            liquefaction_model_weight = config["liquefaction_models"][
+                                liquefaction_model
+                            ]["weight"]
+                            if liquefaction_model_weight <= 0:
+                                continue
+                            if output_plha:
+                                liquefaction_hazards, eps = get_liquefaction_cdfs(
+                                    m,
+                                    mu_ln_pga,
+                                    sigma_ln_pga,
+                                    fsl,
+                                    liquefaction_model,
+                                    config,
+                                )
+                                if cluster:
+                                    p_liq = liquefaction_hazards[in_cluster].T
+                                liquefaction_hazards *= rate[:, np.newaxis]
+                                if cluster:
+                                    liquefaction_hazards[in_cluster] = 0.0
+                                    cluster_curve, contributions = get_cluster_hazard(
+                                        p_liq,
+                                        extras["cluster_weight"][in_cluster],
+                                        extras["cluster_id"][in_cluster],
+                                        extras["cluster_fault_id"][in_cluster],
+                                        extras["cluster_rate"][in_cluster],
+                                    )
+                                    liquefaction_hazards[in_cluster] = contributions.T
+                                liquefaction_hazard += (
                                     source_model_weight
                                     * ground_motion_model_weight
                                     * liquefaction_model_weight
-                                    * get_disagg(
-                                        liquefaction_hazards,
-                                        m,
-                                        r_disagg,
-                                        eps,
-                                        plha_magnitude_bin_edges,
-                                        plha_distance_bin_edges,
-                                        plha_epsilon_bin_edges,
-                                    )
+                                    * np.sum(liquefaction_hazards, axis=0)
                                 )
+                                eps = eps.T
+                                liquefaction_hazards = liquefaction_hazards.T
+                                # Compute liquefaction hazard disaggregation if requested in config file
+                                if output_plha_disaggregation:
+                                    plha_disagg += (
+                                        source_model_weight
+                                        * ground_motion_model_weight
+                                        * liquefaction_model_weight
+                                        * get_disagg(
+                                            liquefaction_hazards,
+                                            m,
+                                            r_disagg,
+                                            eps,
+                                            plha_magnitude_bin_edges,
+                                            plha_distance_bin_edges,
+                                            plha_epsilon_bin_edges,
+                                        )
+                                    )
     # Now prepare output
     output = {}
     output["input"] = config

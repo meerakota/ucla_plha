@@ -341,16 +341,11 @@ def build_scenario(spec, rupture, site, tectonic_region=None):
     return {k: v for k, v in values.items() if k in names and v is not None}
 
 
-def get_ground_motion(spec, rupture, site, tectonic_region=None):
-    """Mean and standard deviation of ln(PGA) of a pygmm model for every rupture.
-
-    Returns:
-        (mu_ln_pga, sigma_ln_pga): arrays of length N
-    """
+def _evaluate(spec, rupture, site, tectonic_region=None):
+    """Evaluate a pygmm model for every rupture (PGA only), or None if there are no ruptures."""
     pygmm = _pygmm()
-    n = len(rupture["m"])
-    if n == 0:
-        return np.empty(0), np.empty(0)
+    if len(rupture["m"]) == 0:
+        return None
     values = build_scenario(spec, rupture, site, tectonic_region)
     # pygmm warns (with warnings and logging) about values outside of the recommended limits
     # of the models, which is expected for the full set of ruptures of a source model
@@ -359,14 +354,56 @@ def get_ground_motion(spec, rupture, site, tectonic_region=None):
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", UserWarning)
-            model = spec.cls(pygmm.Scenario(**values), ims=["pga"], **spec.options)
-            mu = np.asarray(model.ln_pga, dtype=float)
-            sigma = np.asarray(model.ln_std_pga, dtype=float)
+            return spec.cls(pygmm.Scenario(**values), ims=["pga"], **spec.options)
     finally:
         logging.disable(previous)
-    mu = np.broadcast_to(mu, (n,)).astype(float)
-    sigma = np.broadcast_to(sigma, (n,)).astype(float)
-    return mu, sigma
+
+
+def _as_rupture_array(values, n):
+    return np.broadcast_to(np.asarray(values, dtype=float), (n,)).astype(float)
+
+
+def get_ground_motion(spec, rupture, site, tectonic_region=None):
+    """Mean and standard deviation of ln(PGA) of a pygmm model for every rupture.
+
+    For models with a logic tree of the ground motion distribution (e.g. the USGS epistemic
+    branches of the nshmp-lib models), these are the collapsed values (the log of the weighted
+    median), which are not suitable for hazard calculations: use
+    :func:`get_ground_motion_branches`.
+
+    Returns:
+        (mu_ln_pga, sigma_ln_pga): arrays of length N
+    """
+    n = len(rupture["m"])
+    model = _evaluate(spec, rupture, site, tectonic_region)
+    if model is None:
+        return np.empty(0), np.empty(0)
+    return _as_rupture_array(model.ln_pga, n), _as_rupture_array(model.ln_std_pga, n)
+
+
+def get_ground_motion_branches(spec, rupture, site, tectonic_region=None):
+    """Branches of the ln(PGA) distribution of a pygmm model for every rupture.
+
+    nshmp-lib models with epistemic uncertainty of the median (e.g. the NGA-West2 models with
+    branches at mu - epsilon, mu, and mu + epsilon, weights 0.185, 0.63, 0.185) give a logic
+    tree of ground motions, and nshmp-lib computes the hazard as the weighted sum of the
+    exceedance probabilities of the branches (ExceedanceModel.treeExceedanceCombined, with the
+    truncation applied to each branch). Older pygmm versions without
+    ``GroundMotionModel.ln_branches`` give one branch with the collapsed values.
+
+    Returns:
+        list of (weight, mu_ln_pga, sigma_ln_pga), with arrays of length N; the weights sum to 1
+    """
+    n = len(rupture["m"])
+    model = _evaluate(spec, rupture, site, tectonic_region)
+    if model is None:
+        return [(1.0, np.empty(0), np.empty(0))]
+    if not hasattr(model, "ln_branches"):
+        return [(1.0, _as_rupture_array(model.ln_pga, n), _as_rupture_array(model.ln_std_pga, n))]
+    return [
+        (float(w), _as_rupture_array(mu, n), _as_rupture_array(sigma, n))
+        for w, mu, sigma in model.ln_branches("pga")
+    ]
 
 
 def list_gmm_ids():
