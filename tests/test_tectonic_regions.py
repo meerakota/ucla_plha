@@ -563,7 +563,7 @@ def _recording_gmm(calls):
     def ground_motion(spec, rupture, site, region=None):
         calls.append((spec.key, site.get("zsed")))
         n = len(rupture["m"])
-        return np.full(n, np.log(0.2)), np.full(n, SIGMA)
+        return [(1.0, np.full(n, np.log(0.2)), np.full(n, SIGMA))]
 
     return ground_motion
 
@@ -576,7 +576,7 @@ def test_coastal_plain_site_uses_region_tree_and_zsed(package, monkeypatch):
     own = [{"id": "NGA_EAST_2026", "weight": 0.5}, {"id": "ASK_14_BASIN", "weight": 0.5}]
     _write_fault_model(package, "system", {"name": "system", "tectonic_region": "stable_crust", "nshm_component": "Fault", "gmm_tree": own}, n_rup=1)
     calls = []
-    monkeypatch.setattr(pygmm_gmms, "get_ground_motion", _recording_gmm(calls))
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion_branches", _recording_gmm(calls))
     config = {
         "site": SITE,
         "source_models": {"fault_source_models": {"stable": {"weight": 1.0}, "system": {"weight": 1.0}}},
@@ -601,7 +601,7 @@ def tectonic_regions_cpa_ids():
 def test_coastal_plain_site_explicit_tree_and_no_site_data(package, monkeypatch):
     _write_fault_model(package, "stable", {"name": "stable", "tectonic_region": "stable_crust", "nshm_component": "Fault"}, n_rup=1)
     calls = []
-    monkeypatch.setattr(pygmm_gmms, "get_ground_motion", _recording_gmm(calls))
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion_branches", _recording_gmm(calls))
     config = {
         "site": SITE,
         "source_models": {"fault_source_models": {"stable": {"weight": 1.0}}},
