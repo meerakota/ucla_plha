@@ -222,7 +222,14 @@ format and works as before. A source model entry can also have its own
 ``"closest_section"`` (default) takes Rx and Rx1 of a fault rupture with several fault
 segments from the segment with the smallest Rrup, as nshmp-lib does, and ``"minimum"`` takes
 the minimum over the segments (earlier versions; because Rx is signed, this is the most
-footwall-side segment of the rupture). The site accepts ``"zsed"``
+footwall-side segment of the rupture). ``"fault_distances"``: ``"source_info"`` (default)
+uses each fault source model's ``source_info.json`` setting (the NSHM23 models compute rJB,
+rRup, and rX from the nshmp-lib gridded surfaces, as nshmp-lib does; UCERF3 uses the
+triangles), and ``"triangles"`` uses the triangles and rectangles of the fault segments for
+all models. ``"section_rx"``: ``"source_info"`` (default), ``"minimum"`` (minimum Rx over
+the planar pieces of a segment, UCERF3 default), or ``"extended_trace"`` (nshmp-lib: distance
+to the whole upper edge of the segment extended 1000 km along strike, positive on the dip
+side; NSHM23 WUS default). The site accepts ``"zsed"``
 (coastal plain sediment thickness, km) for NGA-East. ``"output": {"psha":
 {"source_model_hazard": true}}`` adds the hazard curve of each source model.
 

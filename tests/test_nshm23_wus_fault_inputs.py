@@ -34,11 +34,11 @@ NSHMP_INPUTS = {
 }
 
 
-def _la_inputs(rupture_rx="closest_section"):
+def _la_inputs(rupture_rx="closest_section", **kwargs):
     p_xyz = geometry.point_to_xyz(np.array([LA[0], LA[1], 0.0]))
     arrays, extras = plha.get_source_data(
         "fault_source_models", "nshm23_wus", p_xyz, 300.0, None, GMMS,
-        extras=True, rupture_rx=rupture_rx,
+        extras=True, rupture_rx=rupture_rx, **kwargs,
     )
     pos = {int(j): k for k, j in enumerate(extras["index"])}
     return arrays, pos
@@ -60,20 +60,36 @@ def test_la_rupture_inputs_match_nshmp(rupture):
     (m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor), pos = _la_inputs()
     _, rjb_n, rrup_n, rx_n = NSHMP_INPUTS[rupture]
     k = pos[rupture]
-    assert rrup[k] == pytest.approx(rrup_n, abs=0.06)
-    assert rx[k] == pytest.approx(rx_n, abs=0.15)
-    # nshmp-lib rJB is the distance to the nearest 1 km grid point unless the site is inside
-    # the surface projection, so it can be a few hundred meters larger
-    assert rjb[k] <= rjb_n + 0.05
-    assert rjb[k] >= rjb_n - 0.5
+    # the nshmp-lib gridded section surfaces (source_info "fault_distances": "nshmp_grid")
+    assert rrup[k] == pytest.approx(rrup_n, abs=0.002)
+    assert rx[k] == pytest.approx(rx_n, abs=0.002)
+    assert rjb[k] == pytest.approx(rjb_n, abs=0.002)
     # rx1 is the rx1 of the same (closest) segment (equal to rx for a vertical segment)
     assert rx1[k] <= rx[k]
 
 
+@pytest.mark.parametrize("rupture", sorted(NSHMP_INPUTS))
+def test_la_rupture_inputs_with_triangles(rupture):
+    # distances to the triangles of the planes: rrup within 0.06 km; nshmp-lib rJB is the
+    # distance to the nearest 1 km grid point unless the site is inside the surface perimeter
+    # (built from the trace, without the aseismic shift), so it can differ by a few hundred meters
+    (m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor), pos = _la_inputs(
+        fault_distances="triangles")
+    _, rjb_n, rrup_n, rx_n = NSHMP_INPUTS[rupture]
+    k = pos[rupture]
+    assert rrup[k] == pytest.approx(rrup_n, abs=0.06)
+    assert rx[k] == pytest.approx(rx_n, abs=0.06)
+    assert rjb[k] <= rjb_n + 0.05
+    assert rjb[k] >= rjb_n - 0.5
+
+
 def test_minimum_rx_convention_is_available():
-    arrays, pos = _la_inputs("minimum")
+    # the ucla_plha 2.x conventions: minimum over the segments of the rupture and over the
+    # planar pieces of each segment
+    legacy = dict(fault_distances="triangles", section_rx="minimum")
+    arrays, pos = _la_inputs("minimum", **legacy)
     rx_min = arrays[5]
-    arrays_c, pos_c = _la_inputs()
+    arrays_c, pos_c = _la_inputs(**legacy)
     rx_c = arrays_c[5]
     # Puente Hills rupture with sections of the Elysian Park and Raymond faults: the site is on
     # the hanging wall of the closest section, but the minimum rx is on a footwall section
@@ -81,6 +97,9 @@ def test_minimum_rx_convention_is_available():
     assert rx_min[k] < -5.0
     assert rx_c[pos_c[319192]] > 3.0
     assert np.all(rx_min <= rx_c + 1e-9)
+    # the minimum over the segments with the nshmp-lib rx of each segment
+    arrays_n, pos_n = _la_inputs("minimum")
+    assert arrays_n[5][pos_n[319192]] < -4.0
     with pytest.raises(ValueError):
         _la_inputs("closest")
 

@@ -95,6 +95,18 @@ def _closest_segment(rrup_seg, rrup, segment_index, boundaries):
     return np.minimum.reduceat(np.where(is_min, segment_index, big), boundaries)
 
 
+_SECTION_GRIDS = {}
+
+
+def _section_grids(path):
+    """nshmp-lib gridded surfaces of the fault sections in sections.npz (built once per model)."""
+    key = str(path)
+    if key not in _SECTION_GRIDS:
+        with np.load(str(path.joinpath("sections.npz"))) as sections:
+            _SECTION_GRIDS[key] = geometry.nshmp_section_grids(sections)
+    return _SECTION_GRIDS[key]
+
+
 def get_source_data(
     source_type,
     source_model,
@@ -105,6 +117,8 @@ def get_source_data(
     extras=False,
     source_info=None,
     rupture_rx="closest_section",
+    fault_distances=None,
+    section_rx=None,
 ):
     """Returns magnitude, fault type, rate, distance, and fault geometry terms.
 
@@ -130,6 +144,25 @@ def get_source_data(
             segments of the rupture (ucla_plha 1.x and earlier); because rx is signed, this is
             the most footwall-side segment of the rupture, which may be far from the site.
             rjb, rrup, and ry0 are always the minima over the segments.
+        fault_distances (str): how the distances of fault source ruptures are computed. None
+            (default): the "fault_distances" of source_info ("triangles" if not given).
+            "triangles": distances to the triangles (tri_rjb.npy, tri_rrup.npy) and rectangles
+            (rect_rjb.npy) of the fault segments. "nshmp_grid": rjb, rrup, and rx as nshmp-lib
+            computes them (model.Distance.compute) from its gridded surfaces: per rupture from
+            grid.npz (grid points and the grid subset of each rupture;
+            geometry.gridded_rupture_distances; NSHM23 Cascadia interface and CEUS fault
+            models), with rx1 = rx - W cos(dip), or per segment from sections.npz (traces and
+            properties of the fault sections, from which the 1 km nshmp-lib grids are built;
+            geometry.gridded_section_distances; NSHM23 WUS), combined over the segments of a
+            rupture as for "triangles" (rx1 from the horizontal width of the segment). ry0 is
+            always from the rectangles.
+        section_rx (str): how rx and rx1 of a fault segment with several planar pieces
+            (rectangles) are found, for "triangles" distances. None (default): the
+            "section_rx" of source_info ("minimum" if not given). "minimum": the minimum over
+            the pieces (ucla_plha 2.x and earlier). "extended_trace": as nshmp-lib does
+            (model.Distance.getDistanceX), the distance to the upper edge of the whole segment
+            extended 1000 km along strike at both ends, positive on the dip side
+            (geometry.section_rx_extended_trace). The NSHM23 WUS model uses "extended_trace".
 
     Returns: A tuple containing the following arrays
         m (array, dtype=float): Numpy array of magnitudes, length = N
@@ -196,35 +229,92 @@ def get_source_data(
         # idriss14: rrup
         # pygmm models: the distances in their parameters
         empty_array = np.empty(len(m))
-        if need_rjb or need_rrup:
+        if fault_distances is None:
+            fault_distances = source_info.get("fault_distances", "triangles")
+        if fault_distances not in ("triangles", "nshmp_grid"):
+            raise ValueError(
+                f'fault_distances must be "triangles" or "nshmp_grid", not "{fault_distances}"'
+            )
+        if section_rx is None:
+            section_rx = source_info.get("section_rx", "minimum")
+        if section_rx not in ("minimum", "extended_trace"):
+            raise ValueError(
+                f'section_rx must be "minimum" or "extended_trace", not "{section_rx}"'
+            )
+        # nshmp_grid: rupture grids (grid.npz, distances per rupture) or section grids
+        # (sections.npz, distances per segment, combined over the segments of a rupture)
+        rupture_grid = section_grid = False
+        if fault_distances == "nshmp_grid":
+            rupture_grid = os.path.exists(str(path.joinpath("grid.npz")))
+            section_grid = not rupture_grid and os.path.exists(
+                str(path.joinpath("sections.npz"))
+            )
+            if not (rupture_grid or section_grid):
+                raise ValueError(
+                    f'source model "{source_model}" has no grid.npz or sections.npz for '
+                    '"nshmp_grid" distances'
+                )
+        if rupture_grid or section_grid:
+            site_lat = np.degrees(np.arctan2(p_xyz[2], np.hypot(p_xyz[0], p_xyz[1])))
+            site_lon = np.degrees(np.arctan2(p_xyz[1], p_xyz[0]))
+        if (need_rjb or need_rrup) and not (rupture_grid or section_grid):
             tri_segment_id = np.load(str(path.joinpath("tri_segment_id.npy")))
-        if need_rjb:
+        if need_rjb and not (rupture_grid or section_grid):
             tri_rjb = np.load(str(path.joinpath("tri_rjb.npy")))
             rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
         if need_rrup:
             rect_segment_id = np.load(str(path.joinpath("rect_segment_id.npy")))
-            tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
             rect = np.load(str(path.joinpath("rect_rjb.npy")))
-            rrup_all = geometry.point_triangle_distance(tri_rrup, p_xyz, tri_segment_id)
             rx_all, rx1_all, ry0_all = geometry.get_Rx_Rx1_Ry0(
                 rect, p_xyz, rect_segment_id
             )
+            if section_rx == "extended_trace" and not rupture_grid:
+                rx_all, rx1_all = geometry.section_rx_extended_trace(
+                    rect, p_xyz, rect_segment_id
+                )
+            if not (rupture_grid or section_grid):
+                tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
+                rrup_all = geometry.point_triangle_distance(
+                    tri_rrup, p_xyz, tri_segment_id
+                )
+        if section_grid and (need_rjb or need_rrup):
+            grids = _section_grids(path)
+            rjb_all, rrup_all, rx_grid = geometry.gridded_section_distances(
+                grids, site_lat, site_lon, need_rx=need_rrup
+            )
+            if need_rrup:
+                # rx of the top row of the gridded section; rx1 with the horizontal width of
+                # the section (from its rectangles)
+                rx1_all = rx_grid - (rx_all - rx1_all)
+                rx_all = rx_grid
         split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
         boundaries = np.r_[0, split_indices]
-        if need_rrup:
-            rrup_seg = rrup_all[segment_index]
-            rrup = np.minimum.reduceat(rrup_seg, boundaries)
-            if rupture_rx == "closest_section":
-                closest = _closest_segment(rrup_seg, rrup, segment_index, boundaries)
-                rx = rx_all[closest]
-                rx1 = rx1_all[closest]
-            elif rupture_rx == "minimum":
-                rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
-                rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
-            else:
-                raise ValueError(
-                    f'rupture_rx must be "closest_section" or "minimum", not "{rupture_rx}"'
+        if rupture_grid:
+            # nshmp-lib distances to the gridded rupture surfaces
+            with np.load(str(path.joinpath("grid.npz"))) as grid:
+                rjb_g, rrup_g, rx_g = geometry.gridded_rupture_distances(
+                    grid, site_lat, site_lon, need_rx=need_rrup
                 )
+        if need_rrup:
+            if rupture_grid:
+                rrup = rrup_g
+                rx = rx_g
+                # rx1 = rx - W cos(dip), the horizontal width of the rupture
+                rx1 = rx - (zbor - ztor) / np.tan(np.radians(np.minimum(dip, 89.999)))
+            else:
+                rrup_seg = rrup_all[segment_index]
+                rrup = np.minimum.reduceat(rrup_seg, boundaries)
+                if rupture_rx == "closest_section":
+                    closest = _closest_segment(rrup_seg, rrup, segment_index, boundaries)
+                    rx = rx_all[closest]
+                    rx1 = rx1_all[closest]
+                elif rupture_rx == "minimum":
+                    rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
+                    rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
+                else:
+                    raise ValueError(
+                        f'rupture_rx must be "closest_section" or "minimum", not "{rupture_rx}"'
+                    )
             ry0 = np.minimum.reduceat(ry0_all[segment_index], boundaries)
         else:
             rrup = empty_array
@@ -233,7 +323,10 @@ def get_source_data(
             ry0 = empty_array
 
         if need_rjb:
-            rjb = np.minimum.reduceat(rjb_all[segment_index], boundaries)
+            if rupture_grid:
+                rjb = rjb_g
+            else:
+                rjb = np.minimum.reduceat(rjb_all[segment_index], boundaries)
         else:
             rjb = empty_array
 
@@ -1062,6 +1155,11 @@ def get_hazard(config_file):
     m_min = config.get("constraints", {}).get("m_min", None)
     truncation_level = config.get("constraints", {}).get("truncation_level", None)
     rupture_rx = config.get("constraints", {}).get("rupture_rx", "closest_section")
+    # "source_info" (default): the settings of each source model's source_info.json
+    fault_distances = config.get("constraints", {}).get("fault_distances", "source_info")
+    fault_distances = None if fault_distances == "source_info" else fault_distances
+    section_rx = config.get("constraints", {}).get("section_rx", "source_info")
+    section_rx = None if section_rx == "source_info" else section_rx
 
     # Read output properties
     if "psha" in config["output"].keys():
@@ -1184,6 +1282,8 @@ def get_hazard(config_file):
                     extras=True,
                     source_info=info,
                     rupture_rx=rupture_rx,
+                    fault_distances=fault_distances,
+                    section_rx=section_rx,
                 )
                 in_cluster = extras["cluster_id"] >= 0
             else:
@@ -1195,6 +1295,8 @@ def get_hazard(config_file):
                     m_min,
                     gmms,
                     rupture_rx=rupture_rx,
+                    fault_distances=fault_distances,
+                    section_rx=section_rx,
                 )
             m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = data
             # distance used for disaggregation: rjb, or rrup if no model uses rjb

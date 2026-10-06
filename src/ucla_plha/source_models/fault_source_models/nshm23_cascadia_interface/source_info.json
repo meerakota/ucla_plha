@@ -5,13 +5,14 @@
   "source": "nshm-conus 6.2.0 subduction/interface (Cascadia: top, middle, bottom; full-rupture/cluster-out and partial-rupture branches)",
   "cluster": false,
   "interface_events": true,
+  "fault_distances": "nshmp_grid",
   "rupture_surface": {
     "type": "ApproxGriddedSurface between joined upper and lower section traces",
     "surface_spacing_km": 5.0,
     "single_mfd_floating": "OFF (full rupture)",
     "gr_mfd_floating": "STRIKE_ONLY, full down-dip width, length 10^((M - 4.94)/1.39) km (NSHM_SUB_GEOMAT_LENGTH), rate divided equally among floaters",
     "distance_cutoff_km": 1000.0,
-    "distances": "nshmp-lib Distance.compute: rRup and rJB are minimum distances from the site to the grid points of the rupture (rJB = 0 if within 2.5 km and inside the perimeter); rX from the upper edge. ucla_plha triangles of the strips between grid columns reproduce rRup within about 0.5 km.",
+    "distances": "nshmp-lib Distance.compute: rRup and rJB are minimum distances from the site to the grid points of the rupture (horizontal distance Locations.horzDistanceFast with R = 6371.0072 km; rRup = sqrt(horizontal^2 + depth^2)), rJB = 0 if it is less than the grid spacing (5 km) and the site is inside the perimeter of the rupture (its top and bottom rows of grid points), and rX is the distance to the top row extended 1000 km along strike at both ends, positive on the dip side. ucla_plha computes these from grid.npz (source_info \"fault_distances\": \"nshmp_grid\", geometry.gridded_rupture_distances). The triangles of the strips between grid columns (tri_*.npy, used with \"constraints\": {\"fault_distances\": \"triangles\"}) are flat in Cartesian coordinates: because the strips are 100 to 200 km wide, they sag up to 0.5 km below the curved surface (rJB of 0.2 to 0.5 km instead of 0 above the interface), and their Cartesian rRup differs from the nshmp-lib flat-earth rRup by -0.5 to +0.3 km within 100 km and by 1 to 3 km at 300 to 1000 km (0.5% higher hazard at Seattle and the Bay Area at 475 and 2475 years, 1.4% higher rate at 1 g at Seattle, and up to 2% for the cluster model).",
     "gmm_inputs": "ruptures.npz: m, dip (average plunge of the first and last columns), ztor (mean depth of the upper trace vertices for full ruptures, of the top row grid points for floating ruptures), width ((rows - 1) x 5 km), zhyp = ztor + width/2 sin(dip), rake = 90; zbor = ztor + width sin(dip)"
   },
   "total_rate": 0.003287402041077396,

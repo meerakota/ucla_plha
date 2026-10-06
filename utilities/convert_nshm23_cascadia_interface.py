@@ -41,8 +41,11 @@ ucla_plha represents each surface by "segments": the strips between adjacent col
 nshmp-lib grid of points, each with four corners (two on the top row and two on the bottom row of
 the grid). A full rupture uses all strips of its surface and a floating rupture uses the strips
 between its first and last grid columns. nshmp-lib computes rRup and rJB as the minimum distance
-to the grid points (5 km spacing); ucla_plha computes the distance to the two triangles of each
-strip, which is slightly smaller (by about 0.1 km at 50 km distance).
+to the grid points (5 km spacing). The grid points and the grid subset of each rupture are also
+written to grid.npz, from which ucla_plha computes rJB, rRup, and rX exactly as nshmp-lib does
+(source_info.json "fault_distances": "nshmp_grid"); the triangles of the strips (flat in Cartesian
+coordinates, so they sag up to 0.5 km below the curved surface of 100 to 200 km wide strips) are
+used with "constraints": {"fault_distances": "triangles"}.
 
 Identical ruptures (same surface, columns, and magnitude) on different branches are merged by
 adding their rates.
@@ -419,7 +422,39 @@ def write_model(model, out_dir, extra_names=()):
     for i, name in enumerate(extra_names):
         data[name] = np.array([r['extra'][i] for r in ruptures], dtype=np.int32)
     np.savez_compressed(os.path.join(out_dir, 'ruptures.npz'), **data)
+    write_grid(model, out_dir)
     return data
+
+
+def write_grid(model, out_dir):
+    '''
+    Write grid.npz: the nshmp-lib grid points of every surface and the grid subset of every rupture,
+    used by ucla_plha (source_info "fault_distances": "nshmp_grid", geometry.gridded_rupture_distances)
+    to compute rJB, rRup, and rX exactly as nshmp-lib Distance.compute does. Points are stored surface
+    by surface and column by column (point (r, c) of surface s is surface_offset[s] + c * rows + r), as
+    float32 longitude, latitude, and depth (rounding error < 1 m).
+    '''
+    surfaces = list(model.surfaces.values())
+    index = {id(s): i for i, (s, _) in enumerate(surfaces)}
+    points = np.concatenate([s.grid.transpose(1, 0, 2).reshape(-1, 3) for s, _ in surfaces])
+    sizes = [s.n_rows * s.n_cols for s, _ in surfaces]
+    keys = list(model.ruptures.keys())
+    rup_surface = np.array([index[id(model.surfaces[k[0]][0])] for k in keys], dtype=np.int32)
+    rup_rows = np.array([surfaces[i][0].n_rows for i in rup_surface], dtype=np.int32)
+    np.savez_compressed(
+        os.path.join(out_dir, 'grid.npz'),
+        lon=points[:, 0].astype(np.float32), lat=points[:, 1].astype(np.float32),
+        depth=points[:, 2].astype(np.float32),
+        surface_offset=np.r_[0, np.cumsum(sizes)[:-1]].astype(np.int64),
+        surface_rows=np.array([s.n_rows for s, _ in surfaces], dtype=np.int32),
+        surface_cols=np.array([s.n_cols for s, _ in surfaces], dtype=np.int32),
+        surface_dip=np.array([s.dip for s, _ in surfaces]),
+        surface_spacing=np.array([s.spacing for s, _ in surfaces]),
+        rupture_surface=rup_surface,
+        rupture_row0=np.zeros(len(keys), dtype=np.int32),
+        rupture_rows=rup_rows,
+        rupture_col0=np.array([k[1] for k in keys], dtype=np.int32),
+        rupture_cols=np.array([k[2] for k in keys], dtype=np.int32))
 
 
 def main():
@@ -484,6 +519,20 @@ def main():
     print(f'cluster: {len(clusters)} clusters, {len(data_cluster["m"])} ruptures, {cluster.n_segments} segments')
 
 
+DISTANCES = (
+    'nshmp-lib Distance.compute: rRup and rJB are minimum distances from the site to the grid points of the rupture '
+    '(horizontal distance Locations.horzDistanceFast with R = 6371.0072 km; rRup = sqrt(horizontal^2 + depth^2)), '
+    'rJB = 0 if it is less than the grid spacing (5 km) and the site is inside the perimeter of the rupture (its top '
+    'and bottom rows of grid points), and rX is the distance to the top row extended 1000 km along strike at both '
+    'ends, positive on the dip side. ucla_plha computes these from grid.npz (source_info "fault_distances": '
+    '"nshmp_grid", geometry.gridded_rupture_distances). The triangles of the strips between grid columns '
+    '(tri_*.npy, used with "constraints": {"fault_distances": "triangles"}) are flat in Cartesian coordinates: '
+    'because the strips are 100 to 200 km wide, they sag up to 0.5 km below the curved surface (rJB of 0.2 to 0.5 km '
+    'instead of 0 above the interface), and their Cartesian rRup differs from the nshmp-lib flat-earth rRup by '
+    '-0.5 to +0.3 km within 100 km and by 1 to 3 km at 300 to 1000 km (0.5% higher hazard at Seattle and the Bay '
+    'Area at 475 and 2475 years, 1.4% higher rate at 1 g at Seattle, and up to 2% for the cluster model).')
+
+
 def write_source_info(data, data_cluster, clusters, branch_rates):
     common_notes = (
         'Converted from nshm-conus release 6.2.0 (identical to main) by utilities/convert_nshm23_cascadia_interface.py '
@@ -506,6 +555,7 @@ def write_source_info(data, data_cluster, clusters, branch_rates):
                   'and partial-rupture branches)',
         'cluster': False,
         'interface_events': True,
+        'fault_distances': 'nshmp_grid',
         'rupture_surface': {
             'type': 'ApproxGriddedSurface between joined upper and lower section traces',
             'surface_spacing_km': 5.0,
@@ -513,9 +563,7 @@ def write_source_info(data, data_cluster, clusters, branch_rates):
             'gr_mfd_floating': 'STRIKE_ONLY, full down-dip width, length 10^((M - 4.94)/1.39) km '
                                '(NSHM_SUB_GEOMAT_LENGTH), rate divided equally among floaters',
             'distance_cutoff_km': 1000.0,
-            'distances': 'nshmp-lib Distance.compute: rRup and rJB are minimum distances from the site to the grid '
-                         'points of the rupture (rJB = 0 if within 2.5 km and inside the perimeter); rX from the upper '
-                         'edge. ucla_plha triangles of the strips between grid columns reproduce rRup within about 0.5 km.',
+            'distances': DISTANCES,
             'gmm_inputs': 'ruptures.npz: m, dip (average plunge of the first and last columns), ztor (mean depth of the '
                           'upper trace vertices for full ruptures, of the top row grid points for floating ruptures), '
                           'width ((rows - 1) x 5 km), zhyp = ztor + width/2 sin(dip), rake = 90; zbor = ztor + width sin(dip)',
@@ -536,6 +584,8 @@ def write_source_info(data, data_cluster, clusters, branch_rates):
                   '(cluster-7a, cluster-7b, cluster-8)',
         'cluster': True,
         'interface_events': True,
+        'fault_distances': 'nshmp_grid',
+        'distances': DISTANCES,
         'clusters': [{'cluster_id': c[0], 'rate': c[1], 'weight': c[2], 'branch': c[3]} for c in clusters],
         'cluster_hazard': (
             'nshmp-lib ClusterRuptureSet (source type FAULT_CLUSTER, reported in the FaultCluster component) and '

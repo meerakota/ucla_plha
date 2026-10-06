@@ -88,6 +88,16 @@
                     "type": "string",
                     "enum": ["closest_section", "minimum"],
                     "description": "Rx and Rx1 of fault source ruptures with several fault segments: those of the segment closest to the site (smallest Rrup), as in nshmp-lib (default), or the minimum over the segments (ucla_plha 1.x)."
+                },
+                "fault_distances": {
+                    "type": "string",
+                    "enum": ["source_info", "triangles"],
+                    "description": "Distances of fault source ruptures: as given by each source model's source_info.json (default; the NSHM23 Cascadia interface and CEUS fault models compute rJB, rRup, and rX from their nshmp-lib gridded surfaces, as nshmp-lib does), or from the triangles and rectangles of the fault segments for all models."
+                },
+                "section_rx": {
+                    "type": "string",
+                    "enum": ["source_info", "minimum", "extended_trace"],
+                    "description": "Rx and Rx1 of a fault segment made of several planar pieces: as given by each source model's source_info.json (default; extended_trace for NSHM23 WUS, minimum for UCERF3), the minimum over the pieces, or, as in nshmp-lib, the distance to the upper edge of the whole segment extended along strike, positive on the dip side."
                 }
             },
             "additionalProperties": false

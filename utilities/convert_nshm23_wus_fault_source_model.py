@@ -210,6 +210,30 @@ def get_rupture_data(rupture_df, output_file):
     np.savez_compressed(output_file, m=m, rate=rate, fault_type=fault_type, dip=dip, ztor=ztor, zbor=zbor)
     return
 
+def write_sections(filename, output_file):
+    '''
+    Save the subsection traces and properties used by nshmp-lib to build its gridded fault surfaces
+    (DefaultGriddedSurface, 1 km spacing, with aseismicity), so that ucla_plha can compute rJB, rRup,
+    and rX as nshmp-lib does (source_info.json "fault_distances": "nshmp_grid";
+    geometry.nshmp_section_grids and geometry.gridded_section_distances). The traces are kept as in
+    sections.geojson (including repeated points), sorted by subsection index.
+    '''
+    features = json.load(open(filename))['features']
+    features = sorted(features, key=lambda f: f['properties']['index'])
+    traces = [np.asarray(f['geometry']['coordinates'], dtype=float)[:, :2] for f in features]
+    props = [f['properties'] for f in features]
+    np.savez_compressed(
+        output_file,
+        trace_lon=np.concatenate([t[:, 0] for t in traces]),
+        trace_lat=np.concatenate([t[:, 1] for t in traces]),
+        trace_offset=np.r_[0, np.cumsum([len(t) for t in traces])].astype(np.int64),
+        upper_depth=np.array([p['upper-depth'] for p in props], dtype=float),
+        lower_depth=np.array([p['lower-depth'] for p in props], dtype=float),
+        aseismicity=np.array([p.get('aseismicity', 0.0) for p in props], dtype=float),
+        dip=np.array([p['dip'] for p in props], dtype=float),
+        dip_direction=np.array([p['dip-direction'] for p in props], dtype=float))
+    return
+
 os.makedirs(output_dir, exist_ok=True)
 
 ### Compute triangles representing fault segments, and array of segment_id values
@@ -226,3 +250,4 @@ np.save(os.path.join(output_dir, 'rect_rjb.npy'), rect)
 rupture_df = pd.read_csv(os.path.join(input_dir, 'ruptures.csv'))
 get_ruptures_segments(rupture_df, os.path.join(output_dir, 'ruptures_segments.npz'))
 get_rupture_data(rupture_df, os.path.join(output_dir, 'ruptures.npz'))
+write_sections(os.path.join(input_dir, 'sections.geojson'), os.path.join(output_dir, 'sections.npz'))

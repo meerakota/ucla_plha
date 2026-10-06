@@ -5,6 +5,8 @@
   "source": "nshm-conus 6.2.0 subduction/interface/Cascadia/{top,middle,bottom}/full-rupture/cluster-in (cluster-7a, cluster-7b, cluster-8)",
   "cluster": true,
   "interface_events": true,
+  "fault_distances": "nshmp_grid",
+  "distances": "nshmp-lib Distance.compute: rRup and rJB are minimum distances from the site to the grid points of the rupture (horizontal distance Locations.horzDistanceFast with R = 6371.0072 km; rRup = sqrt(horizontal^2 + depth^2)), rJB = 0 if it is less than the grid spacing (5 km) and the site is inside the perimeter of the rupture (its top and bottom rows of grid points), and rX is the distance to the top row extended 1000 km along strike at both ends, positive on the dip side. ucla_plha computes these from grid.npz (source_info \"fault_distances\": \"nshmp_grid\", geometry.gridded_rupture_distances). The triangles of the strips between grid columns (tri_*.npy, used with \"constraints\": {\"fault_distances\": \"triangles\"}) are flat in Cartesian coordinates: because the strips are 100 to 200 km wide, they sag up to 0.5 km below the curved surface (rJB of 0.2 to 0.5 km instead of 0 above the interface), and their Cartesian rRup differs from the nshmp-lib flat-earth rRup by -0.5 to +0.3 km within 100 km and by 1 to 3 km at 300 to 1000 km (0.5% higher hazard at Seattle and the Bay Area at 475 and 2475 years, 1.4% higher rate at 1 g at Seattle, and up to 2% for the cluster model).",
   "clusters": [
     {
       "cluster_id": 0,

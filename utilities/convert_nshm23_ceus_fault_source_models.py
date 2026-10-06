@@ -320,7 +320,36 @@ def write_model(model, output_dir, cluster):
         sections = {s: i for i, s in enumerate(sorted({(k[8], k[9]) for k in keys}))}
         arrays['cluster_section'] = np.array([sections[(k[8], k[9])] for k in keys], dtype=np.int32)
     np.savez_compressed(os.path.join(output_dir, 'ruptures.npz'), **arrays)
+    write_grid(model, keys, output_dir)
     return arrays
+
+
+def write_grid(model, keys, output_dir):
+    '''
+    Write grid.npz: the nshmp-lib grid points of every surface and the grid subset of every rupture
+    (in ruptures.npz order), used by ucla_plha (source_info "fault_distances": "nshmp_grid",
+    geometry.gridded_rupture_distances) to compute rJB, rRup, and rX exactly as nshmp-lib
+    Distance.compute does. Points are stored surface by surface and column by column (point (r, c) of
+    surface s is surface_offset[s] + c * rows + r), as float32 longitude, latitude, and depth
+    (rounding error < 1 m).
+    '''
+    surfaces = model.surfaces
+    points = np.concatenate([s.grid.transpose(1, 0, 2).reshape(-1, 3) for s in surfaces])
+    sizes = [s.rows * s.cols for s in surfaces]
+    np.savez_compressed(
+        os.path.join(output_dir, 'grid.npz'),
+        lon=points[:, 0].astype(np.float32), lat=points[:, 1].astype(np.float32),
+        depth=points[:, 2].astype(np.float32),
+        surface_offset=np.r_[0, np.cumsum(sizes)[:-1]].astype(np.int64),
+        surface_rows=np.array([s.rows for s in surfaces], dtype=np.int32),
+        surface_cols=np.array([s.cols for s in surfaces], dtype=np.int32),
+        surface_dip=np.array([s.dip for s in surfaces]),
+        surface_spacing=np.array([(s.strike_spacing + s.dip_spacing) / 2 for s in surfaces]),
+        rupture_surface=np.array([k[0] for k in keys], dtype=np.int32),
+        rupture_row0=np.array([k[1] for k in keys], dtype=np.int32),
+        rupture_rows=np.array([k[2] for k in keys], dtype=np.int32),
+        rupture_col0=np.array([k[3] for k in keys], dtype=np.int32),
+        rupture_cols=np.array([k[4] for k in keys], dtype=np.int32))
 
 
 STABLE_GMM_TREE = ('stable-crust/gmm-tree.json: NGA_EAST_2026 0.3333, NGA_EAST_2026_ADJUSTED 0.3333, '
@@ -334,8 +363,14 @@ GEOMETRY = ('Rupture surfaces are nshmp-lib DefaultGriddedSurfaces (fault-config
             'of the first-to-last trace point + 90 degrees. Each ucla_plha segment is the quadrilateral between two '
             'adjacent grid columns over the rows of a rupture, so Rjb, Rrup, Rx, Ry0 = min over a rupture\'s '
             'segments. nshmp-lib (model.Distance.compute) uses the minimum distance to the 1 km grid points '
-            '(top row only for dip > 89), rJB = 0 inside the surface perimeter, and rX from the upper edge; the '
-            'continuous segments give distances smaller by at most ~0.5 km. GMM inputs as in nshmp-lib '
+            '(horizontal distance Locations.horzDistanceFast with R = 6371.0072 km, rRup = sqrt(horizontal^2 + '
+            'depth^2), top row only for dip > 89), rJB = 0 if less than the grid spacing and inside the surface '
+            'perimeter, and rX from the upper edge extended 1000 km along strike. ucla_plha computes these from '
+            'grid.npz (the grid points and the grid subset of each rupture; source_info "fault_distances": '
+            '"nshmp_grid", geometry.gridded_rupture_distances). With "constraints": {"fault_distances": '
+            '"triangles"} it uses the segments instead, whose Cartesian distances differ from the nshmp-lib '
+            'flat-earth ones by < 0.1 km within 50 km but by 2 to 3 km at 900 km (0.9% higher New Madrid cluster '
+            'hazard at Charleston at 2475 years). GMM inputs as in nshmp-lib '
             '(calc.Transforms.IterableToInputs): ztor = depth of the rupture top row, dip, width (ruptures.npz '
             '"width" = down-dip width of the rupture), zhyp = ztor + width sin(dip) / 2, rake.')
 
@@ -358,6 +393,7 @@ def write_source_info(ctx, fault, cluster):
         'nshm_release': nc.NSHM_REF,
         'nshmp_lib_commit': nc.NSHMP_LIB_COMMIT,
         'cluster': False,
+        'fault_distances': 'nshmp_grid',
         'gmm_tree': STABLE_GMM_TREE,
         'geometry': GEOMETRY,
         'files': {
@@ -396,6 +432,7 @@ def write_source_info(ctx, fault, cluster):
         'nshm_release': nc.NSHM_REF,
         'nshmp_lib_commit': nc.NSHMP_LIB_COMMIT,
         'cluster': True,
+        'fault_distances': 'nshmp_grid',
         'gmm_tree': STABLE_GMM_TREE,
         'geometry': GEOMETRY,
         'files': {
