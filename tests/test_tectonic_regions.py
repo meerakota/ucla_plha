@@ -395,7 +395,7 @@ def test_depth_map_and_distance_bins(package):
 def _fake_gmm(mu_by_name):
     def ground_motion(spec, rupture, site, region=None):
         n = len(rupture["m"])
-        return np.full(n, mu_by_name[spec.name]), np.full(n, SIGMA)
+        return [(1.0, np.full(n, mu_by_name[spec.name]), np.full(n, SIGMA))]
 
     return ground_motion
 
@@ -404,7 +404,7 @@ def test_each_source_uses_its_region_models(package, monkeypatch):
     _write_fault_model(package, "crust", {"name": "crust", "tectonic_region": "active_crust", "nshm_component": "Fault"}, n_rup=1)
     _write_fault_model(package, "stable", {"name": "stable", "tectonic_region": "stable_crust", "nshm_component": "Fault"}, n_rup=1)
     mu = {"NGA_EAST_2026": np.log(0.3), "NGA_EAST_SEEDS_2026": np.log(0.1)}
-    monkeypatch.setattr(pygmm_gmms, "get_ground_motion", _fake_gmm(mu))
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion_branches", _fake_gmm(mu))
     monkeypatch.setattr(plha, "get_ground_motion_data", lambda gmm, *a: (np.full(len(a[5]), np.log(0.2)), np.full(len(a[5]), SIGMA)))
     config = {
         "site": SITE,
@@ -422,6 +422,58 @@ def test_each_source_uses_its_region_models(package, monkeypatch):
     np.testing.assert_allclose(out["annual_rate_of_exceedance"], expected, rtol=1e-12)
     np.testing.assert_allclose(out["source_model_hazard"]["crust"]["annual_rate_of_exceedance"], exc(0.2), rtol=1e-12)
     assert out["source_model_hazard"]["stable"]["tectonic_region"] == "stable_crust"
+
+
+def test_ground_motion_branches_hazard(package, monkeypatch):
+    # The hazard of a model with a logic tree of the ground motion distribution (e.g. the USGS
+    # epistemic branches) is the weighted sum of the truncated exceedances of the branches, as in
+    # nshmp-lib ExceedanceModel.treeExceedanceCombined, not the exceedance of the collapsed median.
+    _write_fault_model(package, "crust", {"name": "crust", "tectonic_region": "active_crust", "nshm_component": "Fault"}, n_rup=1)
+    branches = [(0.185, np.log(0.1) - 0.4), (0.63, np.log(0.1)), (0.185, np.log(0.1) + 0.4)]
+
+    def ground_motion(spec, rupture, site, region=None):
+        n = len(rupture["m"])
+        return [(w, np.full(n, mu), np.full(n, SIGMA)) for w, mu in branches]
+
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion_branches", ground_motion)
+    bins = {"magnitude_bin_edges": [5.0, 8.0], "distance_bin_edges": [0.0, 100.0], "epsilon_bin_edges": [-20.0, 0.0, 20.0]}
+    config = {
+        "site": SITE,
+        "source_models": {"fault_source_models": {"crust": {"weight": 1.0}}},
+        "ground_motion_models": {"active_crust": {"ASK_14_BASIN": {"weight": 1.0}}},
+        "constraints": {"truncation_level": 3.0},
+        "output": {"psha": {"pga": PGA, "disaggregation": bins}},
+    }
+    out = _hazard(package, config)["output"]["psha"]
+    pga = np.array(PGA)
+    expected = sum(w * plha.get_exceedance(pga, np.array([mu]), np.array([SIGMA]), 3.0)[1][:, 0] for w, mu in branches)
+    np.testing.assert_allclose(out["annual_rate_of_exceedance"], 1e-3 * expected, rtol=1e-12)
+    # epsilon of the disaggregation is relative to each branch
+    disagg = np.array(out["disaggregation"])[:, 0, 0, :]
+    eps = [(np.log(pga) - mu) / SIGMA for _, mu in branches]
+    pos = sum(w * plha.get_exceedance(pga, np.array([mu]), np.array([SIGMA]), 3.0)[1][:, 0] * (e >= 0) for (w, mu), e in zip(branches, eps))
+    np.testing.assert_allclose(disagg[:, 1], 100.0 * pos / expected, rtol=1e-10)
+
+
+def test_adapter_nshmp_epistemic_branches():
+    spec = pygmm_gmms.resolve("ASK_14_BASIN")
+    if not hasattr(spec.cls, "ln_branches"):
+        pytest.skip("requires pygmm with GroundMotionModel.ln_branches")
+    site = {"vs30": 760.0}
+    rup = {k: v[:2] for k, v in RUPTURES.items()}
+    branches = pygmm_gmms.get_ground_motion_branches(spec, rup, site, "active_crust")
+    assert [w for w, _, _ in branches] == [0.185, 0.63, 0.185]
+    mu, sigma = pygmm_gmms.get_ground_motion(spec, rup, site, "active_crust")
+    central = pygmm_gmms.resolve("ASK_14_BASE")  # no epistemic branches, no basin (none at PGA)
+    mu_c, sigma_c = pygmm_gmms.get_ground_motion(central, rup, site, "active_crust")
+    [(w_c, mu_c1, _)] = pygmm_gmms.get_ground_motion_branches(central, rup, site, "active_crust")
+    assert w_c == 1.0
+    np.testing.assert_allclose(mu_c1, mu_c)
+    # M 5.5 at RJB 5 km: epsilon 0.37; M 6.5 at 20 km: 0.23
+    for (w, mu_b, sigma_b), sign in zip(branches, [-1, 0, 1]):
+        np.testing.assert_allclose(mu_b, mu_c + sign * np.array([0.37, 0.23]), atol=1e-12)
+        np.testing.assert_allclose(sigma_b, sigma_c)
+    np.testing.assert_allclose(np.log(sum(w * np.exp(m) for w, m, _ in branches)), mu, rtol=1e-12)
 
 
 def test_flat_config_with_old_models_unchanged(package, monkeypatch):
@@ -478,9 +530,9 @@ def test_cluster_model_hazard_and_disaggregation(package, monkeypatch):
     medians = np.log(np.array([0.1, 0.2, 0.3, 0.4]))
 
     def ground_motion(spec, rupture, site, region=None):
-        return medians[: len(rupture["m"])].copy(), np.full(len(rupture["m"]), SIGMA)
+        return [(1.0, medians[: len(rupture["m"])].copy(), np.full(len(rupture["m"]), SIGMA))]
 
-    monkeypatch.setattr(pygmm_gmms, "get_ground_motion", ground_motion)
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion_branches", ground_motion)
     bins = {"magnitude_bin_edges": [5.0, 6.5, 8.0], "distance_bin_edges": [0.0, 100.0], "epsilon_bin_edges": [-20.0, 20.0]}
     config = {
         "site": SITE,
