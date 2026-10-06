@@ -554,6 +554,79 @@ def test_cluster_model_hazard_and_disaggregation(package, monkeypatch):
     np.testing.assert_allclose(disagg[:, 1, 0, 0], 100.0 * expected_cluster / expected, rtol=1e-10)
 
 
+@pytest.mark.parametrize("attribution", ["branch", "gmm"])
+def test_cluster_attribution_over_ground_motion_branches(package, monkeypatch, attribution):
+    # One cluster: section 0 with magnitude variants 7.0 and 7.2 (weights 0.5), section 1 with
+    # 7.4, and an independent M 6 rupture; a ground motion model with two branches. "branch"
+    # shares the cluster hazard of each branch b in proportion to w_i P_ib; "gmm" (nshmp-lib
+    # Disaggregator) shares the hazard of the model, sum_b w_b H_b, in proportion to w_b w_i P_ib.
+    info = {"name": "clus", "tectonic_region": "stable_crust", "nshm_component": "Fault", "cluster": True}
+    extra = dict(
+        cluster_id=np.array([-1, 0, 0, 0]),
+        cluster_section=np.array([-1, 0, 0, 1]),
+        rate=np.array([1e-3, 0.5, 0.5, 1.0]),
+        m=np.array([6.0, 7.0, 7.2, 7.4]),
+    )
+    clusters = dict(cluster_id=np.array([0]), rate=np.array([0.002]), weight=np.array([0.5]))
+    _write_fault_model(package, "clus", info, n_rup=4, extra=extra, clusters=clusters)
+    w_b = np.array([0.3, 0.7])
+    medians = np.log(np.array([[0.1, 0.4, 0.2, 0.3], [0.05, 0.1, 0.3, 0.15]]))
+
+    def ground_motion(spec, rupture, site, region=None):
+        n = len(rupture["m"])
+        return [(w, mu[:n].copy(), np.full(n, SIGMA)) for w, mu in zip(w_b, medians)]
+
+    monkeypatch.setattr(pygmm_gmms, "get_ground_motion_branches", ground_motion)
+    bins = {
+        "magnitude_bin_edges": [5.0, 6.5, 7.1, 8.0],
+        "distance_bin_edges": [0.0, 100.0],
+        "epsilon_bin_edges": [-20.0, 20.0],
+        "cluster_attribution": attribution,
+        "means": True,
+    }
+    config = {
+        "site": SITE,
+        "source_models": {"fault_source_models": {"clus": {"weight": 1.0}}},
+        "ground_motion_models": {"stable_crust": {"nga_east_2026": {"weight": 1.0}}},
+        "output": {"psha": {"pga": PGA, "disaggregation": bins, "source_model_hazard": True}},
+    }
+    out = _hazard(package, config)["output"]["psha"]
+    p = 1.0 - ndtr((np.log(PGA)[None, :, None] - medians[:, None, :]) / SIGMA)  # b x L x N
+    wp = np.array([0.0, 0.5, 0.5, 1.0]) * p
+    p_s0 = wp[:, :, 1] + wp[:, :, 2]
+    hazard_b = 0.002 * 0.5 * (1 - (1 - p_s0) * (1 - p[:, :, 3]))  # b x L
+    independent = (w_b[:, None] * 1e-3 * p[:, :, 0]).sum(axis=0)
+    total = independent + (w_b[:, None] * hazard_b).sum(axis=0)
+    np.testing.assert_allclose(out["annual_rate_of_exceedance"], total, rtol=1e-12)
+    if attribution == "branch":
+        share = wp / wp.sum(axis=2, keepdims=True)
+        contrib = (w_b[:, None, None] * hazard_b[:, :, None] * share).sum(axis=0)  # L x N
+    else:
+        h_gmm = (w_b[:, None] * hazard_b).sum(axis=0)
+        d_gmm = (w_b[:, None, None] * wp).sum(axis=(0, 2))
+        contrib = (w_b[:, None, None] * wp).sum(axis=0) * (h_gmm / d_gmm)[:, None]
+    disagg = np.array(out["disaggregation"])[:, :, 0, 0]
+    np.testing.assert_allclose(disagg[:, 0], 100.0 * independent / total, rtol=1e-10)
+    np.testing.assert_allclose(disagg[:, 1], 100.0 * contrib[:, 1] / total, rtol=1e-10)
+    np.testing.assert_allclose(disagg[:, 2], 100.0 * (contrib[:, 2] + contrib[:, 3]) / total, rtol=1e-10)
+    # the means of the cluster part
+    cluster_means = out["source_model_hazard"]["clus:cluster"]["disaggregation_means"]
+    c = contrib[:, 1:]
+    np.testing.assert_allclose(cluster_means["contribution"], 100.0 * c.sum(axis=1) / total, rtol=1e-10)
+    np.testing.assert_allclose(cluster_means["mean_magnitude"], c @ extra["m"][1:] / c.sum(axis=1), rtol=1e-10)
+    eps = (np.log(PGA)[None, :, None] - medians[:, None, :]) / SIGMA
+    if attribution == "gmm":
+        scale = (h_gmm / d_gmm)[None, :, None]
+        c_b = w_b[:, None, None] * wp * scale
+    else:
+        c_b = w_b[:, None, None] * hazard_b[:, :, None] * share
+    expected_eps = (c_b[:, :, 1:] * eps[:, :, 1:]).sum(axis=(0, 2)) / c.sum(axis=1)
+    np.testing.assert_allclose(cluster_means["mean_epsilon"], expected_eps, rtol=1e-10)
+    np.testing.assert_allclose(
+        out["disaggregation_means"]["contribution"], 100.0, rtol=1e-10
+    )
+
+
 # ---------------------------------------------------------------------------------------
 # NSHM site data: coastal plain zSed and the Coastal Plain CPA region tree
 # ---------------------------------------------------------------------------------------
