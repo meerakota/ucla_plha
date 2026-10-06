@@ -134,6 +134,85 @@ def test_get_disagg_bins_and_conserves_hazard():
     np.testing.assert_allclose(disagg.sum(axis=(1, 2, 3)), hazards.sum(axis=1))
 
 
+def test_get_disagg_leaves_out_events_outside_the_bins():
+    # Events below the first or at or above the last edge are not binned (the nshmp-lib
+    # "residual"); they used to be added to a neighboring bin or to raise an error
+    m = np.array([5.5, 5.5, 5.5, 5.5, 4.0, 9.0])
+    r = np.array([10.0, 10.0, 60.0, 150.0, 10.0, 10.0])
+    eps = np.array([[0.5, 3.5, -0.5, 0.5, 0.5, 0.5]])
+    hazards = np.array([[1.0, 2.0, 4.0, 8.0, 16.0, 32.0]])
+    m_edges = np.array([5.0, 6.0, 7.0])
+    r_edges = np.array([0.0, 50.0, 100.0])
+    eps_edges = np.array([-3.0, 0.0, 3.0])
+    disagg = plha.get_disagg(hazards, m, r, eps, m_edges, r_edges, eps_edges)
+    expected = np.zeros((1, 2, 2, 2))
+    expected[0, 0, 0, 1] = 1.0
+    expected[0, 0, 1, 0] = 4.0
+    np.testing.assert_allclose(disagg, expected)
+    np.testing.assert_array_equal(
+        plha.disagg_in_bins(m, r, eps, m_edges, r_edges, eps_edges),
+        [[True, False, True, False, False, False]],
+    )
+
+
+def test_disagg_distance_metrics():
+    rjb, rrup = np.array([1.0, 2.0]), np.array([3.0, 4.0])
+    assert plha.disagg_distance("default", ["bssa14"], rjb, rrup) is rjb
+    assert plha.disagg_distance(None, [], rjb, rrup) is rjb
+    assert plha.disagg_distance("default", ["idriss14"], np.array([]), rrup) is rrup
+    assert plha.disagg_distance("rrup", ["bssa14"], rjb, rrup) is rrup
+    assert plha.disagg_distance("rjb", ["idriss14", "bssa14"], rjb, rrup) is rjb
+    with pytest.raises(ValueError, match="rjb"):
+        plha.disagg_distance("rjb", ["idriss14"], np.array([]), rrup)
+    with pytest.raises(ValueError, match="unknown"):
+        plha.disagg_distance("repi", ["bssa14"], rjb, rrup)
+
+
+def test_get_hazard_disaggregation_by_rrup_with_means(tmp_path):
+    # bssa14 uses only rjb: with "distance_metric": "rrup", rrup is computed for the bins
+    config = copy.deepcopy(FULL_STACK_CONFIG)
+    del config["source_models"]["point_source_models"]
+    del config["source_models"]["fault_source_models"]["ucerf3_fm32"]
+    for gmm in ("ask14", "cb14", "cy14"):
+        del config["ground_motion_models"][gmm]
+    del config["liquefaction_models"]
+    del config["output"]["plha"]
+    del config["output"]["outputfile"]
+    edges = {
+        "magnitude_bin_edges": [5.0, 6.0, 7.0, 9.0],
+        "distance_bin_edges": [0.0, 25.0, 50.0, 1000.0],
+        "epsilon_bin_edges": [-1e9, 0.0, 1e9],
+    }
+    outputs = {}
+    for metric in ("default", "rrup"):
+        config["output"]["psha"]["disaggregation"] = dict(edges, distance_metric=metric, means=True)
+        cfg_path = tmp_path / f"{metric}.json"
+        cfg_path.write_text(json.dumps(config))
+        outputs[metric] = plha.get_hazard(str(cfg_path))["output"]["psha"]
+    rjb_out, rrup_out = outputs["default"], outputs["rrup"]
+    np.testing.assert_array_equal(
+        rjb_out["annual_rate_of_exceedance"], rrup_out["annual_rate_of_exceedance"]
+    )
+    for out in (rjb_out, rrup_out):
+        np.testing.assert_allclose(np.sum(out["disaggregation"], axis=(1, 2, 3)), 100.0)
+        np.testing.assert_allclose(out["disaggregation_means"]["contribution"], 100.0)
+    # rrup >= rjb, so the disaggregation moves to larger distances
+    mean_rjb = np.array(rjb_out["disaggregation_means"]["mean_distance"])
+    mean_rrup = np.array(rrup_out["disaggregation_means"]["mean_distance"])
+    assert np.all(mean_rrup > mean_rjb)
+    near = lambda out: np.array(out["disaggregation"])[:, :, 0, :].sum(axis=(1, 2))
+    assert np.all(near(rrup_out) <= near(rjb_out) + 1e-9)
+    np.testing.assert_allclose(
+        rjb_out["disaggregation_means"]["mean_magnitude"],
+        rrup_out["disaggregation_means"]["mean_magnitude"],
+    )
+    # without the means option there are no means
+    config["output"]["psha"]["disaggregation"] = edges
+    cfg_path = tmp_path / "plain.json"
+    cfg_path.write_text(json.dumps(config))
+    assert "disaggregation_means" not in plha.get_hazard(str(cfg_path))["output"]["psha"]
+
+
 def test_decompress_and_decompressed_read_branch(tmp_path, monkeypatch):
     real_pkg = files("ucla_plha")
     for branch in ("ucerf3_fm31", "ucerf3_fm32"):

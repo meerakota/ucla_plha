@@ -764,11 +764,17 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
         M = number of magnitude bins (note that m_bin_edges has a length of M + 1)
         R = number of distance bins (note that r_bin_edges has a length of R + 1)
         E = number of epsilon bins (note that eps_bin_edges has a length of E + 1)
+
+        Bins include their lower edge and exclude their upper edge. Events outside the bins
+        (below the first or at or above the last edge of any of m, r, or eps) are not binned,
+        so the bins then sum to less than the hazard (the "residual" of the nshmp-lib
+        disaggregation). Use wide outer edges (e.g. -inf and inf for epsilon) to bin all events.
     """
     # use Numpy digitize function to assign bin numbers
     m_hazard = np.digitize(m, m_bin_edges)
     r_hazard = np.digitize(r, r_bin_edges)
     eps_hazard = np.digitize(eps, eps_bin_edges)
+    in_bins = disagg_in_bins(m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges)
 
     # compute number of bins per intensity measure value
     Nbins = (len(m_bin_edges) - 1) * (len(r_bin_edges) - 1) * (len(eps_bin_edges) - 1)
@@ -780,6 +786,9 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
         + (r_hazard - 1) * (len(eps_bin_edges) - 1)
         + (m_hazard - 1) * (len(eps_bin_edges) - 1) * (len(r_bin_edges) - 1)
     )
+    # events outside the bins go to bin 0 with zero weight
+    bin_indices = np.where(in_bins, bin_indices, 0)
+    hazards = np.where(in_bins, hazards, 0.0)
 
     # create empty array to store hazard sums, and use Numpy bincount to efficiently sum hazards
     # within each bin. The np.bincount function must be performed on a 1D array, so we need to loop
@@ -800,6 +809,59 @@ def get_disagg(hazards, m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
     )
 
     return disagg
+
+
+def disagg_in_bins(m, r, eps, m_bin_edges, r_bin_edges, eps_bin_edges):
+    """Whether each event falls inside the disaggregation bins (see get_disagg), shape = L x N."""
+
+    def inside(x, edges):
+        return (x >= edges[0]) & (x < edges[-1])
+
+    return (
+        inside(np.asarray(eps), eps_bin_edges)
+        & inside(np.asarray(m), m_bin_edges)
+        & inside(np.asarray(r), r_bin_edges)
+    )
+
+
+def disagg_distance(distance_metric, gmms, rjb, rrup):
+    """Distance used to bin a source model's ruptures in the disaggregation.
+
+    distance_metric: "default" (or None): rjb if any of the ground motion models gmms uses rjb
+    (or there are no models), otherwise rrup, as in ucla_plha 1.x; "rrup": rrup, as the USGS
+    NSHM disaggregation (nshmp-lib Disaggregator bins and averages HazardInput.rRup for every
+    source type, and its web service labels the distance "Closest Distance, rRup"); "rjb": rjb.
+    """
+    if distance_metric in (None, "default"):
+        return rjb if "rjb" in _distance_needs(gmms) or not len(gmms) else rrup
+    if distance_metric == "rrup":
+        return rrup
+    if distance_metric == "rjb":
+        if len(rjb) != len(rrup):
+            raise ValueError(
+                'disaggregation distance_metric "rjb" needs a ground motion model that uses rjb'
+            )
+        return rjb
+    raise ValueError(f'unknown disaggregation distance_metric "{distance_metric}"')
+
+
+def _disagg_sums(hazards, m, r, eps, in_bins):
+    """Binned hazard and its m, r, and eps moments, shape = 4 x L (see get_hazard "means")."""
+    h = np.where(in_bins, hazards, 0.0)
+    return np.stack([h.sum(axis=1), h @ m, h @ r, np.sum(h * eps, axis=1)])
+
+
+def _disagg_means(sums, total):
+    """Contribution (% of total) and means of binned hazard sums (_disagg_sums)."""
+    with np.errstate(divide="ignore", invalid="ignore"):
+        binned = sums[0]
+        out = {
+            "contribution": (100.0 * binned / total).tolist(),
+            "mean_magnitude": (sums[1] / binned).tolist(),
+            "mean_distance": (sums[2] / binned).tolist(),
+            "mean_epsilon": (sums[3] / binned).tolist(),
+        }
+    return {k: [None if not np.isfinite(x) else x for x in v] for k, v in out.items()}
 
 
 def get_exceedance(pga, mu_ln_pga, sigma_ln_pga, truncation_level=None):
@@ -1085,6 +1147,15 @@ def get_hazard(config_file):
                 config["output"]["psha"]["disaggregation"]["epsilon_bin_edges"],
                 dtype=float,
             )
+            psha_distance_metric = config["output"]["psha"]["disaggregation"].get(
+                "distance_metric", "default"
+            )
+            psha_disagg_means = config["output"]["psha"]["disaggregation"].get(
+                "means", False
+            )
+            psha_cluster_attribution = config["output"]["psha"]["disaggregation"].get(
+                "cluster_attribution", "branch"
+            )
             psha_magnitude_bin_center = 0.5 * (
                 psha_magnitude_bin_edges[0:-1] + psha_magnitude_bin_edges[1:]
             )
@@ -1105,11 +1176,19 @@ def get_hazard(config_file):
             )
         else:
             output_psha_disaggregation = False
+            psha_distance_metric = "default"
+            psha_disagg_means = False
+            psha_cluster_attribution = "branch"
         seismic_hazard = np.zeros(len(pga))
+        # binned hazard and its m, r, eps moments (total and per source model)
+        disagg_sums = np.zeros((4, len(pga)))
+        source_disagg_sums = {}
     else:
         output_psha = False
         output_psha_disaggregation = False
         output_source_hazard = False
+        psha_distance_metric = "default"
+        psha_disagg_means = False
 
     if "plha" in config["output"].keys():
         fsl = np.asarray(config["output"]["plha"]["fsl"], dtype=float)
@@ -1127,6 +1206,9 @@ def get_hazard(config_file):
             plha_epsilon_bin_edges = np.asarray(
                 config["output"]["plha"]["disaggregation"]["epsilon_bin_edges"],
                 dtype=float,
+            )
+            plha_distance_metric = config["output"]["plha"]["disaggregation"].get(
+                "distance_metric", "default"
             )
             plha_magnitude_bin_center = 0.5 * (
                 plha_magnitude_bin_edges[0:-1] + plha_magnitude_bin_edges[1:]
@@ -1148,10 +1230,12 @@ def get_hazard(config_file):
             )
         else:
             output_plha_disaggregation = False
+            plha_distance_metric = "default"
         liquefaction_hazard = np.zeros(len(fsl))
     else:
         output_plha = False
         output_plha_disaggregation = False
+        plha_distance_metric = "default"
 
     # Loop over source models. We have fault_source_models and point_source_models, so there are two loops
     for source_model in config["source_models"].keys():
@@ -1173,6 +1257,14 @@ def get_hazard(config_file):
                 fault_source_model
             ].get("dist_cutoff", tectonic_regions.region_value(dist_cutoff, region))
             cluster = info["cluster"]
+            # distances to compute: those of the ground motion models, and rrup if the
+            # disaggregation is binned by rrup (idriss14 uses only rrup, so adding it does not
+            # change the distance the cutoff is applied to)
+            data_gmms = gmms
+            if "rrup" in (psha_distance_metric, plha_distance_metric) and not (
+                _distance_needs(gmms) & {"rrup", "rx", "ry0"}
+            ):
+                data_gmms = list(gmms) + ["idriss14"]
             if cluster:
                 data, extras = get_source_data(
                     source_model,
@@ -1180,7 +1272,7 @@ def get_hazard(config_file):
                     p_xyz,
                     region_cutoff,
                     m_min,
-                    gmms,
+                    data_gmms,
                     extras=True,
                     source_info=info,
                     rupture_rx=rupture_rx,
@@ -1193,12 +1285,15 @@ def get_hazard(config_file):
                     p_xyz,
                     region_cutoff,
                     m_min,
-                    gmms,
+                    data_gmms,
                     rupture_rx=rupture_rx,
                 )
             m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = data
-            # distance used for disaggregation: rjb, or rrup if no model uses rjb
-            r_disagg = rjb if "rjb" in _distance_needs(gmms) or not len(gmms) else rrup
+            # distances used for disaggregation (see disagg_distance)
+            if output_psha_disaggregation:
+                r_disagg = disagg_distance(psha_distance_metric, gmms, rjb, rrup)
+            if output_plha_disaggregation:
+                r_disagg_plha = disagg_distance(plha_distance_metric, gmms, rjb, rrup)
             rupture = {
                 "m": m,
                 "fault_type": fault_type,
@@ -1211,11 +1306,66 @@ def get_hazard(config_file):
                 "zbor": zbor,
             }
             source_key = fault_source_model
+
+            def add_psha_disagg(weight, hazards, eps):
+                """Add weight x the contributions (L x N) of the ruptures of this source model to
+                the PSHA disaggregation."""
+                nonlocal psha_disagg, disagg_sums
+                psha_disagg += weight * get_disagg(
+                    hazards,
+                    m,
+                    r_disagg,
+                    eps,
+                    psha_magnitude_bin_edges,
+                    psha_distance_bin_edges,
+                    psha_epsilon_bin_edges,
+                )
+                if not psha_disagg_means:
+                    return
+                in_bins = disagg_in_bins(
+                    m,
+                    r_disagg,
+                    eps,
+                    psha_magnitude_bin_edges,
+                    psha_distance_bin_edges,
+                    psha_epsilon_bin_edges,
+                )
+                parts = [(source_key, slice(None))]
+                if cluster:
+                    parts = [
+                        (source_key, ~in_cluster),
+                        (source_key + ":cluster", in_cluster),
+                    ]
+                for key, sel in parts:
+                    sums = _disagg_sums(
+                        weight * hazards[:, sel],
+                        m[sel],
+                        r_disagg[sel],
+                        eps[:, sel],
+                        in_bins[:, sel],
+                    )
+                    disagg_sums += sums
+                    source_disagg_sums[key] = source_disagg_sums.get(key, 0.0) + sums
+
+            # nshmp-lib attribution of cluster hazard (cluster_attribution "gmm")
+            gmm_cluster_attribution = (
+                cluster and output_psha_disaggregation and psha_cluster_attribution == "gmm"
+            )
+            if gmm_cluster_attribution:
+                _, cluster_index = np.unique(
+                    extras["cluster_id"][in_cluster], return_inverse=True
+                )
+                cluster_index = cluster_index.ravel()
+                n_clusters = cluster_index.max() + 1 if len(cluster_index) else 0
             # Loop over ground motion models.
             for branch in branches:
                 # move on to next ground motion model if weight is less than or equal to zero
                 if branch.weight <= 0:
                     continue
+                if gmm_cluster_attribution:
+                    cluster_records = []
+                    gmm_cluster_hazard = np.zeros((len(pga), n_clusters))
+                    gmm_cluster_sum = np.zeros((len(pga), n_clusters))
                 if branch.spec.kind == "native":
                     gm_branches = [(1.0, *get_ground_motion_data(
                         branch.spec.name,
@@ -1284,19 +1434,33 @@ def get_hazard(config_file):
                         )
                         # Compute seismic hazard disaggregation if requested in config file
                         if output_psha_disaggregation:
-                            psha_disagg += (
-                                source_model_weight
-                                * ground_motion_model_weight
-                                * get_disagg(
-                                    seismic_hazards,
-                                    m,
-                                    r_disagg,
+                            if gmm_cluster_attribution:
+                                # independent ruptures now, cluster ruptures after the branches
+                                # of the ground motion model
+                                independent = seismic_hazards.copy()
+                                independent[:, in_cluster] = 0.0
+                                add_psha_disagg(
+                                    source_model_weight * ground_motion_model_weight,
+                                    independent,
                                     eps,
-                                    psha_magnitude_bin_edges,
-                                    psha_distance_bin_edges,
-                                    psha_epsilon_bin_edges,
                                 )
-                            )
+                                wp = extras["cluster_weight"][in_cluster] * p[:, in_cluster]
+                                cluster_records.append((gm_branch_weight, wp, eps))
+                                for i in range(len(pga)):
+                                    gmm_cluster_hazard[i] += gm_branch_weight * np.bincount(
+                                        cluster_index,
+                                        weights=contributions[i],
+                                        minlength=n_clusters,
+                                    )
+                                    gmm_cluster_sum[i] += gm_branch_weight * np.bincount(
+                                        cluster_index, weights=wp[i], minlength=n_clusters
+                                    )
+                            else:
+                                add_psha_disagg(
+                                    source_model_weight * ground_motion_model_weight,
+                                    seismic_hazards,
+                                    eps,
+                                )
                     # Compute liquefaction hazard if requested in config file
                     if "liquefaction_models" in config.keys():
                         for liquefaction_model in config["liquefaction_models"].keys():
@@ -1344,13 +1508,28 @@ def get_hazard(config_file):
                                         * get_disagg(
                                             liquefaction_hazards,
                                             m,
-                                            r_disagg,
+                                            r_disagg_plha,
                                             eps,
                                             plha_magnitude_bin_edges,
                                             plha_distance_bin_edges,
                                             plha_epsilon_bin_edges,
                                         )
                                     )
+                if gmm_cluster_attribution and cluster_records:
+                    # As nshmp-lib (Disaggregator.processClusterSources): the contributions of
+                    # the ruptures of a cluster, rate x P(exceedance) of each rupture and branch
+                    # of the ground motion model, are scaled so that they sum to the cluster
+                    # hazard of the ground motion model (the cluster hazard is shared in
+                    # proportion to w_b w_i P_ib over all branches b of the model, instead of
+                    # within each branch)
+                    with np.errstate(divide="ignore", invalid="ignore"):
+                        scale = np.where(
+                            gmm_cluster_sum > 0.0, gmm_cluster_hazard / gmm_cluster_sum, 0.0
+                        )
+                    for gm_branch_weight, wp, eps in cluster_records:
+                        clustered = np.zeros((len(pga), len(m)))
+                        clustered[:, in_cluster] = gm_branch_weight * wp * scale[:, cluster_index]
+                        add_psha_disagg(source_model_weight * branch.weight, clustered, eps)
     # Now prepare output
     output = {}
     output["input"] = config
@@ -1364,6 +1543,10 @@ def get_hazard(config_file):
                 "annual_rate_of_exceedance": seismic_hazard.tolist(),
                 "disaggregation": psha_disagg.tolist(),
             }
+            if psha_disagg_means:
+                output["output"]["psha"]["disaggregation_means"] = _disagg_means(
+                    disagg_sums, seismic_hazard
+                )
         else:
             output["output"]["psha"] = {
                 "PGA": pga.tolist(),
@@ -1382,6 +1565,13 @@ def get_hazard(config_file):
                     "nshm_component": component,
                     "annual_rate_of_exceedance": np.asarray(curve).tolist(),
                 }
+                if psha_disagg_means:
+                    output["output"]["psha"]["source_model_hazard"][key][
+                        "disaggregation_means"
+                    ] = _disagg_means(
+                        source_disagg_sums.get(key, np.zeros((4, len(pga)))),
+                        seismic_hazard,
+                    )
     if output_plha:
         if output_plha_disaggregation:
             for i in range(len(fsl)):

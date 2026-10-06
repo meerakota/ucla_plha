@@ -721,6 +721,18 @@
                                     "items": {
                                         "type": "number"
                                     }
+                                },
+                                "distance_metric": {
+                                    "enum": ["default", "rrup", "rjb"],
+                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model of the source model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
+                                },
+                                "cluster_attribution": {
+                                    "enum": ["branch", "gmm"],
+                                    "description": "How the hazard of a cluster (cluster source models) is shared among its ruptures: branch (default; in proportion to the weighted exceedance probability w_i P_i within each ground motion branch) or gmm (as the USGS NSHM disaggregation, nshmp-lib Disaggregator: in proportion to w_b w_i P_ib over all branches b of each ground motion model)"
+                                },
+                                "means": {
+                                    "type": "boolean",
+                                    "description": "Also output the contribution and the mean magnitude, distance, and epsilon of the binned hazard (in total and, with source_model_hazard, per source model)"
                                 }
                             },
                             "required": [
@@ -765,6 +777,10 @@
                                     "items": {
                                         "type": "number"
                                     }
+                                },
+                                "distance_metric": {
+                                    "enum": ["default", "rrup", "rjb"],
+                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model of the source model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
                                 }
                             },
                             "required": [

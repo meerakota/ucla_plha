@@ -346,8 +346,26 @@ slows down the calculations, and should be included only if needed.
      - edges of distance bins for disaggregation
      - required if ``"disaggregation"`` is included
    * - ``"epsilon_bin_edges"``
-     - edges of epsilon bins for disaggregation
+     - edges of epsilon bins for disaggregation. Bins include their lower edge and exclude
+       their upper edge; events outside the bins are not binned (use wide outer edges, e.g.
+       -1e9 and 1e9, to bin all of them)
      - required if ``"disaggregation"`` is included
+   * - ``"distance_metric"``
+     - distance used for the distance bins: ``"default"`` (rjb if a ground motion model of the
+       source model uses rjb, otherwise rrup), ``"rrup"`` (as the USGS NSHM disaggregation), or
+       ``"rjb"``
+     - optional (``"psha"`` and ``"plha"``)
+   * - ``"cluster_attribution"``
+     - how the hazard of a cluster (cluster source models) is shared among its ruptures:
+       ``"branch"`` (default; in proportion to the weighted exceedance probabilities within
+       each branch of a ground motion model) or ``"gmm"`` (as the USGS NSHM disaggregation,
+       nshmp-lib ``Disaggregator``: over all branches of the ground motion model)
+     - optional (``"psha"``)
+   * - ``"means"``
+     - ``true`` to also output ``"disaggregation_means"``: the binned contribution (%) and
+       the mean magnitude, distance, and epsilon at each PGA, in total and, with
+       ``"source_model_hazard"``, per source model
+     - optional (``"psha"``)
    * - ``"outputfile"``
      - filename for saving output (includes a copy of the inputs)
      - optional
