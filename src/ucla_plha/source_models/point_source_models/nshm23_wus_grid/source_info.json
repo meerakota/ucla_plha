@@ -6,10 +6,6 @@
     "max_distance": 300.0,
     "cluster": false,
     "point_source": {
-        "distance_method": "ucla_plha_crustal",
-        "notes": "Distances from the epicentral distance with the ucla_plha crustal approximations: Rjb from the Thompson and Worden (2017) style magnitude-dependent correction, dip, Ztor and Zbor from Kaklamanos et al. (2011), and Rrup fit to Thompson and Worden (2017)."
-    },
-    "nshmp_point_source": {
         "point-source-type": "FINITE",
         "rupture-scaling": "NSHM_POINT_WC94_LENGTH",
         "max-depth": 14.0,
@@ -40,7 +36,12 @@
         "grid-spacing": 0.1,
         "smoothing-density": 10,
         "smoothing-limit": 40.0,
-        "opt-distance-bin": 1.0
+        "opt-distance-bin": 1.0,
+        "distance_method": "nshmp"
     },
-    "notes": "point_source keeps the ucla_plha crustal distance treatment. nshmp_point_source records the nshm-conus 6.2.0 active-crust/grid/grid-config.json settings used by nshmp-lib (not used by default; set point_source to these values to use the nshmp-lib point-source distances)."
+    "ucla_plha_point_source": {
+        "distance_method": "ucla_plha_crustal",
+        "notes": "Distances from the epicentral distance with the ucla_plha crustal approximations: Rjb from the Thompson and Worden (2017) style magnitude-dependent correction, dip, Ztor and Zbor from Kaklamanos et al. (2011), and Rrup fit to Thompson and Worden (2017)."
+    },
+    "notes": "point_source uses the nshm-conus 6.2.0 active-crust/grid/grid-config.json settings with the nshmp-lib point-source distances (FINITE point sources, NSHM_POINT_WC94_LENGTH rupture scaling, magnitude-dependent depths, smoothing of nearby nodes, and 1 km distance bins), as in the USGS NSHM. ucla_plha_point_source records the earlier ucla_plha crustal distance treatment (as used by the UCERF3 grids); to use it, copy it to point_source."
 }

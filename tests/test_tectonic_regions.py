@@ -706,3 +706,14 @@ def test_nga_east_branches_from_pygmm():
     mu, sigma = pygmm_gmms.get_ground_motion(spec, rup, site, "stable_crust")
     np.testing.assert_allclose(np.log(sum(w * np.exp(m) for w, m, _ in branches)), mu)
     np.testing.assert_allclose(np.sqrt(sum(w * s**2 for w, _, s in branches)), sigma)
+
+
+def test_nshm23_wus_grid_uses_nshmp_point_sources():
+    info = plha.get_source_info("point_source_models", "nshm23_wus_grid")
+    ps = info["point_source"]
+    assert ps["distance_method"] == "nshmp" and ps["type"] == "finite"
+    assert ps["distance_bin"] == 1.0 and ps["smoothing"]["limit"] == 40.0
+    # the earlier ucla_plha treatment is kept for reference, and the UCERF3 grids still use it
+    assert info["ucla_plha_point_source"]["distance_method"] == "ucla_plha_crustal"
+    ucerf3 = plha.get_source_info("point_source_models", "ucerf3_fm31_grid_sub_seis")
+    assert ucerf3["point_source"]["distance_method"] == "ucla_plha_crustal"

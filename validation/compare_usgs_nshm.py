@@ -22,9 +22,9 @@ Options:
         AbrahamsonSilvaKamai2014 etc.), "nshmp" (the nshmp-lib ASK/BSSA/CB/CY_14_BASIN models
         from pygmm, the NSHM tree), or "all" (all three)
     --grid-distances: "source_info" (default; the treatment in each model's source_info.json,
-        i.e. the ucla_plha crustal approximations for nshm23_wus_grid) or "nshmp" (use the
-        nshmp-lib FINITE point source settings recorded in nshmp_point_source of
-        nshm23_wus_grid)
+        i.e. the nshmp-lib FINITE point sources for nshm23_wus_grid) or "ucla_plha" (use the
+        ucla_plha crustal approximations recorded in ucla_plha_point_source of
+        nshm23_wus_grid, the treatment before the nshmp-lib settings became the default)
     --models: source models to use (default: every source model with a name starting with
         nshm23_)
     --zsed: coastal plain sediment thickness (km); by default ucla_plha uses the NSHM value at
@@ -125,8 +125,8 @@ def available_models(prefix="nshm23_"):
 
 
 @contextlib.contextmanager
-def nshmp_grid_distances(enabled):
-    """Temporarily use the nshmp-lib point source settings of models that record them."""
+def ucla_plha_grid_distances(enabled):
+    """Temporarily use the ucla_plha crustal point source distances of models that record them."""
     if not enabled:
         yield
         return
@@ -134,10 +134,10 @@ def nshmp_grid_distances(enabled):
 
     def patched(source_type, source_model):
         info = original(source_type, source_model)
-        if "nshmp_point_source" in info:
+        if "ucla_plha_point_source" in info:
             info = dict(info)
             info["point_source"] = tectonic_regions.normalize_point_source(
-                info["nshmp_point_source"]
+                info["ucla_plha_point_source"]
             )
         return info
 
@@ -194,7 +194,7 @@ def run_ucla_plha(lon, lat, vs30, pga, models, active_gmms, grid_distances="sour
         with open(path, "w") as f:
             json.dump(config, f)
         start = time.time()
-        with warnings.catch_warnings(), nshmp_grid_distances(grid_distances == "nshmp"):
+        with warnings.catch_warnings(), ucla_plha_grid_distances(grid_distances == "ucla_plha"):
             warnings.simplefilter("ignore")
             out = plha.get_hazard(path)
         seconds = time.time() - start
@@ -295,7 +295,7 @@ def main(argv=None):
     parser.add_argument("--zsed", type=float)
     parser.add_argument("--no-nshm-site-data", action="store_true")
     parser.add_argument("--active-gmms", default="nshmp", choices=list(ACTIVE_GMMS) + ["all"])
-    parser.add_argument("--grid-distances", default="source_info", choices=["source_info", "nshmp"])
+    parser.add_argument("--grid-distances", default="source_info", choices=["source_info", "ucla_plha"])
     parser.add_argument("--models", nargs="*")
     parser.add_argument("--cache", default=os.path.join(os.path.dirname(__file__), "usgs_nshm_cache"))
     parser.add_argument("--out", help="write the results to this JSON file")

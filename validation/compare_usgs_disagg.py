@@ -33,7 +33,7 @@ Usage (from the repository root, with pygmm on PYTHONPATH):
     python validation/compare_usgs_disagg.py --site new_madrid
     python validation/compare_usgs_disagg.py --site new_madrid --iml 0.8
     python validation/compare_usgs_disagg.py --site ceus --out results.json
-    python validation/compare_usgs_disagg.py --site bay_area --grid-distances nshmp
+    python validation/compare_usgs_disagg.py --site bay_area --grid-distances ucla_plha
 
 --site: a site of compare_usgs_nshm.SITES, "ceus" (the CEUS sites), or "all"; --return-periods
 (default 475 2475) or --iml; --models (default: the nshm23_ models). The service responses are
@@ -323,7 +323,7 @@ def run_ucla_plha(lon, lat, vs30, iml, models, distance_metric="rrup",
             with open(path, "w") as f:
                 json.dump(config, f)
             start = time.time()
-            with warnings.catch_warnings(), cun.nshmp_grid_distances(grid_distances == "nshmp"):
+            with warnings.catch_warnings(), cun.ucla_plha_grid_distances(grid_distances == "ucla_plha"):
                 warnings.simplefilter("ignore")
                 out = plha.get_hazard(path)
             seconds = time.time() - start
@@ -475,7 +475,7 @@ def main(argv=None):
     parser.add_argument("--iml", type=float, nargs="*", help="PGA (g) instead of return periods")
     parser.add_argument("--distance-metric", default="rrup", choices=["rrup", "rjb", "default"])
     parser.add_argument("--cluster-attribution", default="gmm", choices=["gmm", "branch"])
-    parser.add_argument("--grid-distances", default="source_info", choices=["source_info", "nshmp"],
+    parser.add_argument("--grid-distances", default="source_info", choices=["source_info", "ucla_plha"],
                         help="see compare_usgs_nshm.py (affects nshm23_wus_grid only)")
     parser.add_argument("--models", nargs="*")
     parser.add_argument("--cache", default=os.path.join(os.path.dirname(__file__), "usgs_nshm_cache"))

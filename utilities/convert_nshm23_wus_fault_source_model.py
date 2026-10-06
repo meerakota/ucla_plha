@@ -201,7 +201,9 @@ def get_rupture_data(rupture_df, output_file):
     dip = rupture_df['dip'].values
     ztor = rupture_df['depth'].values
     zbor = ztor + rupture_df['width'].values * np.sin(np.radians(dip))
-    # fault_type: 1 = reverse, 2 = normal, 3 = strike slip
+    # fault_type: 1 = reverse, 2 = normal, 3 = strike slip. These are the ucla_plha ranges, used for
+    # all fault source models; nshmp-lib uses 45 to 135 (reverse) and -135 to -45 (normal) degrees,
+    # which differs for about 2% of the rupture rate.
     fault_type = np.full(len(rupture_df), 1)
     fault_type[(rake > -150) & (rake < -30)] = 2
     fault_type[(rake >= -180) & (rake <= -150)] = 3
