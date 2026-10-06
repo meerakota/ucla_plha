@@ -1,23 +1,126 @@
+"""
+Convert the UCERF3 branch-averaged fault system solutions (FM3_1_branch_averaged and
+FM3_2_branch_averaged, from OpenSHA) to the ucla_plha fault source model files in
+src/ucla_plha/source_models/fault_source_models/ucerf3_fm31 and ucerf3_fm32.
+
+Aseismicity: UCERF3 reduces the seismogenic area of each fault subsection by its aseismic slip
+factor (Field et al. 2014, OpenSHA FaultSection.getReducedAveUpperDepth and
+getReducedDownDipWidth): the upper depth moves down by
+aseismic_slip_factor * (lower_depth - upper_depth), the lower depth does not change, and the
+coupling coefficient reduces the slip rate. The rupture areas in ruptures/properties.csv, and
+therefore the rupture magnitudes, are the sums of the reduced subsection areas, and the OpenSHA
+UCERF3 ERF builds the rupture surfaces with the reduced subsections (FaultSystemRupSet
+.getSurfaceForRupture with aseisReducesArea = true, the default of BaseFaultSystemSolutionERF):
+StirlingGriddedSurface moves the upper edge of the subsection from its trace down-dip to the
+reduced upper depth, i.e. it removes the top of the dipping fault plane, and keeps the lower
+edge. The USGS NSHM (nshmp-lib, DefaultGriddedSurface, and the rupture depths and widths of the
+nshm-conus UCERF3 ruptures.csv) does the same. The fault_sections.geojson files give the
+original (unreduced) upper depths ("UpDepth", the depth of the trace) and the aseismic slip
+factors ("AseismicSlipFactor").
+
+With APPLY_ASEISMICITY = True (the default), the conversion applies the reduction in the same
+way: the top corners of each fault segment are moved from the trace down-dip by
+aseismic_slip_factor * (lower_depth - upper_depth) / tan(dip) in the dip direction, at the
+reduced upper depth, the bottom corners do not move, and the rupture ztor, zbor, and dip are the
+averages of the reduced upper depths, lower depths, and dips of the rupture's subsections
+weighted by the reduced subsection areas (as OpenSHA CompoundSurface.getAveRupTopDepth,
+getAveRupBottomDepth, getAveDip, and the nshm-conus UCERF3 ruptures.csv). With APPLY_ASEISMICITY = False (environment variable
+UCERF3_APPLY_ASEISMICITY=0), the conversion uses the full (unreduced) subsection planes, as
+ucla_plha versions up to 2.0.0 did.
+
+Run from the utilities directory. Environment variables:
+    UCERF3_APPLY_ASEISMICITY: 1 (default) or 0
+    UCERF3_RUPTURE_DEPTHS: area_weighted (default) or shallowest (see RUPTURE_DEPTHS)
+The files of ucla_plha up to 2.0.0 (full planes, shallowest/deepest depths) are reproduced with
+UCERF3_APPLY_ASEISMICITY=0 UCERF3_RUPTURE_DEPTHS=shallowest.
+    UCERF3_OUTPUT_DIR: directory for the ucerf3_fm31 and ucerf3_fm32 directories
+        (default ../src/ucla_plha/source_models/fault_source_models)
+ruptures_segments.npz is made from ruptures/indices.csv (not in the repository because of its
+size; it is in the OpenSHA solution zip files). If indices.csv is not present, the existing
+ruptures_segments.npz in the output directory is used (it does not depend on aseismicity).
+"""
 import json
+import os
+import shutil
+
 import numpy as np
 import pandas as pd
 
+APPLY_ASEISMICITY = os.environ.get("UCERF3_APPLY_ASEISMICITY", "1") not in ("0", "false", "False")
+# Rupture depths: "area_weighted" (default): ztor and zbor are the area-weighted averages of the
+# upper and lower depths of the rupture's subsections, as OpenSHA (CompoundSurface.getAveRupTopDepth,
+# getAveRupBottomDepth) and the nshm-conus UCERF3 ruptures.csv. "shallowest": ztor is the shallowest
+# upper depth and zbor the deepest lower depth (ucla_plha up to 2.0.0).
+RUPTURE_DEPTHS = os.environ.get("UCERF3_RUPTURE_DEPTHS", "area_weighted")
+OUTPUT_DIR = os.environ.get(
+    "UCERF3_OUTPUT_DIR", "../src/ucla_plha/source_models/fault_source_models"
+)
 
-def get_lat_lon(filename):
+rad = np.pi / 180
+a_earth = 6378.1370  # Earth's equatorial radius in km
+b_earth = 6356.7523  # Earth's polar radius in km
+
+
+def _radius(lat):
+    """Radius of the oblate spheroid (km) at latitude lat (degrees)."""
+    return np.sqrt(
+        ((a_earth**2 * np.cos(lat * rad)) ** 2 + (b_earth**2 * np.sin(lat * rad)) ** 2)
+        / ((a_earth * np.cos(lat * rad)) ** 2 + (b_earth * np.sin(lat * rad)) ** 2)
+    )
+
+
+def offset_points(lat, lon, w, dip_dir):
+    """
+    Move points (lat, lon, degrees) a horizontal distance w (km) in the direction dip_dir
+    (degrees clockwise from north). The north component is w * cos(dip_dir), and the longitude is
+    then chosen so that the great circle distance from the original point is w.
+    """
+    wy = w * np.cos(dip_dir * rad)
+    dlat = wy / _radius(lat) / rad
+    lat_new = lat + dlat
+    r_new = _radius(lat_new)
+    invangle = 1.0 - (2.0 * np.sin(w / (2.0 * r_new)) ** 2.0 + np.cos(dlat * rad) - 1.0) / (
+        np.cos(lat * rad) * np.cos(lat_new * rad)
+    )
+    # floating point precision may render inverse angles higher than 1.0 (or less than -1.0, which
+    # doesn't happen here but is mathematically possible). So impose ranges on the inverse angles
+    invangle = np.clip(invangle, -1.0, 1.0)
+    # arccos is always positive, so use the sign of the east component of the dip direction to move
+    # the points west for faults that dip toward the west (dip_dir between 180 and 360 degrees)
+    lon_sign = np.sign(np.sin(dip_dir * rad))
+    lon_new = lon + lon_sign * np.arccos(invangle) / rad
+    return lat_new, lon_new
+
+
+def aseismic_reduction(upper_depth, lower_depth, aseismicity, dip):
+    """
+    UCERF3 (OpenSHA FaultSection.getReducedAveUpperDepth) aseismic reduction of a subsection.
+    Returns the reduced upper depth (km) and the horizontal distance (km) from the trace to the
+    reduced upper edge in the dip direction. The distance is zero for vertical subsections.
+    """
+    reduced_upper = upper_depth + aseismicity * (lower_depth - upper_depth)
+    shift = np.where(
+        dip >= 90.0, 0.0, (reduced_upper - upper_depth) / np.tan(np.minimum(dip, 89.999) * rad)
+    )
+    return reduced_upper, shift
+
+
+def get_lat_lon(filename, apply_aseismicity=True):
     """
     Read UCERF3 source geojson file and output a Python list containing Numpy arrays for segment_id,
-    and the latitudes and longitudes.
+    and the latitudes, longitudes, and depths of the four corners of each fault segment (the
+    segments are the pieces of the subsection traces between consecutive trace points): corners 1
+    and 2 are the upper edge and corners 3 and 4 the lower edge.
 
     Notation: UCERF3 uses the variable name "FaultID" to refer to the subsections of the fault.
     We reserve the word "fault" for a particular named fault (e.g., Airport Lake), and "section" for
     a section of the fault. We therefore have renamed "FaultID" to "segment_id" in our dataframe.
+
+    The trace is at the (unreduced) upper depth, and the lower edge is down-dip of the trace at the
+    lower depth. With apply_aseismicity, the upper edge is the trace moved down-dip to the reduced
+    upper depth (see aseismic_reduction); otherwise it is the trace.
     """
     features = json.load(open(filename))["features"]
-    FaultID = [f["properties"]["FaultID"] for f in features]
-    DipDeg = [f["properties"]["DipDeg"] for f in features]
-    DipDir = [f["properties"]["DipDir"] for f in features]
-    LowDepth = [f["properties"]["LowDepth"] for f in features]
-    UpDepth = [f["properties"]["UpDepth"] for f in features]
 
     lat1 = []
     lon1 = []
@@ -28,23 +131,22 @@ def get_lat_lon(filename):
     dip_dir = []
     lower_depth = []
     upper_depth = []
+    aseismicity = []
 
-    idx = 0
-    for fid, ddeg, ddir, ldepth, udepth in zip(
-        FaultID, DipDeg, DipDir, LowDepth, UpDepth
-    ):
-        gm_array = np.asarray(features[idx]["geometry"]["coordinates"])
-        idx += 1
+    for f in features:
+        p = f["properties"]
+        gm_array = np.asarray(f["geometry"]["coordinates"])
         for i in range(gm_array.shape[0] - 1):
-            segment_id.append(fid)
+            segment_id.append(p["FaultID"])
             lon1.append(gm_array[i, 0])
             lat1.append(gm_array[i, 1])
             lon2.append(gm_array[i + 1, 0])
             lat2.append(gm_array[i + 1, 1])
-            dip.append(ddeg)
-            dip_dir.append(ddir)
-            lower_depth.append(ldepth)
-            upper_depth.append(udepth)
+            dip.append(p["DipDeg"])
+            dip_dir.append(p["DipDir"])
+            lower_depth.append(p["LowDepth"])
+            upper_depth.append(p["UpDepth"])
+            aseismicity.append(p.get("AseismicSlipFactor", 0.0))
 
     segment_id = np.asarray(segment_id, dtype="intc")
     lat1 = np.asarray(lat1)
@@ -55,61 +157,34 @@ def get_lat_lon(filename):
     dip_dir = np.asarray(dip_dir)
     lower_depth = np.asarray(lower_depth)
     upper_depth = np.asarray(upper_depth)
+    aseismicity = np.asarray(aseismicity)
 
-    rad = np.pi / 180
-    a = 6378.1370  # Earth's equatorial radius in km
-    b = 6356.7523  # Earth's polar radius in km
+    # lower edge: down-dip of the trace (which is at the original upper depth)
     w = (lower_depth - upper_depth) / np.tan(dip * rad)
-    wy = w * np.cos(dip_dir * rad)
-    r1 = np.sqrt(
-        ((a**2 * np.cos(lat1 * rad)) ** 2 + (b**2 * np.sin(lat1 * rad)) ** 2)
-        / ((a * np.cos(lat1 * rad)) ** 2 + (b * np.sin(lat1 * rad)) ** 2)
-    )
-    r2 = np.sqrt(
-        ((a**2 * np.cos(lat2 * rad)) ** 2 + (b**2 * np.sin(lat2 * rad)) ** 2)
-        / ((a * np.cos(lat2 * rad)) ** 2 + (b * np.sin(lat2 * rad)) ** 2)
-    )
+    lat3, lon3 = offset_points(lat1, lon1, w, dip_dir)
+    lat4, lon4 = offset_points(lat2, lon2, w, dip_dir)
 
-    dlat1 = wy / r1 / rad
-    dlat2 = wy / r2 / rad
-    lat3 = lat1 + dlat1
-    lat4 = lat2 + dlat2
-    r3 = np.sqrt(
-        ((a**2 * np.cos(lat3 * rad)) ** 2 + (b**2 * np.sin(lat3 * rad)) ** 2)
-        / ((a * np.cos(lat3 * rad)) ** 2 + (b * np.sin(lat3 * rad)) ** 2)
-    )
-    r4 = np.sqrt(
-        ((a**2 * np.cos(lat4 * rad)) ** 2 + (b**2 * np.sin(lat4 * rad)) ** 2)
-        / ((a * np.cos(lat4 * rad)) ** 2 + (b * np.sin(lat4 * rad)) ** 2)
-    )
-
-    invangle13 = 1.0 - (
-        2.0 * np.sin(w / (2.0 * r3)) ** 2.0 + np.cos(dlat1 * rad) - 1.0
-    ) / (np.cos(lat1 * rad) * np.cos(lat3 * rad))
-    # floating point precision may render inverse angles higher than 1.0 (or less than -1.0, which doesn't happen here but
-    # is mathematically possible). So impose ranges on the inverse angles
-    invangle13[invangle13 > 1.0] = 1.0
-    invangle13[invangle13 < -1.0] = -1.0
-    # arccos is always positive, so use the sign of the east component of the dip direction to move
-    # the bottom edge west for faults that dip toward the west (dip_dir between 180 and 360 degrees)
-    lon_sign = np.sign(np.sin(dip_dir * rad))
-    lon3 = lon1 + lon_sign * np.arccos(invangle13) / rad
-
-    invangle24 = 1.0 - (
-        2.0 * np.sin(w / (2.0 * r4)) ** 2.0 + np.cos(dlat2 * rad) - 1.0
-    ) / (np.cos(lat2 * rad) * np.cos(lat4 * rad))
-    invangle24[invangle24 > 1.0] = 1.0
-    invangle24[invangle24 < -1.0] = -1.0
-    lon4 = lon2 + lon_sign * np.arccos(invangle24) / rad
+    # upper edge
+    if apply_aseismicity:
+        top_depth, shift = aseismic_reduction(upper_depth, lower_depth, aseismicity, dip)
+        moved = shift > 0.0
+        lat1, lon1 = (
+            np.where(moved, v, v0) for v, v0 in zip(offset_points(lat1, lon1, shift, dip_dir), (lat1, lon1))
+        )
+        lat2, lon2 = (
+            np.where(moved, v, v0) for v, v0 in zip(offset_points(lat2, lon2, shift, dip_dir), (lat2, lon2))
+        )
+    else:
+        top_depth = upper_depth
 
     return (
         segment_id,
         lat1,
         lon1,
-        upper_depth,
+        top_depth,
         lat2,
         lon2,
-        upper_depth,
+        top_depth,
         lat3,
         lon3,
         lower_depth,
@@ -128,16 +203,10 @@ def latlonel_to_xyz(geom):
     Return N x M x 3 Numpy array of points in Cartesian coordinates
     """
     xyz = np.empty(geom.shape)
-    rad = np.pi / 180.0
     d = geom[:, :, 2]
-    a = 6378.1370  # Earth's equatorial radius in km
-    b = 6356.7523  # Earth's polar radius in km
     lat = geom[:, :, 0]
     lon = geom[:, :, 1]
-    r = np.sqrt(
-        ((a**2 * np.cos(lat * rad)) ** 2 + (b**2 * np.sin(lat * rad)) ** 2)
-        / ((a * np.cos(lat * rad)) ** 2 + (b * np.sin(lat * rad)) ** 2)
-    )
+    r = _radius(lat)
     xyz[:, :, 0] = (r - d) * np.cos(lat * rad) * np.cos(lon * rad)
     xyz[:, :, 1] = (r - d) * np.cos(lat * rad) * np.sin(lon * rad)
     xyz[:, :, 2] = (r - d) * np.sin(lat * rad)
@@ -167,9 +236,8 @@ def get_triangles(lat1, lon1, d1, lat2, lon2, d2, lat3, lon3, d3, lat4, lon4, d4
 
 def get_rectangles(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
     """
-    Accept lat-lon array from the get_lat_lon() function, and return a Python list containing
-    an integer array of segment_id values, a float array of rectangles for surface projection
-    of fault for computing Rx, Rx1, and Ry0
+    Accept lat-lon array from the get_lat_lon() function, and return a float array of rectangles
+    for the surface projection of the fault segments for computing Rx, Rx1, and Ry0
     """
     zero_depth = np.zeros(len(lat1))
     rect_rjb = np.asarray(
@@ -183,10 +251,12 @@ def get_rectangles(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4):
     return rect_rjb_xyz
 
 
-def get_section_properties(filename):
+def get_section_properties(filename, apply_aseismicity=True):
     """
     Read UCERF3 source geojson file and return Numpy arrays of upper depth, lower depth, dip, and
-    down-dip area for each section, indexed by segment_id (FaultID).
+    down-dip area for each section, indexed by segment_id (FaultID). With apply_aseismicity, the
+    upper depth and area are reduced by the aseismic slip factor (the area is then the area
+    UCERF3 uses for the rupture magnitudes, "Area (m^2)" in ruptures/properties.csv).
     """
     features = json.load(open(filename))["features"]
     segment_id = np.asarray([f["properties"]["FaultID"] for f in features])
@@ -195,24 +265,21 @@ def get_section_properties(filename):
     upper_depth = np.asarray([f["properties"]["UpDepth"] for f in features])
     lower_depth = np.asarray([f["properties"]["LowDepth"] for f in features])
     dip = np.asarray([f["properties"]["DipDeg"] for f in features])
+    aseismicity = np.asarray([f["properties"].get("AseismicSlipFactor", 0.0) for f in features])
     # trace length of each section from the haversine distance between consecutive points
-    rad = np.pi / 180.0
-    a = 6378.1370  # Earth's equatorial radius in km
-    b = 6356.7523  # Earth's polar radius in km
     length = np.zeros(len(features))
     for i, f in enumerate(features):
         coords = np.asarray(f["geometry"]["coordinates"])
         lon = coords[:, 0] * rad
         lat = coords[:, 1] * rad
-        r = np.sqrt(
-            ((a**2 * np.cos(lat)) ** 2 + (b**2 * np.sin(lat)) ** 2)
-            / ((a * np.cos(lat)) ** 2 + (b * np.sin(lat)) ** 2)
-        )
+        r = _radius(coords[:, 1])
         hav = (
             np.sin(np.diff(lat) / 2.0) ** 2
             + np.cos(lat[:-1]) * np.cos(lat[1:]) * np.sin(np.diff(lon) / 2.0) ** 2
         )
         length[i] = np.sum(0.5 * (r[:-1] + r[1:]) * 2.0 * np.arcsin(np.sqrt(hav)))
+    if apply_aseismicity:
+        upper_depth, _ = aseismic_reduction(upper_depth, lower_depth, aseismicity, dip)
     area = length * (lower_depth - upper_depth) / np.sin(dip * rad)
     return (upper_depth, lower_depth, dip, area)
 
@@ -223,12 +290,15 @@ def get_rupture_data(
     ruptures_segments_file,
     section_file,
     output_file,
+    apply_aseismicity=True,
+    rupture_depths="area_weighted",
 ):
     """
     Read UCERF3 rupture data file, rate data file, and section properties. Save magnitude, rate, style of
-    faulting, dip, ztor, and zbor for each rupture in compressed npz format. ztor is the shallowest upper
-    depth and zbor is the deepest lower depth of the sections in the rupture, and dip is the area-weighted
-    average dip of the sections in the rupture.
+    faulting, dip, ztor, and zbor for each rupture in compressed npz format. ztor, zbor, and dip are the
+    area-weighted averages of the upper depths, lower depths, and dips of the sections in the rupture
+    (upper depths and areas reduced by aseismicity with apply_aseismicity). With
+    rupture_depths="shallowest", ztor is the shallowest upper depth and zbor the deepest lower depth.
     """
     rupture_df = pd.read_csv(rupture_file)
     rate_df = pd.read_csv(rate_file)
@@ -236,13 +306,23 @@ def get_rupture_data(
     segment_index = ruptures_segments["segment_index"]
     ruptures_index = ruptures_segments["rupture_index"]
     upper_depth, lower_depth, dip_section, area_section = get_section_properties(
-        section_file
+        section_file, apply_aseismicity
     )
     split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
     boundaries = np.r_[0, split_indices]
-    ztor = np.minimum.reduceat(upper_depth[segment_index], boundaries)
-    zbor = np.maximum.reduceat(lower_depth[segment_index], boundaries)
     area_all = area_section[segment_index]
+    if rupture_depths == "shallowest":
+        ztor = np.minimum.reduceat(upper_depth[segment_index], boundaries)
+        zbor = np.maximum.reduceat(lower_depth[segment_index], boundaries)
+    elif rupture_depths == "area_weighted":
+        area_sum = np.add.reduceat(area_all, boundaries)
+        ztor = np.add.reduceat(upper_depth[segment_index] * area_all, boundaries) / area_sum
+        zbor = np.add.reduceat(lower_depth[segment_index] * area_all, boundaries) / area_sum
+        # 1 m precision is enough and keeps ruptures.npz small (the averages compress poorly)
+        ztor = np.round(ztor, 3)
+        zbor = np.round(zbor, 3)
+    else:
+        raise ValueError(f'rupture_depths must be "shallowest" or "area_weighted", not "{rupture_depths}"')
     dip = np.add.reduceat(
         dip_section[segment_index] * area_all, boundaries
     ) / np.add.reduceat(area_all, boundaries)
@@ -273,7 +353,7 @@ def get_ruptures_segments(rupture_indices_file, output_file):
     """
     Read UCERF3 file containing the list of all of the segments associated with each rupture.
     Organize the data into a single Numpy array containing rupture_index and segment_index.
-    The array is very large, so use the smallest possible integer container, and gzip the pickle files.
+    The array is very large, so use the smallest possible integer container, and compress the file.
     """
     indices = pd.read_csv(rupture_indices_file, engine="python")
     rupture_index = indices["Rupture Index"].values
@@ -295,94 +375,59 @@ def get_ruptures_segments(rupture_indices_file, output_file):
     )
 
 
-### Compute triangles representing fault segments, and array of segment_id values
-segment_id, lat1, lon1, d1, lat2, lon2, d2, lat3, lon3, d3, lat4, lon4, d4, dip = (
-    get_lat_lon("FM3_1_branch_averaged/ruptures/fault_sections.geojson")
-)
-tri_fm31 = get_triangles(lat1, lon1, d1, lat2, lon2, d2, lat3, lon3, d3, lat4, lon4, d4)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/tri_segment_id.npy",
-    np.concatenate((segment_id, segment_id)),
-)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/tri_rrup.npy",
-    tri_fm31[0],
-)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/tri_rjb.npy",
-    tri_fm31[1],
-)
-rect_fm31 = get_rectangles(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/rect_segment_id.npy",
-    segment_id,
-)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/rect_rjb.npy",
-    rect_fm31,
-)
+def convert(
+    input_dir,
+    model,
+    output_dir=OUTPUT_DIR,
+    apply_aseismicity=APPLY_ASEISMICITY,
+    rupture_depths=RUPTURE_DEPTHS,
+):
+    """Convert one UCERF3 branch-averaged solution (input_dir) to the ucla_plha model files."""
+    out = os.path.join(output_dir, model)
+    os.makedirs(out, exist_ok=True)
+    section_file = os.path.join(input_dir, "ruptures", "fault_sections.geojson")
 
-### Compute array mapping rupture and segment indices
-fm31_rupture_indices_file = "FM3_1_branch_averaged/ruptures/indices.csv"
-fm31_output_file = "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures_segments.npz"
-get_ruptures_segments(fm31_rupture_indices_file, fm31_output_file)
+    ### Compute triangles representing fault segments, and array of segment_id values
+    segment_id, lat1, lon1, d1, lat2, lon2, d2, lat3, lon3, d3, lat4, lon4, d4, dip = (
+        get_lat_lon(section_file, apply_aseismicity)
+    )
+    tri = get_triangles(lat1, lon1, d1, lat2, lon2, d2, lat3, lon3, d3, lat4, lon4, d4)
+    np.save(os.path.join(out, "tri_segment_id.npy"), np.concatenate((segment_id, segment_id)))
+    np.save(os.path.join(out, "tri_rrup.npy"), tri[0])
+    np.save(os.path.join(out, "tri_rjb.npy"), tri[1])
+    rect = get_rectangles(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4)
+    np.save(os.path.join(out, "rect_segment_id.npy"), segment_id)
+    np.save(os.path.join(out, "rect_rjb.npy"), rect)
 
-### Compute ruptures.pkl file that contains rupture_index, magnitude, rate and style of faulting for each event
-fm31_rupture_file = "FM3_1_branch_averaged/ruptures/properties.csv"
-fm31_rate_file = "FM3_1_branch_averaged/solution/rates.csv"
-fm31_ruptures_segments_file = "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures_segments.npz"
-fm31_output_file = (
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm31/ruptures.npz"
-)
-get_rupture_data(
-    fm31_rupture_file,
-    fm31_rate_file,
-    fm31_ruptures_segments_file,
-    "FM3_1_branch_averaged/ruptures/fault_sections.geojson",
-    fm31_output_file,
-)
+    ### Compute array mapping rupture and segment indices
+    ruptures_segments_file = os.path.join(out, "ruptures_segments.npz")
+    indices_file = os.path.join(input_dir, "ruptures", "indices.csv")
+    if os.path.exists(indices_file):
+        get_ruptures_segments(indices_file, ruptures_segments_file)
+    else:
+        default = os.path.join(
+            "../src/ucla_plha/source_models/fault_source_models", model, "ruptures_segments.npz"
+        )
+        if not os.path.exists(ruptures_segments_file):
+            shutil.copy(default, ruptures_segments_file)
+        print(f"{indices_file} not found; using {ruptures_segments_file}")
 
-# Now repeat for fm32
-segment_id, lat1, lon1, d1, lat2, lon2, d2, lat3, lon3, d3, lat4, lon4, d4, dip = (
-    get_lat_lon("FM3_2_branch_averaged/ruptures/fault_sections.geojson")
-)
-tri_fm32 = get_triangles(lat1, lon1, d1, lat2, lon2, d2, lat3, lon3, d3, lat4, lon4, d4)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/tri_segment_id.npy",
-    np.concatenate((segment_id, segment_id)),
-)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/tri_rrup.npy",
-    tri_fm32[0],
-)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/tri_rjb.npy",
-    tri_fm32[1],
-)
-rect_fm32 = get_rectangles(lat1, lon1, lat2, lon2, lat3, lon3, lat4, lon4)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/rect_segment_id.npy",
-    segment_id,
-)
-np.save(
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/rect_rjb.npy",
-    rect_fm32,
-)
+    ### Compute ruptures.npz file that contains magnitude, rate, style of faulting, dip, ztor, zbor
+    get_rupture_data(
+        os.path.join(input_dir, "ruptures", "properties.csv"),
+        os.path.join(input_dir, "solution", "rates.csv"),
+        ruptures_segments_file,
+        section_file,
+        os.path.join(out, "ruptures.npz"),
+        apply_aseismicity,
+        rupture_depths,
+    )
 
-fm32_rupture_indices_file = "FM3_2_branch_averaged/ruptures/indices.csv"
-fm32_output_file = "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures_segments.npz"
-get_ruptures_segments(fm32_rupture_indices_file, fm32_output_file)
 
-fm32_rupture_file = "FM3_2_branch_averaged/ruptures/properties.csv"
-fm32_rate_file = "FM3_2_branch_averaged/solution/rates.csv"
-fm32_ruptures_segments_file = "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures_segments.npz"
-fm32_output_file = (
-    "../src/ucla_plha/source_models/fault_source_models/ucerf3_fm32/ruptures.npz"
-)
-get_rupture_data(
-    fm32_rupture_file,
-    fm32_rate_file,
-    fm32_ruptures_segments_file,
-    "FM3_2_branch_averaged/ruptures/fault_sections.geojson",
-    fm32_output_file,
-)
+if __name__ == "__main__":
+    print(
+        f"apply_aseismicity = {APPLY_ASEISMICITY}, rupture_depths = {RUPTURE_DEPTHS}, "
+        f"output directory {OUTPUT_DIR}"
+    )
+    convert("FM3_1_branch_averaged", "ucerf3_fm31")
+    convert("FM3_2_branch_averaged", "ucerf3_fm32")
