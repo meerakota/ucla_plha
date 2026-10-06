@@ -21,15 +21,18 @@ factors ("AseismicSlipFactor").
 With APPLY_ASEISMICITY = True (the default), the conversion applies the reduction in the same
 way: the top corners of each fault segment are moved from the trace down-dip by
 aseismic_slip_factor * (lower_depth - upper_depth) / tan(dip) in the dip direction, at the
-reduced upper depth, the bottom corners do not move, the rupture ztor is the shallowest reduced
-upper depth of the rupture's subsections, and the rupture dip is weighted by the reduced
-subsection areas. With APPLY_ASEISMICITY = False (environment variable
+reduced upper depth, the bottom corners do not move, and the rupture ztor, zbor, and dip are the
+averages of the reduced upper depths, lower depths, and dips of the rupture's subsections
+weighted by the reduced subsection areas (as OpenSHA CompoundSurface.getAveRupTopDepth,
+getAveRupBottomDepth, getAveDip, and the nshm-conus UCERF3 ruptures.csv). With APPLY_ASEISMICITY = False (environment variable
 UCERF3_APPLY_ASEISMICITY=0), the conversion uses the full (unreduced) subsection planes, as
 ucla_plha versions up to 2.0.0 did.
 
 Run from the utilities directory. Environment variables:
     UCERF3_APPLY_ASEISMICITY: 1 (default) or 0
-    UCERF3_RUPTURE_DEPTHS: shallowest (default) or area_weighted (see RUPTURE_DEPTHS)
+    UCERF3_RUPTURE_DEPTHS: area_weighted (default) or shallowest (see RUPTURE_DEPTHS)
+The files of ucla_plha up to 2.0.0 (full planes, shallowest/deepest depths) are reproduced with
+UCERF3_APPLY_ASEISMICITY=0 UCERF3_RUPTURE_DEPTHS=shallowest.
     UCERF3_OUTPUT_DIR: directory for the ucerf3_fm31 and ucerf3_fm32 directories
         (default ../src/ucla_plha/source_models/fault_source_models)
 ruptures_segments.npz is made from ruptures/indices.csv (not in the repository because of its
@@ -44,10 +47,11 @@ import numpy as np
 import pandas as pd
 
 APPLY_ASEISMICITY = os.environ.get("UCERF3_APPLY_ASEISMICITY", "1") not in ("0", "false", "False")
-# Rupture depths: "shallowest" (default): ztor is the shallowest upper depth and zbor the deepest
-# lower depth of the rupture's subsections. "area_weighted": the area-weighted averages, as OpenSHA
-# (CompoundSurface.getAveRupTopDepth, getAveRupBottomDepth) and the nshm-conus UCERF3 ruptures.csv.
-RUPTURE_DEPTHS = os.environ.get("UCERF3_RUPTURE_DEPTHS", "shallowest")
+# Rupture depths: "area_weighted" (default): ztor and zbor are the area-weighted averages of the
+# upper and lower depths of the rupture's subsections, as OpenSHA (CompoundSurface.getAveRupTopDepth,
+# getAveRupBottomDepth) and the nshm-conus UCERF3 ruptures.csv. "shallowest": ztor is the shallowest
+# upper depth and zbor the deepest lower depth (ucla_plha up to 2.0.0).
+RUPTURE_DEPTHS = os.environ.get("UCERF3_RUPTURE_DEPTHS", "area_weighted")
 OUTPUT_DIR = os.environ.get(
     "UCERF3_OUTPUT_DIR", "../src/ucla_plha/source_models/fault_source_models"
 )
@@ -287,15 +291,14 @@ def get_rupture_data(
     section_file,
     output_file,
     apply_aseismicity=True,
-    rupture_depths="shallowest",
+    rupture_depths="area_weighted",
 ):
     """
     Read UCERF3 rupture data file, rate data file, and section properties. Save magnitude, rate, style of
-    faulting, dip, ztor, and zbor for each rupture in compressed npz format. ztor is the shallowest upper
-    depth and zbor is the deepest lower depth of the sections in the rupture, and dip is the area-weighted
-    average dip of the sections in the rupture (upper depths and areas reduced by aseismicity with
-    apply_aseismicity). With rupture_depths="area_weighted", ztor and zbor are the area-weighted
-    averages of the section upper and lower depths instead.
+    faulting, dip, ztor, and zbor for each rupture in compressed npz format. ztor, zbor, and dip are the
+    area-weighted averages of the upper depths, lower depths, and dips of the sections in the rupture
+    (upper depths and areas reduced by aseismicity with apply_aseismicity). With
+    rupture_depths="shallowest", ztor is the shallowest upper depth and zbor the deepest lower depth.
     """
     rupture_df = pd.read_csv(rupture_file)
     rate_df = pd.read_csv(rate_file)
@@ -315,6 +318,9 @@ def get_rupture_data(
         area_sum = np.add.reduceat(area_all, boundaries)
         ztor = np.add.reduceat(upper_depth[segment_index] * area_all, boundaries) / area_sum
         zbor = np.add.reduceat(lower_depth[segment_index] * area_all, boundaries) / area_sum
+        # 1 m precision is enough and keeps ruptures.npz small (the averages compress poorly)
+        ztor = np.round(ztor, 3)
+        zbor = np.round(zbor, 3)
     else:
         raise ValueError(f'rupture_depths must be "shallowest" or "area_weighted", not "{rupture_depths}"')
     dip = np.add.reduceat(

@@ -108,6 +108,37 @@ def test_airport_lake_reduced_top_edge():
     assert r["zbor"][0] == pytest.approx(13.0)
 
 
+def test_multi_section_rupture_depths_are_area_weighted():
+    # Rupture 2025 of FM3.1: Garlock (Central) subsections 18 and 19 (reduced upper depth 0, lower
+    # depth 11.5 km) and Panamint Valley subsections 0 and 1 (reduced upper depth 1.3, lower depth
+    # 13 km), all vertical. ztor and zbor are the averages weighted by the reduced subsection areas,
+    # as OpenSHA (CompoundSurface) and the nshm-conus 5.3.1 UCERF3 ruptures.csv (depth 0.704 km,
+    # depth + width = 12.312 km), not the shallowest and deepest depths (0 and 13 km).
+    model = "ucerf3_fm31"
+    sections = _sections(model)
+    rs = _load(model, "ruptures_segments.npz")
+    seg = rs["segment_index"][rs["rupture_index"] == 2025]
+    assert sorted(seg) == [612, 613, 1523, 1524]
+    upper, lower, area = [], [], []
+    for s in seg:
+        p = sections[s]["properties"]
+        u = p["UpDepth"] + p["AseismicSlipFactor"] * (p["LowDepth"] - p["UpDepth"])
+        c = np.asarray(sections[s]["geometry"]["coordinates"])
+        length = sum(_horizontal(c[i, 1], c[i, 0], c[i + 1, 1], c[i + 1, 0])[0] for i in range(len(c) - 1))
+        upper.append(u)
+        lower.append(p["LowDepth"])
+        area.append(length * (p["LowDepth"] - u) / np.sin(np.radians(p["DipDeg"])))
+    r = _load(model, "ruptures.npz")
+    assert r["ztor"][2025] == pytest.approx(np.average(upper, weights=area), abs=1e-3)
+    assert r["zbor"][2025] == pytest.approx(np.average(lower, weights=area), abs=1e-3)
+    assert r["ztor"][2025] == pytest.approx(0.704, abs=0.002)
+    assert r["zbor"][2025] == pytest.approx(12.312, abs=0.002)
+    # the earlier convention is still available
+    conv = _converter()
+    up, low, _, _ = conv.get_section_properties(str(SECTIONS[model]), True)
+    assert min(up[seg]) == pytest.approx(0.0) and max(low[seg]) == pytest.approx(13.0)
+
+
 def test_without_aseismicity_upper_edge_is_the_trace():
     conv = _converter()
     out = conv.get_lat_lon(str(SECTIONS["ucerf3_fm31"]), apply_aseismicity=False)
