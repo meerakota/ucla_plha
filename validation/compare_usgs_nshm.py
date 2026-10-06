@@ -148,12 +148,9 @@ def nshmp_grid_distances(enabled):
         plha.get_source_info = original
 
 
-def run_ucla_plha(lon, lat, vs30, pga, models, active_gmms, grid_distances="source_info",
-                  z1p0=None, z2p5=None, zsed=None, nshm_site_data=True):
-    """ucla_plha hazard per NSHM component.
-
-    Returns ({component: curve}, {source model key: curve}, notes, seconds)
-    """
+def nshm_config(lon, lat, vs30, pga, models, active_gmms, z1p0=None, z2p5=None, zsed=None,
+                nshm_site_data=True):
+    """ucla_plha config with the NSHM settings (see the module docstring)."""
     site = {"latitude": lat, "longitude": lon, "elevation": 0.0, "vs30": vs30}
     for key, value in (("z1p0", z1p0), ("z2p5", z2p5), ("zsed", zsed)):
         if value is not None:
@@ -181,6 +178,17 @@ def run_ucla_plha(lon, lat, vs30, pga, models, active_gmms, grid_distances="sour
         "ground_motion_models": gmms,
         "output": {"psha": {"pga": list(map(float, pga)), "source_model_hazard": True}},
     }
+    return config
+
+
+def run_ucla_plha(lon, lat, vs30, pga, models, active_gmms, grid_distances="source_info",
+                  z1p0=None, z2p5=None, zsed=None, nshm_site_data=True):
+    """ucla_plha hazard per NSHM component.
+
+    Returns ({component: curve}, {source model key: curve}, notes, seconds)
+    """
+    config = nshm_config(lon, lat, vs30, pga, models, active_gmms, z1p0, z2p5, zsed,
+                         nshm_site_data)
     with tempfile.TemporaryDirectory() as tmp:
         path = os.path.join(tmp, "config.json")
         with open(path, "w") as f:
