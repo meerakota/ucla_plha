@@ -262,6 +262,26 @@ nesting level defines the model inputs listed below.
      - time-averaged shear-wave velocity in the upper 12 m
      - m/s
      - ``"cetin_et_al_2018"``
+   * - ``"parameter_uncertainty"``
+     - include the input parameter uncertainty of Cetin et al. (2018b) (default ``false``)
+     - \-
+     - optional, ``"cetin_et_al_2018"``
+   * - ``"sigma_n160"``
+     - standard deviation of ``"n160"`` (default 0)
+     - \-
+     - optional, ``"cetin_et_al_2018"`` with ``"parameter_uncertainty"``
+   * - ``"sigma_fc"``
+     - standard deviation of ``"fc"`` (default 0)
+     - %
+     - optional, ``"cetin_et_al_2018"`` with ``"parameter_uncertainty"``
+   * - ``"cov_sigmavp"``
+     - coefficient of variation of ``"sigmavp"`` (default 0)
+     - \-
+     - optional, ``"cetin_et_al_2018"`` with ``"parameter_uncertainty"``
+   * - ``"cov_csr"``
+     - coefficient of variation of the cyclic stress ratio for a given ground motion (default 0)
+     - \-
+     - optional, ``"cetin_et_al_2018"`` with ``"parameter_uncertainty"``
    * - ``"qc1Ncs"``
      - overburden- and fines-corrected dimensionless cone tip resistance
      - \-
@@ -310,6 +330,8 @@ nesting level defines the model inputs listed below.
      - weight assigned to this liquefaction model
      - \-
      - all models
+
+``"cetin_et_al_2018"`` includes only the model uncertainty (:math:`\sigma_\varepsilon = 2.95`) by default. With ``"parameter_uncertainty": true``, the input parameter uncertainty of Cetin et al. (2018b) is added, :math:`\sigma_{tot}^2 = \theta_7 \sigma_{input}^2 + \sigma_\varepsilon^2` with :math:`\theta_7 = 0.392` and :math:`\sigma_{input}^2 = \theta_6^2 \delta_{CSR}^2 + \sigma_{N_{1,60}}^2 (1 + \theta_1 FC)^2 + \sigma_{FC}^2 (\theta_1 N_{1,60} + \theta_4)^2 + \theta_3^2 \delta_{\sigma'_v}^2` (their Eqs. 4 and 5), where :math:`\delta_{CSR}` is ``"cov_csr"``, :math:`\sigma_{N_{1,60}}` is ``"sigma_n160"``, :math:`\sigma_{FC}` is ``"sigma_fc"``, and :math:`\delta_{\sigma'_v}` is ``"cov_sigmavp"``. Because ucla_plha integrates the ground motion variability in the hazard calculation, ``"cov_csr"`` should represent only the uncertainty in estimating CSR for a given ground motion (e.g., :math:`r_d` and the stresses), not the variability of the ground motion.
 
 .. note::
 

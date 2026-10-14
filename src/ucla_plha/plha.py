@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 from importlib.resources import files
 
 import jsonschema
@@ -763,6 +764,19 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
     """
     if liquefaction_model == "cetin_et_al_2018":
         c = config["liquefaction_models"]["cetin_et_al_2018"]
+        # Optional input parameter uncertainty (Cetin et al. 2018b); off by default
+        parameter_uncertainty = c.get("parameter_uncertainty", False)
+        uncertainties = {
+            key: c.get(key, 0.0)
+            for key in ["sigma_n160", "sigma_fc", "cov_sigmavp", "cov_csr"]
+        }
+        if parameter_uncertainty and not any(uncertainties.values()):
+            warnings.warn(
+                'cetin_et_al_2018: "parameter_uncertainty" is true, but "sigma_n160", "sigma_fc", '
+                '"cov_sigmavp", and "cov_csr" are all zero, so only the model uncertainty is included',
+                UserWarning,
+                stacklevel=2,
+            )
         return cetin_et_al_2018.get_fsl_cdfs(
             mu_ln_pga,
             sigma_ln_pga,
@@ -775,6 +789,8 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             c["fc"],
             fsl,
             c["pa"],
+            parameter_uncertainty=parameter_uncertainty,
+            **uncertainties,
         )
     elif liquefaction_model == "moss_et_al_2006":
         c = config["liquefaction_models"]["moss_et_al_2006"]

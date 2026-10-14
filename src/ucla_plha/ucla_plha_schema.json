@@ -581,6 +581,25 @@
                         "pa": {
                             "type": "number"
                         },
+                        "parameter_uncertainty": {
+                            "type": "boolean"
+                        },
+                        "sigma_n160": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "sigma_fc": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "cov_sigmavp": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "cov_csr": {
+                            "type": "number",
+                            "minimum": 0
+                        },
                         "weight": {
                             "type": "number"
                         }

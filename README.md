@@ -225,6 +225,11 @@ The 2nd nesting level keys define the liquefaction model, and must be one of "bo
 | "n160" | overburden- and energy-corrected SPT blow count | - | required for "boulanger_idriss_2012" and "cetin_et_al_2018" |
 | "fc" | fines content | % | required for "boulanger_idriss_2012" and "cetin_et_al_2018" |
 | "vs12" | time-averaged shear wave velocity in upper 12 m | m/s | required for "cetin_et_al_2018" |
+| "parameter_uncertainty" | include the input parameter uncertainty of Cetin et al. (2018b) | - | optional for "cetin_et_al_2018"; default false |
+| "sigma_n160" | standard deviation of "n160" | - | optional for "cetin_et_al_2018" with "parameter_uncertainty"; default 0 |
+| "sigma_fc" | standard deviation of "fc" | % | optional for "cetin_et_al_2018" with "parameter_uncertainty"; default 0 |
+| "cov_sigmavp" | coefficient of variation of "sigmavp" | - | optional for "cetin_et_al_2018" with "parameter_uncertainty"; default 0 |
+| "cov_csr" | coefficient of variation of the cyclic stress ratio for a given ground motion | - | optional for "cetin_et_al_2018" with "parameter_uncertainty"; default 0 |
 | "qc1Ncs" | overburden- and fines-corrected dimensionless cone tip resistance | - | required for "boulanger_and_idriss_2016" and "ngl_smt_2024" |
 | "qc" | cone tip resistance | MPa | required for "moss_et_al_2006" |
 | "fs" | cone sleeve friction | MPa | required for "moss_et_al_2006" |
@@ -235,6 +240,8 @@ The 2nd nesting level keys define the liquefaction model, and must be one of "bo
 | "depth" | depth to center of layer | m | required for all models |
 | "pa" | atmospheric pressure | kPa | required for all models |
 | "weight" | weight to assign to liquefaction model | - | required for all models |
+
+"cetin_et_al_2018" includes only the model uncertainty (sigma_epsilon = 2.95) by default. Setting "parameter_uncertainty" to true adds the input parameter uncertainty of Cetin et al. (2018b): sigma_tot^2 = theta_7 sigma_input^2 + sigma_epsilon^2 with theta_7 = 0.392, where sigma_input^2 = theta_6^2 cov_csr^2 + sigma_n160^2 (1 + theta_1 FC)^2 + sigma_fc^2 (theta_1 N1,60 + theta_4)^2 + theta_3^2 cov_sigmavp^2 (Eqs. 4 and 5). Because ucla_plha integrates the ground motion variability in the hazard calculation, "cov_csr" should represent only the uncertainty in estimating CSR for a given ground motion (e.g., rd and the stresses), not the variability of the ground motion.
 
 Note, you cannot include keys if they are not required by a liquefaction model. For example, you cannot include "n160" in one of the cone penetration test models.
 
@@ -421,6 +428,8 @@ Campbell, K. W. and Bozorgnia, Y. (2014). NGA‐West2 ground motion model for th
 <em>Earthquake Spectra</em>, 30(3), 1087-1115, DOI: [10.1193/062913EQS175M](https://doi.org/10.1193/062913EQS175M)
 
 Cetin, K.O., Seed, R.B., Kayen, R.E., Moss, R.E.S., Bilge, H.T., Ilgac, M., Chowdhury, K., et al. (2018). SPT‐based probabilistic and deterministic assessment of seismic soil liquefaction triggering hazard. <em>Soil Dynamics and Earthquake Engineering</em>, 115(12), 698-709. DOI: [10.1016/j.soildyn.2018.09.012](https://doi.org/10.1016/j.soildyn.2018.09.012)
+
+Cetin, K.O., Seed, R.B., Kayen, R.E., Moss, R.E.S., Bilge, H.T., Ilgac, M., and Chowdhury, K. (2018b). The use of the SPT-based seismic soil liquefaction triggering evaluation methodology in engineering hazard assessments. <em>MethodsX</em>, 5, 1556-1575. DOI: [10.1016/j.mex.2018.11.016](https://doi.org/10.1016/j.mex.2018.11.016)
 
 Chiou, B. S.‐J. and Youngs, R. R. (2014). Update of the Chiou and Youngs NGA model for the average horizontal component of peak ground motion and response spectra,
 <em>Earthquake Spectra</em>, 30(3), 1117-1153, DOI: [10.1193/072813EQS219M](https://doi.org/10.1193/072813EQS219M)
