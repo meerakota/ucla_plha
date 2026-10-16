@@ -108,6 +108,112 @@ def _section_grids(path):
     return _SECTION_GRIDS[key]
 
 
+_LOCAL_GEOMETRY = {}
+
+
+class _LocalGeometry:
+    """Site-independent geometry of a fault source model for the local projection and GC2,
+    loaded on first use and kept for the session: "tri_rjb" and "tri_rrup" (triangle vertices
+    as latitude, longitude, depth), and, from the rectangles, "top_lat" and "top_lon" (upper
+    edge of each piece, oriented so that the fault dips to its right), "piece_first", and
+    "piece_count" (first piece and number of pieces of each segment)."""
+
+    def __init__(self, path):
+        self.path = path
+        self.data = {}
+
+    def __getitem__(self, name):
+        if name not in self.data:
+            if name in ("tri_rjb", "tri_rrup"):
+                xyz = np.load(str(self.path.joinpath(f"{name}.npy")))
+                lat, lon, depth = geometry.xyz_to_lat_lon_depth(xyz)
+                self.data[name] = np.stack([lat, lon, np.maximum(depth, 0.0)], axis=-1)
+            else:
+                self.data.update(_piece_geometry(self.path))
+        return self.data[name]
+
+
+def _local_geometry(path):
+    key = str(path)
+    if key not in _LOCAL_GEOMETRY:
+        _LOCAL_GEOMETRY[key] = _LocalGeometry(path)
+    return _LOCAL_GEOMETRY[key]
+
+
+def _piece_geometry(path):
+    """Upper edges of the rectangles (pieces) of a fault source model and the pieces of each
+    segment, with each segment oriented so that the fault dips to the right of its trace: a
+    segment whose bottom edge is on the left (sum over its pieces of the flat-earth cross
+    product of the upper edge, corner 0 -> 1, and the down-dip edge, corner 0 -> 2) is
+    reversed as a whole (its pieces in reverse order, each from corner 1 to corner 0).
+    Vertical segments keep their order."""
+    rect = np.load(str(path.joinpath("rect_rjb.npy")))
+    rid = np.load(str(path.joinpath("rect_segment_id.npy")))
+    lat, lon, _ = geometry.xyz_to_lat_lon_depth(rect)
+    c = np.cos(np.radians(lat[:, 0]))
+    sx, sy = (lon[:, 1] - lon[:, 0]) * c, lat[:, 1] - lat[:, 0]
+    bx, by = (lon[:, 2] - lon[:, 0]) * c, lat[:, 2] - lat[:, 0]
+    n_seg = int(rid.max()) + 1
+    first = np.searchsorted(rid, np.arange(n_seg))
+    count = np.diff(np.r_[first, len(rid)])
+    left = np.add.reduceat(sx * by - sy * bx, first) > 0.0
+    # permutation of the pieces: reversed within the left-dipping segments
+    seg = np.repeat(np.arange(n_seg), count)
+    k = np.arange(len(rid)) - first[seg]
+    order = np.where(left[seg], first[seg] + count[seg] - 1 - k, np.arange(len(rid)))
+    lat, lon, rev = lat[order], lon[order], left[seg]
+    return {
+        "top_lat": np.where(rev[:, None], lat[:, [1, 0]], lat[:, [0, 1]]),
+        "top_lon": np.where(rev[:, None], lon[:, [1, 0]], lon[:, [0, 1]]),
+        "piece_first": first.astype(np.int64),
+        "piece_count": count.astype(np.int64),
+    }
+
+
+def _gc2_setup(local, segment_index, boundaries):
+    """Site-independent GC2 set-up of all ruptures of a model (geometry.gc2_rupture_setup),
+    kept with the model's local geometry."""
+    if "gc2_setup" not in local.data:
+        top_lat, top_lon = local["top_lat"], local["top_lon"]
+        first = local["piece_first"]
+        last = first + local["piece_count"] - 1
+        piece_length = geometry.haversine_distance(
+            top_lat[:, 0], top_lon[:, 0], top_lat[:, 1], top_lon[:, 1]
+        )
+        seg_length = np.add.reduceat(piece_length, first)
+        csum = np.cumsum(piece_length)
+        seg_of_piece = np.repeat(np.arange(len(first)), local["piece_count"])
+        piece_before = csum - piece_length - (csum[first] - piece_length[first])[seg_of_piece]
+        seg_lat = np.c_[top_lat[first, 0], top_lat[last, 1]]
+        seg_lon = np.c_[top_lon[first, 0], top_lon[last, 1]]
+        flip, offset, u_max = geometry.gc2_rupture_setup(
+            seg_lat, seg_lon, seg_length, segment_index, boundaries
+        )
+        local.data["gc2_setup"] = {
+            "seg_length": seg_length, "piece_before": piece_before,
+            "flip": flip, "offset": offset, "u_max": u_max,
+        }
+    return local.data["gc2_setup"]
+
+
+def _gc2_rx_ry0(local, site_lat, site_lon, rupture, boundaries, segment_index):
+    """GC2 Rx (= T) and Ry0 of the ruptures `rupture` (indices into the rupture boundaries),
+    with each rupture as one GC2 coordinate system."""
+    setup = _gc2_setup(local, segment_index, boundaries)
+    x1, y1 = geometry.local_projection(local["top_lat"][:, 0], local["top_lon"][:, 0],
+                                       site_lat, site_lon)
+    x2, y2 = geometry.local_projection(local["top_lat"][:, 1], local["top_lon"][:, 1],
+                                       site_lat, site_lon)
+    W, A, B, on_seg, on_u = geometry.gc2_segment_sums(
+        x1, y1, x2, y2, local["piece_first"], setup["piece_before"]
+    )
+    T, U = geometry.gc2_rupture_coordinates(
+        W, A, B, on_seg, on_u, setup["seg_length"], segment_index, boundaries,
+        setup["flip"], setup["offset"],
+    )
+    return T[rupture], geometry.gc2_ry0(U[rupture], setup["u_max"][rupture])
+
+
 def get_source_data(
     source_type,
     source_model,
@@ -117,9 +223,10 @@ def get_source_data(
     gmms,
     extras=False,
     source_info=None,
-    rupture_rx="closest_section",
+    rupture_rx="gc2",
     fault_distances=None,
     section_rx=None,
+    triangle_frame="local",
 ):
     """Returns magnitude, fault type, rate, distance, and fault geometry terms.
 
@@ -138,13 +245,19 @@ def get_source_data(
             cutoff is applied to rjb (if any model uses rjb) or rrup.
         extras (bool): if True, also return a dict of additional rupture data (see Returns)
         source_info (dict): source_info of the source model (read from source_info.json if None)
-        rupture_rx (str): how rx and rx1 of a rupture with several fault segments are found.
-            "closest_section" (default): rx and rx1 of the segment with the smallest rrup (ties go
-            to the lowest segment index), as nshmp-lib does for fault system ruptures
-            (SystemRuptureSet.InputGenerator). "minimum": the minimum rx and rx1 over the
-            segments of the rupture (ucla_plha 1.x and earlier); because rx is signed, this is
-            the most footwall-side segment of the rupture, which may be far from the site.
-            rjb, rrup, and ry0 are always the minima over the segments.
+        rupture_rx (str): how rx, rx1, and ry0 of fault ruptures are found. "gc2" (default):
+            rx = T and ry0 from U of the GC2 coordinates of Spudich and Chiou (2015), with the
+            upper edges of all pieces of the rupture as its trace (geometry.gc2_coordinates;
+            jumps of more than 1 km between consecutive pieces start a new trace), as in the
+            NGA-West2 and NGA-West3 flatfiles; rx1 = rx - the horizontal width of the segment
+            with the smallest rrup (of the rupture for "nshmp_grid" rupture grids). This
+            applies to all fault distance methods. "closest_section": rx and rx1 of the segment
+            with the smallest rrup (ties go to the lowest segment index), as nshmp-lib does for
+            fault system ruptures (SystemRuptureSet.InputGenerator), and ry0 the minimum over
+            the segments. "minimum": the minimum rx, rx1, and ry0 over the segments of the
+            rupture (ucla_plha 1.x and earlier); because rx is signed, this is the most
+            footwall-side segment of the rupture, which may be far from the site. rjb and rrup
+            are always the minima over the segments.
         fault_distances (str): how the distances of fault source ruptures are computed. None
             (default): the "fault_distances" of source_info ("triangles" if not given).
             "triangles": distances to the triangles (tri_rjb.npy, tri_rrup.npy) and rectangles
@@ -164,6 +277,14 @@ def get_source_data(
             (model.Distance.getDistanceX), the distance to the upper edge of the whole segment
             extended 1000 km along strike at both ends, positive on the dip side
             (geometry.section_rx_extended_trace). The NSHM23 WUS model uses "extended_trace".
+            Used only if rupture_rx is not "gc2".
+        triangle_frame (str): coordinates of the "triangles" rjb and rrup. "local" (default):
+            the triangles are projected on a sphere centred on the site
+            (geometry.local_triangle_distance), so the distances are measured along the Earth's
+            surface and rrup >= rjb. "geocentric": straight-line distances in Earth-centred
+            Cartesian coordinates (ucla_plha 2.x and earlier), which are chords (about 0.1 km
+            short at 400 km) and, because the vertical at the fault tilts toward a distant site,
+            make rrup smaller than rjb beyond about 100 km.
 
     Returns: A tuple containing the following arrays
         m (array, dtype=float): Numpy array of magnitudes, length = N
@@ -242,6 +363,20 @@ def get_source_data(
             raise ValueError(
                 f'section_rx must be "minimum" or "extended_trace", not "{section_rx}"'
             )
+        if rupture_rx not in ("gc2", "closest_section", "minimum"):
+            raise ValueError(
+                f'rupture_rx must be "gc2", "closest_section", or "minimum", not "{rupture_rx}"'
+            )
+        if triangle_frame not in ("local", "geocentric"):
+            raise ValueError(
+                f'triangle_frame must be "local" or "geocentric", not "{triangle_frame}"'
+            )
+        site_lat = np.degrees(np.arctan2(p_xyz[2], np.hypot(p_xyz[0], p_xyz[1])))
+        site_lon = np.degrees(np.arctan2(p_xyz[1], p_xyz[0]))
+        site_elevation = float(np.linalg.norm(p_xyz) - geometry.spheroid_radius(site_lat))
+        local = None
+        if triangle_frame == "local" or rupture_rx == "gc2":
+            local = _local_geometry(path)
         # nshmp_grid: rupture grids (grid.npz, distances per rupture) or section grids
         # (sections.npz, distances per segment, combined over the segments of a rupture)
         rupture_grid = section_grid = False
@@ -255,14 +390,16 @@ def get_source_data(
                     f'source model "{source_model}" has no grid.npz or sections.npz for '
                     '"nshmp_grid" distances'
                 )
-        if rupture_grid or section_grid:
-            site_lat = np.degrees(np.arctan2(p_xyz[2], np.hypot(p_xyz[0], p_xyz[1])))
-            site_lon = np.degrees(np.arctan2(p_xyz[1], p_xyz[0]))
         if (need_rjb or need_rrup) and not (rupture_grid or section_grid):
             tri_segment_id = np.load(str(path.joinpath("tri_segment_id.npy")))
         if need_rjb and not (rupture_grid or section_grid):
-            tri_rjb = np.load(str(path.joinpath("tri_rjb.npy")))
-            rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
+            if triangle_frame == "local":
+                rjb_all = geometry.local_triangle_distance(
+                    local["tri_rjb"], site_lat, site_lon, 0.0, tri_segment_id
+                )
+            else:
+                tri_rjb = np.load(str(path.joinpath("tri_rjb.npy")))
+                rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
         if need_rrup:
             rect_segment_id = np.load(str(path.joinpath("rect_segment_id.npy")))
             rect = np.load(str(path.joinpath("rect_rjb.npy")))
@@ -274,10 +411,15 @@ def get_source_data(
                     rect, p_xyz, rect_segment_id
                 )
             if not (rupture_grid or section_grid):
-                tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
-                rrup_all = geometry.point_triangle_distance(
-                    tri_rrup, p_xyz, tri_segment_id
-                )
+                if triangle_frame == "local":
+                    rrup_all = geometry.local_triangle_distance(
+                        local["tri_rrup"], site_lat, site_lon, site_elevation, tri_segment_id
+                    )
+                else:
+                    tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
+                    rrup_all = geometry.point_triangle_distance(
+                        tri_rrup, p_xyz, tri_segment_id
+                    )
         if section_grid and (need_rjb or need_rrup):
             grids = _section_grids(path)
             rjb_all, rrup_all, rx_grid = geometry.gridded_section_distances(
@@ -305,17 +447,15 @@ def get_source_data(
             else:
                 rrup_seg = rrup_all[segment_index]
                 rrup = np.minimum.reduceat(rrup_seg, boundaries)
-                if rupture_rx == "closest_section":
+                if rupture_rx in ("closest_section", "gc2"):
+                    # gc2: rx and ry0 are replaced below; rx - rx1 (the horizontal width of the
+                    # closest segment) is kept for rx1
                     closest = _closest_segment(rrup_seg, rrup, segment_index, boundaries)
                     rx = rx_all[closest]
                     rx1 = rx1_all[closest]
-                elif rupture_rx == "minimum":
+                else:
                     rx = np.minimum.reduceat(rx_all[segment_index], boundaries)
                     rx1 = np.minimum.reduceat(rx1_all[segment_index], boundaries)
-                else:
-                    raise ValueError(
-                        f'rupture_rx must be "closest_section" or "minimum", not "{rupture_rx}"'
-                    )
             ry0 = np.minimum.reduceat(ry0_all[segment_index], boundaries)
         else:
             rrup = empty_array
@@ -340,6 +480,18 @@ def get_source_data(
             near_clusters = np.unique(cluster_id[near & (cluster_id >= 0)])
             whole = (cluster_id >= 0) & np.isin(cluster_id, near_clusters)
             filter = filter | (whole & _filter_mask(len(m), rrup, m, None, m_min))
+        if need_rrup and rupture_rx == "gc2":
+            # GC2 rx and ry0 of the ruptures that are kept
+            keep = np.flatnonzero(filter)
+            width = rx - rx1
+            rx, rx1, ry0 = (np.array(a, dtype=np.float64) for a in (rx, rx1, ry0))
+            if len(keep):
+                rx_gc2, ry0_gc2 = _gc2_rx_ry0(
+                    local, site_lat, site_lon, keep, boundaries, segment_index
+                )
+                rx[keep] = rx_gc2
+                rx1[keep] = rx_gc2 - width[keep]
+                ry0[keep] = ry0_gc2
         arrays = (
             m[filter],
             fault_type[filter],
@@ -1232,7 +1384,8 @@ def get_hazard(config_file):
     dist_cutoff = config.get("constraints", {}).get("dist_cutoff", None)
     m_min = config.get("constraints", {}).get("m_min", None)
     truncation_level = config.get("constraints", {}).get("truncation_level", None)
-    rupture_rx = config.get("constraints", {}).get("rupture_rx", "closest_section")
+    rupture_rx = config.get("constraints", {}).get("rupture_rx", "gc2")
+    triangle_frame = config.get("constraints", {}).get("triangle_frame", "local")
     # "source_info" (default): the settings of each source model's source_info.json
     fault_distances = config.get("constraints", {}).get("fault_distances", "source_info")
     fault_distances = None if fault_distances == "source_info" else fault_distances
@@ -1392,6 +1545,7 @@ def get_hazard(config_file):
                     rupture_rx=rupture_rx,
                     fault_distances=fault_distances,
                     section_rx=section_rx,
+                    triangle_frame=triangle_frame,
                 )
                 in_cluster = extras["cluster_id"] >= 0
             else:
@@ -1405,6 +1559,7 @@ def get_hazard(config_file):
                     rupture_rx=rupture_rx,
                     fault_distances=fault_distances,
                     section_rx=section_rx,
+                    triangle_frame=triangle_frame,
                 )
             m, fault_type, rate, rjb, rrup, rx, rx1, ry0, dip, ztor, zbor = data
             # distances used for disaggregation (see disagg_distance)

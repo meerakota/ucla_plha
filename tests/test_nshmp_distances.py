@@ -70,6 +70,8 @@ NSHMP_INPUTS = {
 def _inputs(site, model, **kwargs):
     lon, lat = SITES[site]
     p_xyz = geometry.point_to_xyz(np.array([lat, lon, 0.0]))
+    # the nshmp-lib rX convention (the default is GC2)
+    kwargs.setdefault("rupture_rx", "closest_section")
     # cb14 uses rjb, rrup, and rx
     arrays, extras = plha.get_source_data(
         "fault_source_models", model, p_xyz, 1000.0, None, ["cb14"], extras=True, **kwargs

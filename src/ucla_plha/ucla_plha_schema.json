@@ -86,8 +86,13 @@
                 },
                 "rupture_rx": {
                     "type": "string",
-                    "enum": ["closest_section", "minimum"],
-                    "description": "Rx and Rx1 of fault source ruptures with several fault segments: those of the segment closest to the site (smallest Rrup), as in nshmp-lib (default), or the minimum over the segments (ucla_plha 1.x)."
+                    "enum": ["gc2", "closest_section", "minimum"],
+                    "description": "Rx, Rx1, and Ry0 of fault source ruptures: from the GC2 coordinates of Spudich and Chiou (2015) of the whole rupture, as in the NGA-West2 and NGA-West3 flatfiles (default; Rx1 = Rx minus the horizontal width of the segment closest to the site); Rx and Rx1 of the segment closest to the site (smallest Rrup), as in nshmp-lib; or the minimum over the segments (ucla_plha 1.x). With the last two, Ry0 is the minimum over the segments."
+                },
+                "triangle_frame": {
+                    "type": "string",
+                    "enum": ["local", "geocentric"],
+                    "description": "Coordinates of the Rjb and Rrup of the fault triangles: a projection on a sphere centred on the site, so that distances are measured along the Earth's surface and Rrup >= Rjb (default), or straight lines in Earth-centred Cartesian coordinates (ucla_plha 2.x), whose Rrup is smaller than Rjb beyond about 100 km."
                 },
                 "fault_distances": {
                     "type": "string",

@@ -218,11 +218,18 @@ removed and the remaining weights renormalized, with a warning. The flat format 
 format and works as before. A source model entry can also have its own
 ``"ground_motion_models"`` and ``"dist_cutoff"``. ``"constraints"`` accepts
 ``"dist_cutoff"`` as a number or ``{region: number}``, ``"truncation_level"``
-(upper truncation in standard deviations; the NSHM uses 3), and ``"rupture_rx"``:
-``"closest_section"`` (default) takes Rx and Rx1 of a fault rupture with several fault
-segments from the segment with the smallest Rrup, as nshmp-lib does, and ``"minimum"`` takes
+(upper truncation in standard deviations; the NSHM uses 3), ``"rupture_rx"``:
+``"gc2"`` (default) takes Rx and Ry0 of a fault rupture from the GC2 coordinates of Spudich
+and Chiou (2015) of the whole rupture, as in the NGA-West2 and NGA-West3 flatfiles (Rx1 = Rx
+minus the horizontal width of the segment with the smallest Rrup), ``"closest_section"`` takes
+Rx and Rx1 from the segment with the smallest Rrup, as nshmp-lib does, and ``"minimum"`` takes
 the minimum over the segments (earlier versions; because Rx is signed, this is the most
-footwall-side segment of the rupture). ``"fault_distances"``: ``"source_info"`` (default)
+footwall-side segment of the rupture); with the last two, Ry0 is the minimum over the
+segments. ``"triangle_frame"``: ``"local"`` (default) computes the Rjb and Rrup of the fault
+triangles in a projection on a sphere centred on the site, so that they are measured along the
+Earth's surface and Rrup >= Rjb, and ``"geocentric"`` uses straight lines in Earth-centred
+Cartesian coordinates (earlier versions; Rrup < Rjb for most ruptures beyond about 100 km).
+``"fault_distances"``: ``"source_info"`` (default)
 uses each fault source model's ``source_info.json`` setting (the NSHM23 models compute rJB,
 rRup, and rX from the nshmp-lib gridded surfaces, as nshmp-lib does; UCERF3 uses the
 triangles), and ``"triangles"`` uses the triangles and rectangles of the fault segments for

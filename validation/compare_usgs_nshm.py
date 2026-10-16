@@ -173,6 +173,10 @@ def nshm_config(lon, lat, vs30, pga, models, active_gmms, z1p0=None, z2p5=None, 
         "constraints": {
             "dist_cutoff": dict(tectonic_regions.NSHM_MAX_DISTANCE),
             "truncation_level": 3.0,
+            # nshmp-lib distance conventions: rX of the closest section (not GC2) and the
+            # ucla_plha 2.x Cartesian triangle distances for UCERF3
+            "rupture_rx": "closest_section",
+            "triangle_frame": "geocentric",
         },
         "source_models": source_models,
         "ground_motion_models": gmms,
