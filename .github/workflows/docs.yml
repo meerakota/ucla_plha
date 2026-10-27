@@ -1,0 +1,66 @@
+# Builds the documentation of a release and publishes it in its own folder of the gh-pages
+# branch (https://meerakota.github.io/ucla_plha/<major.minor>/), so the documentation of
+# earlier releases is kept. The root of the site redirects to the latest release.
+#
+# Runs when a release tag (v*) is pushed. To (re)build the documentation of an existing tag,
+# e.g. v2.1.0, run the workflow manually from the Actions tab and enter the tag. The Sphinx
+# configuration (docs/conf.py) of the branch the workflow runs from is used for every version,
+# so all versions have the version switcher.
+
+name: Publish documentation
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Tag (or branch) whose documentation to build, e.g. v2.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the workflow and Sphinx configuration
+        uses: actions/checkout@v4
+        with:
+          path: tools
+      - name: Check out the source to document
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          path: source
+      - name: Check out gh-pages
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the package and Sphinx
+        run: |
+          pip install ./source "sphinx>=7.0" "myst-parser>=2.0" "sphinx-book-theme>=1.1" \
+            "sphinx-design>=0.6" "sphinx-copybutton>=0.5"
+      - name: Build the documentation
+        run: |
+          cp tools/docs/conf.py source/docs/conf.py
+          sphinx-build -b html source/docs build
+          echo "DOCS_VERSION=$(python -c "import tomllib; v = tomllib.load(open('source/pyproject.toml', 'rb'))['project']['version']; print('.'.join(v.split('.')[:2]))")" >> "$GITHUB_ENV"
+      - name: Update gh-pages
+        run: |
+          python tools/.github/scripts/update_docs_versions.py site --build build --version "$DOCS_VERSION"
+          cd site
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Publish documentation $DOCS_VERSION (${{ inputs.ref || github.ref_name }})" || exit 0
+          git push

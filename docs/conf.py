@@ -1,11 +1,15 @@
 # Configuration file for the Sphinx documentation builder.
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-import importlib.metadata
+import pathlib
+import tomllib
 
 project = "ucla_plha"
 author = "Meera L. Kota, Scott J. Brandenberg"
 copyright = "2026, Meera L. Kota and Scott J. Brandenberg"
-release = importlib.metadata.version("ucla_plha")
+# The version is read from the pyproject.toml of the source being documented, not from the
+# installed package, so that the docs of each release are labelled with that release.
+with open(pathlib.Path(__file__).parents[1] / "pyproject.toml", "rb") as f:
+    release = tomllib.load(f)["project"]["version"]
 version = ".".join(release.split(".")[:2])
 
 # -- General configuration ---------------------------------------------------
@@ -68,4 +72,20 @@ html_theme_options = {
         "image_dark": "_static/logo-dark.svg",
         "text": "ucla_plha",
     },
+    # Each release's docs are published in their own folder of the gh-pages branch
+    # (https://meerakota.github.io/ucla_plha/<version>/) by .github/workflows/docs.yml,
+    # which also writes versions.json, the list of versions shown by the version switcher.
+    "switcher": {"json_url": "../versions.json", "version_match": version},
+    "check_switcher": False,
+}
+
+# Version switcher at the top of the sidebar
+html_sidebars = {
+    "**": [
+        "navbar-logo.html",
+        "version-switcher.html",
+        "icon-links.html",
+        "search-button-field.html",
+        "sbt-sidebar-nav.html",
+    ]
 }
