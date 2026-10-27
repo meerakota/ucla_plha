@@ -114,7 +114,7 @@ by a detailed description of each. Some general notes on the functions:
       * **sigma_ln_pga** -- :math:`\sigma_{\ln PGA}`, standard deviation of the natural log of the intensity measure, length :math:`N`.
 
 
-.. py:function:: get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config)
+.. py:function:: get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config, need_eps=True, truncation_level=None)
 
    Computes log-normal cumulative distribution functions for the factor of safety of
    liquefaction.
@@ -126,6 +126,20 @@ by a detailed description of each. Some general notes on the functions:
    :param str liquefaction_model: One of ``"cetin_et_al_2018"``, ``"moss_et_al_2006"``,
       ``"boulanger_idriss_2016"``, ``"boulanger_idriss_2012"``, ``"ngl_smt_2024"``.
    :param dict config: Dictionary read from the (case-insensitive) config file.
+   :param bool need_eps: If false, ``"ngl_smt_2024"`` returns ``None`` for **eps** (used only
+      for the disaggregation).
+   :param float truncation_level: Upper truncation of the ground motion distribution in standard
+      deviations, used by the models conditioned on PGA (per-event quadrature):
+      ``"ngl_smt_2024"`` with ``"pga_uncertainty": "shared"``, and ``"boulanger_idriss_2016"`` and
+      ``"moss_et_al_2006"`` with ``"conditional"``. ``None`` (default): untruncated.
+      ``get_hazard`` computes these models on the magnitude :math:`\times` PGA grid of
+      ``ucla_plha.pga_grid`` instead (see :doc:`config_format`).
+
+   Raises ``ValueError`` for a ``"moss_et_al_2006"`` entry with the removed option
+   ``"duration_weighting"``: no treatment divides the CSR of Moss et al. (2006) by the duration
+   weighting factor any more (it double counted the magnitude effect; see :doc:`config_format`),
+   so the ucla_plha 2.x Moss et al. (2006) results can't be reproduced.
+
 
    :returns:
       * **fsl_cdfs** -- cumulative distribution functions representing the down-crossing

@@ -1,5 +1,7 @@
 import numpy as np
-from scipy.special import ndtr
+from scipy.special import ndtr, ndtri
+
+from ucla_plha import pga_grid
 
 
 def get_ln_crr(m, qc1ncs, sigmavp, pa):
@@ -64,7 +66,34 @@ def get_ln_csr(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth):
     return mu_ln_csr, sigma_ln_csr
 
 
-def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth, qc1ncs, fsl, pa):
+def get_conditional_fsl_cdfs(m, ln_pga, sigmav, sigmavp, depth, qc1ncs, fsl, pa):
+    """
+    Cumulative distribution function of the factor of safety conditioned on magnitude and peak
+    acceleration.
+
+    Inputs:
+    m = magnitude, Numpy array, dtype=float, length = K
+    ln_pga = natural log of peak acceleration [g], Numpy array, dtype=float, length = K
+    sigmav, sigmavp, depth, qc1ncs, fsl, pa: as for get_fsl_cdfs
+
+    Outputs:
+    fsl_cdfs = P(FS < fsl | m, PGA) = Phi((ln fsl - mu_ln_crr(m) + ln CSR(m, PGA)) / 0.20), Numpy ndarray,
+        dtype=float, shape = K x L
+    """
+    m = np.asarray(m, dtype=float)
+    ln_pga = np.asarray(ln_pga, dtype=float)
+    mu_ln_crr, sigma_ln_crr = get_ln_crr(m, qc1ncs, sigmavp, pa)
+    mu_ln_csr, _ = get_ln_csr(ln_pga, 0.0, m, sigmav, sigmavp, depth)
+    return ndtr(
+        (np.log(fsl)[np.newaxis, :] - (mu_ln_crr - mu_ln_csr)[:, np.newaxis])
+        / sigma_ln_crr[:, np.newaxis]
+    )
+
+
+def get_fsl_cdfs(
+    mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth, qc1ncs, fsl, pa,
+    pga_uncertainty="conditional", truncation_level=None, n_quadrature=128,
+):
     """
     Inputs:
     mu_ln_pga = mean of natural logs of peak acceleration [g], Numpy array, dtype=float, length = N
@@ -77,11 +106,35 @@ def get_fsl_cdfs(mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth, qc1ncs, fsl
     fc = fines content [%], scalar
     fsl = factor of safety values for which we want to compute liquefaction hazard, Numpy array, dtype=float, length = L
     pa = atmospheric pressure in same units as sigmav and sigmavp, scalar
+    pga_uncertainty = treatment of the uncertainty of the peak acceleration, string:
+        "conditional" (default): P(FS < fsl | m, PGA) = Phi((ln fsl - mu_ln_crr + ln CSR(m, PGA)) / sigma_ln_crr)
+            (get_conditional_fsl_cdfs) is integrated over the distribution of ln(PGA) of the event, truncated at
+            truncation_level standard deviations as in the PSHA (Gauss-Legendre quadrature with n_quadrature points;
+            plha.get_hazard integrates it on the magnitude x PGA grid of ucla_plha.pga_grid instead).
+        "closed_form": ucla_plha 2.x and earlier, untruncated: Phi((ln fsl - mu_ln_crr + mu_ln_csr) / sqrt(sigma_ln_crr^2 + sigma_ln_pga^2)),
+            the exact integral of the conditional probability over the untruncated distribution.
+    truncation_level = upper truncation of the distribution of ln(PGA) in standard deviations ("conditional"
+        only), as in the PSHA (plha.get_exceedance); None (default) is untruncated
+    n_quadrature = number of quadrature points ("conditional")
 
     Outputs:
     fsl_cdfs = cumulative distribution functions for factor of safety against profile manfiestation, Numpy ndarray, dtype=float, shape = N x L
-    eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L
+    eps = epsilon for profile manifestation, Numpy ndarray, dtype=float, shape = N x L ("conditional": the
+        inverse standard normal CDF of fsl_cdfs)
     """
+    if pga_uncertainty == "conditional":
+
+        def conditional_cdfs(mm, ln_pga):
+            return get_conditional_fsl_cdfs(mm, ln_pga, sigmav, sigmavp, depth, qc1ncs, fsl, pa)
+
+        fsl_cdfs = pga_grid.quadrature_cdfs(
+            conditional_cdfs, m, mu_ln_pga, sigma_ln_pga, truncation_level, n_quadrature
+        )
+        return fsl_cdfs, ndtri(fsl_cdfs)
+    if pga_uncertainty != "closed_form":
+        raise ValueError(
+            f'pga_uncertainty must be "conditional" or "closed_form", not "{pga_uncertainty}"'
+        )
     mu_ln_crr, sigma_ln_crr = get_ln_crr(m, qc1ncs, sigmavp, pa)
     mu_ln_csr, sigma_ln_csr = get_ln_csr(
         mu_ln_pga, sigma_ln_pga, m, sigmav, sigmavp, depth

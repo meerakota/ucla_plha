@@ -270,6 +270,10 @@ nesting level defines the model inputs listed below.
      - cone sleeve friction
      - MPa
      - ``"moss_et_al_2006"``
+   * - ``"rd_amax_cap"``
+     - upper limit of :math:`a_{max}` in :math:`r_d` with ``"pga_uncertainty": "conditional"`` (default 1.0; ``null``: no limit)
+     - g
+     - optional, ``"moss_et_al_2006"``
    * - ``"Ic"``
      - soil behavior type index
      - \-
@@ -278,6 +282,18 @@ nesting level defines the model inputs listed below.
      - saturation factor applied to probability of triggering
      - \-
      - ``"ngl_smt_2024"``
+   * - ``"pga_uncertainty"``
+     - treatment of the uncertainty of the peak acceleration (see below): ``"shared"`` (default) or ``"per_layer"`` for ``"ngl_smt_2024"``; ``"conditional"`` (default) or ``"closed_form"`` for ``"boulanger_idriss_2016"`` and ``"moss_et_al_2006"``
+     - \-
+     - optional, ``"ngl_smt_2024"``, ``"boulanger_idriss_2016"``, ``"moss_et_al_2006"``
+   * - ``"pga_integration"``
+     - integration over the peak acceleration with ``"shared"`` or ``"conditional"``, ``"grid"`` (default) or ``"quadrature"``
+     - \-
+     - optional, ``"ngl_smt_2024"``, ``"boulanger_idriss_2016"``, ``"moss_et_al_2006"``
+   * - ``"pga_grid"``
+     - parameters of the magnitude :math:`\times` PGA grid: ``"pga_min"`` (default 1e-4), ``"pga_max"`` (10), ``"d_ln_pga"`` (0.1), ``"d_m"`` (0.05), ``"d_mu"`` (0.05), ``"d_sigma"`` (0.005)
+     - g for ``"pga_min"`` and ``"pga_max"``
+     - optional, ``"ngl_smt_2024"``, ``"boulanger_idriss_2016"``, ``"moss_et_al_2006"``
    * - ``"ztop"``
      - depth to top of layer (array)
      - m
@@ -306,6 +322,24 @@ nesting level defines the model inputs listed below.
      - weight assigned to this liquefaction model
      - \-
      - all models
+
+``"ngl_smt_2024"`` treats the peak acceleration of an earthquake as the same in all layers of the profile (``"pga_uncertainty": "shared"``, the default). The probability of profile manifestation is computed for a given magnitude :math:`M` and PGA,
+
+.. math::
+
+   P(FS < FS_L \mid M, PGA) = 1 - \prod_j \left[1 - P_{MT,j}\, \Phi\left(\frac{\ln FS_L - \mu_{\ln CRR,j}(M, PGA) + \ln CSR_j(M, PGA)}{0.44}\right) P_{S,j}\, K_{sat,j}\right]^{t_j / t_c}
+
+(with the magnitude scaling factor of that PGA), and integrated over the distribution of :math:`\ln PGA` of the earthquake, truncated as in the PSHA (``"constraints": {"truncation_level": ...}``; untruncated if it is not given). The NGL SMT model itself does not treat the ground motion uncertainty. Versions 2.x and earlier included the PGA uncertainty in each layer separately (:math:`\sigma = \sqrt{0.44^2 + \sigma_{\ln PGA}^2}`, magnitude scaling factor of the median PGA, untruncated) before the product over the layers, as if each layer had an independent PGA, which gives higher probabilities (about 5% to 15% in relative terms for single earthquakes); ``"pga_uncertainty": "per_layer"`` reproduces those results exactly.
+
+With ``"shared"``, the integration uses a grid of the rates of the ground motions of the site over magnitude and :math:`\ln PGA` (``"pga_integration": "grid"``, the default; ``ucla_plha.pga_grid``), built once for the site and shared by the liquefaction models conditioned on PGA, so that the cost of a liquefaction model is small. With the default ``"pga_grid"`` parameters (bins of 0.1 in :math:`\ln PGA` from 1e-4 g to 10 g, magnitude nodes every 0.05, and histogram nodes of the mean and standard deviation of :math:`\ln PGA` of the earthquakes every 0.05 and 0.005), the hazard curves agree with an exact integration within about 2e-4 (relative). The disaggregation uses per-earthquake probabilities from the grid nodes. ``"pga_integration": "quadrature"`` integrates each earthquake with Gauss-Legendre quadrature (slow; for verification).
+
+``"boulanger_idriss_2016"`` and ``"moss_et_al_2006"`` are also computed conditioned on the peak acceleration (``"pga_uncertainty": "conditional"``, the default),
+
+.. math::
+
+   P(FS < FS_L \mid M, PGA) = \Phi\left(\frac{\ln FS_L - \mu_{\ln CRR} + \ln CSR(M, PGA)}{\sigma_{\ln CRR}}\right)
+
+with the model uncertainty only (:math:`\sigma_{\ln CRR}` = 0.20 and 1.632 / 7.177), integrated over the ground motion distribution of the earthquake with the truncation of the PSHA, on the same magnitude :math:`\times` PGA grid as ``"ngl_smt_2024"`` (one grid per site for these models). For Boulanger and Idriss (2016), PGA enters only through CSR, so without truncation this is the closed form of earlier versions, :math:`\Phi\left((\ln FS_L - \mu_{\ln CRR} + \mu_{\ln CSR}) / \sqrt{0.20^2 + \sigma_{\ln PGA}^2}\right)`. For Moss et al. (2006), :math:`r_d` (which depends on :math:`a_{max}`) and the :math:`\Delta q_c` adjustment of the CRR (:math:`x_1 \ln CSR + x_2`, for :math:`R_f > 0.5\%`) are evaluated at the conditioned PGA instead of the median PGA; :math:`\Delta q_c` is not allowed below 0 (their Eq. 18 bounds the fines adjustment to :math:`R_f` of 0.5 to 5% as a suppression of liquefiability; :math:`x_1 \ln CSR + x_2 < 0` only for :math:`CSR < e^{-3.84} = 0.021`, outside their data); and the CSR is not divided by the duration weighting factor :math:`DWF = 17.84 M_w^{-1.43}` (with any ``"pga_uncertainty"``), because their Eq. 20 and 21 have their own magnitude term (:math:`-0.848 \ln M_w`) and are compared with the CSR of the event (the note to Eq. 21: it "produces results for the input magnitude", whereas their Figs. 6 and 10 are for :math:`M_w` 7.5, CSR*; and the CSR of the case histories in their Table 1 is :math:`0.65\, a_{max} (\sigma_v / \sigma'_v)\, r_d`, not CSR / DWF). Earlier versions divided by the DWF as well, which double counted the magnitude effect (FS higher by the DWF: about 1.4 at :math:`M_w` 6, 1.1 at 7, 0.91 at 8); the 2.x Moss et al. (2006) results, which divided CSR by the DWF, can't be reproduced with this version (a config with ``"duration_weighting"`` is rejected). ``"pga_uncertainty": "closed_form"`` gives the untruncated closed forms of earlier versions: exactly for Boulanger and Idriss (2016), and for Moss et al. (2006) with :math:`r_d` and :math:`\Delta q_c` at the median PGA but without the DWF. The :math:`r_d` of Moss et al. (2006) (from Cetin et al. 2004) decreases with :math:`a_{max}` to the lower limit 0.2 at about 2.5 to 3.5 g and jumps to the upper limit 1.0 at about 3.5 to 4 g (its denominator changes sign), so with ``"conditional"`` :math:`r_d` is evaluated with :math:`a_{max}` at most ``"rd_amax_cap"`` (default 1 g; ``null`` for no limit; :math:`r_d` above the cap is :math:`r_d` at the cap). ``"closed_form"`` (:math:`r_d` of the median PGA) has no cap. ``plha.DEFAULT_PGA_UNCERTAINTY`` holds the default treatment of each model.
 
 ``"cetin_et_al_2018"`` includes only the model uncertainty (:math:`\sigma_\varepsilon = 2.95`) by default. With ``"parameter_uncertainty": true``, the input parameter uncertainty of Cetin et al. (2018b) is added, :math:`\sigma_{tot}^2 = \theta_7 \sigma_{input}^2 + \sigma_\varepsilon^2` with :math:`\theta_7 = 0.392` and :math:`\sigma_{input}^2 = \theta_6^2 \delta_{CSR}^2 + \sigma_{N_{1,60}}^2 (1 + \theta_1 FC)^2 + \sigma_{FC}^2 (\theta_1 N_{1,60} + \theta_4)^2 + \theta_3^2 \delta_{\sigma'_v}^2` (their Eqs. 4 and 5), where :math:`\delta_{CSR}` is ``"cov_csr"``, :math:`\sigma_{N_{1,60}}` is ``"sigma_n160"``, :math:`\sigma_{FC}` is ``"sigma_fc"``, and :math:`\delta_{\sigma'_v}` is ``"cov_sigmavp"``. Because ucla_plha integrates the ground motion variability in the hazard calculation, ``"cov_csr"`` should represent only the uncertainty in estimating CSR for a given ground motion (e.g., :math:`r_d` and the stresses), not the variability of the ground motion.
 

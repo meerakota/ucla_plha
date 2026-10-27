@@ -168,8 +168,12 @@ def test_every_source_model_is_registered(synthetic, tmp_path, source_type):
 
 
 def test_liquefaction_hazard_matches_analytic(synthetic, tmp_path):
+    # the closed form of ucla_plha 2.x ("pga_uncertainty": "closed_form"), and the default
+    # integration conditioned on PGA on the magnitude x PGA grid (untruncated: the same integral)
+    closed = {"boulanger_idriss_2016": dict(BI16, weight=1.0, pga_uncertainty="closed_form")}
+    out = _hazard(tmp_path, _config(fault_models={"ucerf3_fm31": 1.0}, liquefaction=closed))
     liquefaction = {"boulanger_idriss_2016": dict(BI16, weight=1.0)}
-    out = _hazard(
+    grid = _hazard(
         tmp_path, _config(fault_models={"ucerf3_fm31": 1.0}, liquefaction=liquefaction)
     )
 
@@ -200,6 +204,9 @@ def test_liquefaction_hazard_matches_analytic(synthetic, tmp_path):
 
     np.testing.assert_allclose(
         out["plha"]["annual_rate_of_nonexceedance"], expected, rtol=1e-10
+    )
+    np.testing.assert_allclose(
+        grid["plha"]["annual_rate_of_nonexceedance"], expected, rtol=1e-4
     )
 
 

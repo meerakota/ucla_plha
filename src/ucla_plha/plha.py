@@ -5,8 +5,9 @@ from importlib.resources import files
 
 import jsonschema
 import numpy as np
-from scipy.special import ndtr
+from scipy.special import ndtr, ndtri
 
+from ucla_plha import pga_grid
 from ucla_plha.liquefaction_models import (
     boulanger_idriss_2012,
     cetin_et_al_2018,
@@ -533,7 +534,10 @@ def get_ground_motion_data(
     return [mu_ln_pga, sigma_ln_pga]
 
 
-def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config):
+def get_liquefaction_cdfs(
+    m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, config, need_eps=True,
+    truncation_level=None,
+):
     """Computes log-normal cumulative distribution functions for factor of safety of liquefaction
 
     Inputs:
@@ -547,6 +551,11 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
         liquefaction_model (string): Liquefaction model to use. One of "cetin_et_al_2018", "moss_et_al_2006",
             "boulanger_idriss_2016", "boulanger_idriss_2012", "ngl_smt_2024".
         config (dict): A Python dictionary read from the config file
+        need_eps (bool): if False, the epsilons are not needed (no disaggregation), and models
+            that compute them only for the disaggregation (ngl_smt_2024) return None for eps
+        truncation_level (float): upper truncation of the ground motion distribution in standard
+            deviations (config constraints.truncation_level), used by ngl_smt_2024 with
+            "pga_uncertainty" "shared" (the other models are untruncated). None: untruncated.
 
     Returns:
         fsl_cdfs (Numpy ndarray, dtype=float): Numpy array of cumulative distribution functions representing
@@ -590,6 +599,7 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
         )
     elif liquefaction_model == "moss_et_al_2006":
         c = config["liquefaction_models"]["moss_et_al_2006"]
+        _reject_removed_options(config["liquefaction_models"])
         return moss_et_al_2006.get_fsl_cdfs(
             mu_ln_pga,
             sigma_ln_pga,
@@ -601,6 +611,9 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             c["fs"],
             fsl,
             c["pa"],
+            pga_uncertainty=_pga_uncertainty(liquefaction_model, c),
+            truncation_level=truncation_level,
+            rd_amax_cap=c.get("rd_amax_cap", moss_et_al_2006.RD_AMAX_CAP),
         )
     elif liquefaction_model == "boulanger_idriss_2016":
         c = config["liquefaction_models"]["boulanger_idriss_2016"]
@@ -614,6 +627,8 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             c["qc1ncs"],
             fsl,
             c["pa"],
+            pga_uncertainty=_pga_uncertainty(liquefaction_model, c),
+            truncation_level=truncation_level,
         )
     elif liquefaction_model == "boulanger_idriss_2012":
         c = config["liquefaction_models"]["boulanger_idriss_2012"]
@@ -644,6 +659,9 @@ def get_liquefaction_cdfs(m, mu_ln_pga, sigma_ln_pga, fsl, liquefaction_model, c
             np.asarray(c["ksat"], dtype=float),
             fsl,
             float(c.get("pa", 101.325)),
+            return_eps=need_eps,
+            pga_uncertainty=_pga_uncertainty(liquefaction_model, c),
+            truncation_level=truncation_level,
         )
 
 
@@ -801,6 +819,104 @@ def _normalize_weights(models):
             entry["weight"] /= total
 
 
+# Liquefaction model options that were removed, with the reason; a config that gives one is
+# rejected so that it does not silently change meaning
+REMOVED_LIQUEFACTION_OPTIONS = {
+    ("moss_et_al_2006", "duration_weighting"): (
+        "the duration weighting factor (CSR / DWF) of Moss et al. (2006) was removed: their "
+        "Eq. 20 and 21 have their own magnitude term and are compared with the CSR of the event "
+        "(Eq. 21 note and Table 1), so the DWF double counted the magnitude effect. The 2.x Moss "
+        "et al. (2006) results, which divided CSR by the DWF, can't be reproduced with this "
+        "version; remove \"duration_weighting\" from the config"
+    ),
+}
+
+
+def _reject_removed_options(liquefaction_models):
+    """Raises ValueError if a liquefaction model entry gives a removed option."""
+    for (model, key), reason in REMOVED_LIQUEFACTION_OPTIONS.items():
+        if key in (liquefaction_models.get(model) or {}):
+            raise ValueError(f'{model}: "{key}" is not an option: {reason}')
+
+
+# Liquefaction models with a treatment of the peak acceleration conditioned on PGA: the value of
+# their "pga_uncertainty" for that treatment, and the default value (change a default here, e.g.
+# to "closed_form", to make the earlier treatment the default of a model)
+CONDITIONAL_PGA_UNCERTAINTY = {
+    "boulanger_idriss_2016": "conditional",
+    "moss_et_al_2006": "conditional",
+    "ngl_smt_2024": "shared",
+}
+DEFAULT_PGA_UNCERTAINTY = {
+    "boulanger_idriss_2016": "conditional",
+    "moss_et_al_2006": "conditional",
+    "ngl_smt_2024": "shared",
+}
+_NGL_LAYER_KEYS = ("ztop", "zbot", "qc1ncs", "ic", "sigmav", "sigmavp", "ksat")
+
+
+def _pga_uncertainty(liquefaction_model, c):
+    """The "pga_uncertainty" of a liquefaction model entry c (DEFAULT_PGA_UNCERTAINTY if not given)."""
+    return c.get("pga_uncertainty", DEFAULT_PGA_UNCERTAINTY[liquefaction_model])
+
+
+def _conditional_cdfs(liquefaction_model, c, fsl):
+    """conditional_cdfs(m, ln_pga) of a liquefaction model entry c: P(FS < fsl | m, PGA), K x L."""
+    pa = float(c.get("pa", 101.325))
+    if liquefaction_model == "ngl_smt_2024":
+        layers = [np.asarray(c[k], dtype=float) for k in _NGL_LAYER_KEYS]
+
+        def conditional_cdfs(m, ln_pga):
+            return ngl_smt_2024.get_conditional_fsl_cdfs(m, ln_pga, *layers, fsl, pa)
+
+    elif liquefaction_model == "boulanger_idriss_2016":
+
+        def conditional_cdfs(m, ln_pga):
+            return boulanger_idriss_2016.get_conditional_fsl_cdfs(
+                m, ln_pga, c["sigmav"], c["sigmavp"], c["depth"], c["qc1ncs"], fsl, pa
+            )
+
+    else:
+
+        def conditional_cdfs(m, ln_pga):
+            return moss_et_al_2006.get_conditional_fsl_cdfs(
+                m, ln_pga, c["sigmav"], c["sigmavp"], c["depth"], c["qc"], c["fs"], fsl, pa,
+                c.get("rd_amax_cap", moss_et_al_2006.RD_AMAX_CAP),
+            )
+
+    return conditional_cdfs
+
+
+def _liquefaction_tables(liquefaction_models, fsl, truncation_level):
+    """Rate grids and conditional probability tables of the liquefaction models conditioned on
+    PGA (CONDITIONAL_PGA_UNCERTAINTY) and integrated on the magnitude x PGA grid
+    ("pga_integration" "grid", the default).
+
+    Returns the tables ({liquefaction model: pga_grid.ConditionalTable} of the models that use
+    the grid) and the rate grids (pga_grid.RateGrid), one for each set of grid parameters
+    ("pga_grid"), so that the liquefaction models with the same parameters share one grid.
+    """
+    grids = {}
+    tables = {}
+    for liquefaction_model, conditional in CONDITIONAL_PGA_UNCERTAINTY.items():
+        c = liquefaction_models.get(liquefaction_model)
+        if (
+            not c
+            or c.get("weight", 0.0) <= 0
+            or _pga_uncertainty(liquefaction_model, c) != conditional
+            or c.get("pga_integration", "grid") != "grid"
+        ):
+            continue
+        params = pga_grid.grid_parameters(c.get("pga_grid"))
+        key = tuple(sorted(params.items()))
+        if key not in grids:
+            grids[key] = pga_grid.RateGrid(truncation_level, **params)
+        tables[liquefaction_model] = pga_grid.ConditionalTable(
+            grids[key], _conditional_cdfs(liquefaction_model, c, fsl)
+        )
+    return tables, grids
+
+
 def get_hazard(config_file):
     """Reads config file and runs PSHA and PLHA
 
@@ -860,6 +976,7 @@ def get_hazard(config_file):
                 config["liquefaction_models"][liquefaction_model][
                     "weight"
                 ] /= liquefaction_model_weight_sum
+    _reject_removed_options(config.get("liquefaction_models", {}))
 
     # Read site properties
     latitude = config["site"]["latitude"]
@@ -985,6 +1102,20 @@ def get_hazard(config_file):
         output_plha_disaggregation = False
         plha_distance_metric = "default"
 
+    # Liquefaction models conditioned on PGA (NGL SMT 2024 with the PGA shared by the layers of the
+    # profile, Boulanger and Idriss 2016, Moss et al. 2006; the defaults): the rates of the ground
+    # motions of the events are accumulated on a magnitude x ln(PGA) grid (pga_grid.RateGrid),
+    # built once for all liquefaction models, and the hazard of each model is the sum over the
+    # grid of the rates times its conditional probabilities (added after the loops). The
+    # disaggregation uses per-event probabilities from the grid nodes.
+    if output_plha:
+        liquefaction_tables, liquefaction_grids = _liquefaction_tables(
+            config.get("liquefaction_models", {}), fsl, truncation_level
+        )
+    else:
+        liquefaction_tables, liquefaction_grids = {}, {}
+    on_grid = bool(liquefaction_grids) and not output_plha_disaggregation
+
     # all ground motion models determine the distance types, and rrup is also computed if the
     # disaggregation is binned by rrup
     gmms = list(config["ground_motion_models"].keys())
@@ -1079,6 +1210,16 @@ def get_hazard(config_file):
                             source_disagg_sums[fault_source_model] = (
                                 source_disagg_sums.get(fault_source_model, 0.0) + sums
                             )
+                if liquefaction_grids:
+                    sigma_events = np.broadcast_to(sigma_ln_pga, np.shape(mu_ln_pga))
+                if on_grid:
+                    for grid in liquefaction_grids.values():
+                        grid.add(
+                            m,
+                            mu_ln_pga,
+                            sigma_events,
+                            source_model_weight * ground_motion_model_weight * rate,
+                        )
                 # Compute liquefaction hazard if requested in config file
                 if "liquefaction_models" in config.keys():
                     for liquefaction_model in config["liquefaction_models"].keys():
@@ -1088,14 +1229,30 @@ def get_hazard(config_file):
                         if liquefaction_model_weight <= 0:
                             continue
                         if output_plha:
-                            liquefaction_hazards, eps = get_liquefaction_cdfs(
-                                m,
-                                mu_ln_pga,
-                                sigma_ln_pga,
-                                fsl,
-                                liquefaction_model,
-                                config,
-                            )
+                            table = liquefaction_tables.get(liquefaction_model)
+                            if table is not None and on_grid:
+                                # the events are on the rate grid
+                                continue
+                            if table is not None:
+                                liquefaction_hazards = table.event_cdfs(
+                                    m, mu_ln_pga, sigma_events
+                                )
+                                eps = (
+                                    ngl_smt_2024.get_eps(liquefaction_hazards)
+                                    if liquefaction_model == "ngl_smt_2024"
+                                    else ndtri(liquefaction_hazards)
+                                )
+                            else:
+                                liquefaction_hazards, eps = get_liquefaction_cdfs(
+                                    m,
+                                    mu_ln_pga,
+                                    sigma_ln_pga,
+                                    fsl,
+                                    liquefaction_model,
+                                    config,
+                                    need_eps=output_plha_disaggregation,
+                                    truncation_level=truncation_level,
+                                )
                             liquefaction_hazards *= rate[:, np.newaxis]
                             liquefaction_hazard += (
                                 source_model_weight
@@ -1103,10 +1260,10 @@ def get_hazard(config_file):
                                 * liquefaction_model_weight
                                 * np.sum(liquefaction_hazards, axis=0)
                             )
-                            eps = eps.T
-                            liquefaction_hazards = liquefaction_hazards.T
                             # Compute liquefaction hazard disaggregation if requested in config file
                             if output_plha_disaggregation:
+                                eps = eps.T
+                                liquefaction_hazards = liquefaction_hazards.T
                                 plha_disagg += (
                                     source_model_weight
                                     * ground_motion_model_weight
@@ -1121,6 +1278,13 @@ def get_hazard(config_file):
                                         plha_epsilon_bin_edges,
                                     )
                                 )
+    # Liquefaction hazard from the rate grid
+    if on_grid:
+        for liquefaction_model, table in liquefaction_tables.items():
+            liquefaction_hazard += (
+                config["liquefaction_models"][liquefaction_model]["weight"] * table.curve()
+            )
+
     # Now prepare output
     output = {}
     output["input"] = config
