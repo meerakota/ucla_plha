@@ -219,3 +219,23 @@ def test_ngl_smt_2024_without_eps_same_cdfs():
         cdfs_only, none = ngl_smt_2024.get_fsl_cdfs(*args, pga_uncertainty=treatment, return_eps=False)
         assert none is None and eps is not None
         assert np.array_equal(cdfs, cdfs_only)
+
+
+def test_shared_event_cdfs_same_as_each_table():
+    # the quadrature weights of the events are shared by the tables of a grid; the results are
+    # those of ConditionalTable.event_cdfs of each table
+    m, mu, sigma = _events(45000)  # more than one chunk
+    grid = pga_grid.RateGrid(3.0)
+    other = pga_grid.RateGrid(3.0, d_ln_pga=0.2)
+    args = (*NGL.values(), FSL, 101.325)
+    loose = dict(NGL, qc1Ncs=NGL["qc1Ncs"] * 0.8)
+    tables = [
+        pga_grid.ConditionalTable(grid, lambda mm, xx: ngl_smt_2024.get_conditional_fsl_cdfs(mm, xx, *args)),
+        pga_grid.ConditionalTable(
+            grid, lambda mm, xx: ngl_smt_2024.get_conditional_fsl_cdfs(mm, xx, *loose.values(), FSL, 101.325)
+        ),
+        pga_grid.ConditionalTable(other, lambda mm, xx: ngl_smt_2024.get_conditional_fsl_cdfs(mm, xx, *args)),
+    ]
+    shared = pga_grid.shared_event_cdfs(tables, m, mu, sigma)
+    for table, p in zip(tables, shared):
+        assert np.array_equal(p, table.event_cdfs(m, mu, sigma))

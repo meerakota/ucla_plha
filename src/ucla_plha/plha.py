@@ -1220,6 +1220,22 @@ def get_hazard(config_file):
                             sigma_events,
                             source_model_weight * ground_motion_model_weight * rate,
                         )
+                # per-event probabilities of the models on the grid (for the disaggregation), with
+                # the quadrature weights of the events shared by the models of a grid
+                grid_event_cdfs = {}
+                if output_plha and liquefaction_tables and not on_grid:
+                    grid_models = list(liquefaction_tables)
+                    grid_event_cdfs = dict(
+                        zip(
+                            grid_models,
+                            pga_grid.shared_event_cdfs(
+                                [liquefaction_tables[k] for k in grid_models],
+                                m,
+                                mu_ln_pga,
+                                sigma_events,
+                            ),
+                        )
+                    )
                 # Compute liquefaction hazard if requested in config file
                 if "liquefaction_models" in config.keys():
                     for liquefaction_model in config["liquefaction_models"].keys():
@@ -1234,9 +1250,7 @@ def get_hazard(config_file):
                                 # the events are on the rate grid
                                 continue
                             if table is not None:
-                                liquefaction_hazards = table.event_cdfs(
-                                    m, mu_ln_pga, sigma_events
-                                )
+                                liquefaction_hazards = grid_event_cdfs[liquefaction_model]
                                 eps = (
                                     ngl_smt_2024.get_eps(liquefaction_hazards)
                                     if liquefaction_model == "ngl_smt_2024"

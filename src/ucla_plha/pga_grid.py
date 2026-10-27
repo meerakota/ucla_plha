@@ -365,3 +365,36 @@ class ConditionalTable:
                     :, np.newaxis
                 ] * (w @ upper)
         return np.clip(out, 0.0, 1.0)
+
+
+def shared_event_cdfs(tables, m, mu_ln_pga, sigma_ln_pga):
+    """P(FS < fsl | event) of the events for several ConditionalTables (ConditionalTable.event_cdfs),
+    with the quadrature weights of the ln(PGA) bins of each event computed once for each grid
+    and shared by the tables of that grid. Processed in chunks of events (bounds the memory).
+
+    Inputs:
+        tables (list of ConditionalTable): the tables
+        m, mu_ln_pga, sigma_ln_pga (Numpy arrays): magnitude, mean and standard deviation of
+            ln(PGA) of each event, length = N (sigma_ln_pga may be a scalar)
+
+    Returns:
+        list of Numpy ndarrays, one for each table, shape = N x L
+    """
+    m = np.asarray(m, dtype=float)
+    mu = np.asarray(mu_ln_pga, dtype=float)
+    sigma = np.broadcast_to(np.asarray(sigma_ln_pga, dtype=float), mu.shape)
+    if len(m) == 0:
+        return [table.event_cdfs(m, mu, sigma) for table in tables]
+    out = [None] * len(tables)
+    for start in range(0, len(m), _CHUNK):
+        sl = slice(start, start + _CHUNK)
+        weights = {}
+        for i, table in enumerate(tables):
+            key = id(table.grid)
+            if key not in weights:
+                weights[key] = table.grid.event_weights(mu[sl], sigma[sl])
+            p = table.event_cdfs(m[sl], mu[sl], sigma[sl], weights=weights[key])
+            if out[i] is None:
+                out[i] = np.empty((len(m), p.shape[1]))
+            out[i][sl] = p
+    return out
