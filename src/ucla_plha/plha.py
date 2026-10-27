@@ -7,7 +7,7 @@ import jsonschema
 import numpy as np
 from scipy.special import ndtr, ndtri
 
-from ucla_plha import pga_grid
+from ucla_plha import gc2_cache, pga_grid
 from ucla_plha.liquefaction_models import (
     boulanger_idriss_2012,
     cetin_et_al_2018,
@@ -44,6 +44,114 @@ def _source_model_path(source_type, source_model):
     return files("ucla_plha").joinpath(
         "source_models/" + source_type + "/" + source_model
     )
+
+
+class _NpzArrays(dict):
+    """Contents of an npz file (all members read), with the member names in .files as NpzFile."""
+
+    @property
+    def files(self):
+        return list(self.keys())
+
+
+def _read_only(value):
+    """Marks the numpy arrays of value (an array, or a dict or tuple of them) read-only."""
+    if isinstance(value, np.ndarray):
+        value.flags.writeable = False
+    elif isinstance(value, dict):
+        for v in value.values():
+            _read_only(v)
+    elif isinstance(value, (tuple, list)):
+        for v in value:
+            _read_only(v)
+    return value
+
+
+class SourceModels:
+    """Source model data that is read and prepared once and reused for many sites.
+
+    Holds the contents of the source model files (npy files and all members of npz files) and
+    their site-independent preparation (the rupture boundaries of fault models, the node of each
+    rupture of point source models, and the geometry of the point source ruptures). The arrays are read-only, so
+    they cannot be changed by accident and, after load_source_models in the parent process,
+    are shared by worker processes created with fork. Pass the object to get_hazard (or
+    get_source_data) with models=...; data that has not been loaded yet is loaded on first use.
+    """
+
+    def __init__(self):
+        self._cache = {}
+
+    def cached(self, key, make):
+        """The value stored under key, made with make() (and made read-only) on first use."""
+        if key not in self._cache:
+            self._cache[key] = _read_only(make())
+        return self._cache[key]
+
+    def load(self, path, filename):
+        """Contents of the file filename (npy: array; npz: dict-like with .files) in path."""
+
+        def read():
+            name = str(path.joinpath(filename))
+            if filename.endswith(".npz"):
+                with np.load(name) as data:
+                    return _NpzArrays((k, data[k]) for k in data.files)
+            return np.load(name)
+
+        return self.cached(("file", str(path), filename), read)
+
+
+def load_source_models(config=None):
+    """Reads and prepares the source models of a config once, for many get_hazard calls.
+
+    Args:
+        config (dict or string): a config (or config file) as for get_hazard. The source
+            models with a weight > 0 are read and prepared by computing the PSHA of the config
+            site with them (without liquefaction, output, or disaggregation), so that the
+            files, the site-independent preparation, and the ground motion models are loaded.
+            None returns an empty SourceModels that loads the models on first use.
+
+    Returns:
+        models (SourceModels): pass it to get_hazard(config, models=models). The results are
+        identical to those of get_hazard without models. Call this before creating worker
+        processes with fork, so that the workers share the data.
+    """
+    models = SourceModels()
+    if config is None:
+        return models
+    config = _read_config(config)
+    warmup = {
+        key: value
+        for key, value in config.items()
+        if key not in ("liquefaction_models", "profiles", "output")
+    }
+    warmup["output"] = {"psha": {"pga": [0.1]}}
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        get_hazard(warmup, models=models)
+    return models
+
+
+_SCHEMA = {}
+
+
+def _schema_validator():
+    """Validator of ucla_plha_schema.json (lower case, as the config), made once per schema file."""
+    path = str(files("ucla_plha").joinpath("ucla_plha_schema.json"))
+    if path not in _SCHEMA:
+        with open(path) as f:
+            schema = json.loads(f.read().lower())
+        cls = jsonschema.validators.validator_for(schema)
+        cls.check_schema(schema)
+        _SCHEMA[path] = cls(schema)
+    return _SCHEMA[path]
+
+
+def _read_config(config):
+    """Config dict, in lower case, from a config file name or a config dict."""
+    if isinstance(config, dict):
+        return json.loads(json.dumps(config).lower())
+    with open(config) as f:
+        return json.loads(f.read().lower())
 
 
 # Distances used by the ground motion models
@@ -149,28 +257,47 @@ def _piece_geometry(path):
 
 def _gc2_setup(local, segment_index, boundaries):
     """Site-independent GC2 set-up of all ruptures of a model (geometry.gc2_rupture_setup),
-    kept with the model's local geometry."""
+    kept with the model's local geometry, and read from (or written to) the on-disk cache of
+    ucla_plha.gc2_cache."""
     if "gc2_setup" not in local.data:
-        top_lat, top_lon = local["top_lat"], local["top_lon"]
-        first = local["piece_first"]
-        last = first + local["piece_count"] - 1
-        piece_length = geometry.haversine_distance(
-            top_lat[:, 0], top_lon[:, 0], top_lat[:, 1], top_lon[:, 1]
-        )
-        seg_length = np.add.reduceat(piece_length, first)
-        csum = np.cumsum(piece_length)
-        seg_of_piece = np.repeat(np.arange(len(first)), local["piece_count"])
-        piece_before = csum - piece_length - (csum[first] - piece_length[first])[seg_of_piece]
-        seg_lat = np.c_[top_lat[first, 0], top_lat[last, 1]]
-        seg_lon = np.c_[top_lon[first, 0], top_lon[last, 1]]
-        flip, offset, u_max = geometry.gc2_rupture_setup(
-            seg_lat, seg_lon, seg_length, segment_index, boundaries
-        )
-        local.data["gc2_setup"] = {
-            "seg_length": seg_length, "piece_before": piece_before,
-            "flip": flip, "offset": offset, "u_max": u_max,
+        model = local.path.name
+        model_key = gc2_cache.key(local.path)
+        expected = {
+            "seg_length": len(local["piece_first"]),
+            "piece_before": len(local["top_lat"]),
+            "flip": len(segment_index),
+            "offset": len(segment_index),
+            "u_max": len(boundaries),
         }
+        setup = gc2_cache.load(model, model_key, expected)
+        if setup is None:
+            setup = _compute_gc2_setup(local, segment_index, boundaries)
+            gc2_cache.save(model, model_key, setup)
+        local.data["gc2_setup"] = setup
     return local.data["gc2_setup"]
+
+
+def _compute_gc2_setup(local, segment_index, boundaries):
+    """The GC2 set-up of _gc2_setup, computed."""
+    top_lat, top_lon = local["top_lat"], local["top_lon"]
+    first = local["piece_first"]
+    last = first + local["piece_count"] - 1
+    piece_length = geometry.haversine_distance(
+        top_lat[:, 0], top_lon[:, 0], top_lat[:, 1], top_lon[:, 1]
+    )
+    seg_length = np.add.reduceat(piece_length, first)
+    csum = np.cumsum(piece_length)
+    seg_of_piece = np.repeat(np.arange(len(first)), local["piece_count"])
+    piece_before = csum - piece_length - (csum[first] - piece_length[first])[seg_of_piece]
+    seg_lat = np.c_[top_lat[first, 0], top_lat[last, 1]]
+    seg_lon = np.c_[top_lon[first, 0], top_lon[last, 1]]
+    flip, offset, u_max = geometry.gc2_rupture_setup(
+        seg_lat, seg_lon, seg_length, segment_index, boundaries
+    )
+    return {
+        "seg_length": seg_length, "piece_before": piece_before,
+        "flip": flip, "offset": offset, "u_max": u_max,
+    }
 
 
 def _gc2_rx_ry0(local, site_lat, site_lon, rupture, boundaries, segment_index):
@@ -202,6 +329,7 @@ def get_source_data(
     rupture_rx="gc2",
     triangle_frame="local",
     extra_distances=(),
+    models=None,
 ):
     """Returns magnitude, fault type, rate, distance, and fault geometry terms.
 
@@ -240,6 +368,8 @@ def get_source_data(
         extra_distances (iterable): distances to compute in addition to those of the ground
             motion models, e.g. {"rrup"} for a disaggregation by rrup. They do not change the
             distance the cutoff is applied to.
+        models (SourceModels): source model data read and prepared once
+            (load_source_models). None (default): the files are read for this call.
 
     Returns: A tuple containing the following arrays
         m (array, dtype=float): Numpy array of magnitudes, length = N
@@ -270,6 +400,8 @@ def get_source_data(
     path = _source_model_path(source_type, source_model)
     if not os.path.isdir(str(path)):
         raise ValueError(f'source model "{source_model}" not found in {source_type}')
+    if models is None:
+        models = SourceModels()
     needs = _distance_needs(gmms)
     need_rjb = "rjb" in needs
     need_rrup = bool((needs | set(extra_distances)) & {"rrup", "rx", "ry0"})
@@ -278,15 +410,15 @@ def get_source_data(
         # Read files required by all ground motion models
         # Read decompressed version of files if they exist. Otherwise read zipped version.
         if os.path.exists(str(path.joinpath("ruptures.npy.npz"))):
-            ruptures = np.load(str(path.joinpath("ruptures.npy.npz")))
+            ruptures = models.load(path, "ruptures.npy.npz")
         else:
-            ruptures = np.load(str(path.joinpath("ruptures.npz")))
+            ruptures = models.load(path, "ruptures.npz")
         m = ruptures["m"]
         fault_type = ruptures["fault_type"]
         if os.path.exists(str(path.joinpath("ruptures_segments.npy.npz"))):
-            ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npy.npz")))
+            ruptures_segments = models.load(path, "ruptures_segments.npy.npz")
         else:
-            ruptures_segments = np.load(str(path.joinpath("ruptures_segments.npz")))
+            ruptures_segments = models.load(path, "ruptures_segments.npz")
         segment_index = ruptures_segments["segment_index"]
         ruptures_index = ruptures_segments["rupture_index"]
         rate = ruptures["rate"]
@@ -315,18 +447,19 @@ def get_source_data(
         if triangle_frame == "local" or rupture_rx == "gc2":
             local = _local_geometry(path)
         if need_rjb or need_rrup:
-            tri_segment_id = np.load(str(path.joinpath("tri_segment_id.npy")))
+            tri_segment_id = models.load(path, "tri_segment_id.npy")
         if need_rjb:
             if triangle_frame == "local":
                 rjb_all = geometry.local_triangle_distance(
                     local["tri_rjb"], site_lat, site_lon, 0.0, tri_segment_id
                 )
             else:
-                tri_rjb = np.load(str(path.joinpath("tri_rjb.npy")))
+                # (copies: point_triangle_distance changes degenerate triangles in place)
+                tri_rjb = models.load(path, "tri_rjb.npy").copy()
                 rjb_all = geometry.point_triangle_distance(tri_rjb, p_xyz, tri_segment_id)
         if need_rrup:
-            rect_segment_id = np.load(str(path.joinpath("rect_segment_id.npy")))
-            rect = np.load(str(path.joinpath("rect_rjb.npy")))
+            rect_segment_id = models.load(path, "rect_segment_id.npy")
+            rect = models.load(path, "rect_rjb.npy")
             rx_all, rx1_all, ry0_all = geometry.get_Rx_Rx1_Ry0(
                 rect, p_xyz, rect_segment_id
             )
@@ -335,12 +468,14 @@ def get_source_data(
                     local["tri_rrup"], site_lat, site_lon, site_elevation, tri_segment_id
                 )
             else:
-                tri_rrup = np.load(str(path.joinpath("tri_rrup.npy")))
+                tri_rrup = models.load(path, "tri_rrup.npy").copy()
                 rrup_all = geometry.point_triangle_distance(
                     tri_rrup, p_xyz, tri_segment_id
                 )
-        split_indices = np.where(np.diff(ruptures_index) != 0)[0] + 1
-        boundaries = np.r_[0, split_indices]
+        boundaries = models.cached(
+            ("boundaries", str(path)),
+            lambda: np.r_[0, np.where(np.diff(ruptures_index) != 0)[0] + 1],
+        )
         if need_rrup:
             rrup_seg = rrup_all[segment_index]
             rrup = np.minimum.reduceat(rrup_seg, boundaries)
@@ -394,49 +529,41 @@ def get_source_data(
         return (arrays, {"index": np.flatnonzero(filter)}) if extras else arrays
 
     elif source_type == "point_source_models":
-        ruptures = np.load(str(path.joinpath("ruptures.npz")))
+        ruptures = models.load(path, "ruptures.npz")
         rate = ruptures["rate"]
         m = ruptures["m"]
         fault_type = ruptures["style"]
         node_index = ruptures["node_index"]
-        nodes_index = np.load(str(path.joinpath("node_index.npy")))
-        points = np.load(str(path.joinpath("points.npy")))
+        nodes_index = models.load(path, "node_index.npy")
+        points = models.load(path, "points.npy")
 
         repi_all = np.sqrt(
             (points[:, 0] - p_xyz[0]) ** 2
             + (points[:, 1] - p_xyz[1]) ** 2
             + (points[:, 2] - p_xyz[2]) ** 2
         )
-        repi = repi_all[
-            np.searchsorted(nodes_index, node_index, sorter=np.argsort(nodes_index))
-        ]
+        node_of_rupture = models.cached(
+            ("node_of_rupture", str(path)),
+            lambda: np.searchsorted(
+                nodes_index, node_index, sorter=np.argsort(nodes_index)
+            ),
+        )
+        repi = repi_all[node_of_rupture]
         rjb = repi / (1.0 + np.exp(-1.05 * (np.log(repi) - 1.037 * m + 4.2776)))
 
         filter = _filter_mask(len(rjb), rjb, m, dist_cutoff, m_min)
-        dip = np.empty(len(m), dtype=float)
-
-        # using Kaklamanos et al. 2011 guidance for unknown dip, ztor, and zbor
-        # Note fault_type = 1 reverse, 2 normal, 3 strike slip
-        dip[fault_type == 1] = 40.0
-        dip[fault_type == 2] = 50.0
-        dip[fault_type == 3] = 90.0
-        w = 10.0 ** (-0.76 + 0.27 * m)
-        w[fault_type == 1] = 10.0 ** (-1.61 + 0.41 * m[fault_type == 1])
-        w[fault_type == 2] = 10.0 ** (-1.14 + 0.35 * m[fault_type == 2])
-        zhyp = 5.63 + 0.68 * m
-        zhyp[fault_type == 1] = 11.24 - 0.2 * m[fault_type == 1]
-        zhyp[fault_type == 2] = 7.08 + 0.61 * m[fault_type == 2]
-        ztor = zhyp - 0.6 * w * np.sin(dip * np.pi / 180.0)
-        ztor[ztor < 0.0] = 0.0
+        dip, w, zhyp, ztor, zbor = models.cached(
+            ("crustal_point_source", str(path)),
+            lambda: _crustal_point_source_geometry(m, fault_type),
+        )
         # Expression for Rrup is fit to default parameters (first row in table 1) in Thompson and Worden (2017)
         d = np.radians(80)
-        zbor = ztor + w * np.sin(dip * np.pi / 180.0)
         rrup1 = np.sqrt((repi - 0.6 * w * np.cos(d)) ** 2 + ztor**2)
         filt = repi < 0.6 * w * np.cos(d) - ztor * np.tan(d)
         rrup1[filt] = (zhyp[filt] - repi[filt] * np.tan(d)) / (
             np.cos(d) + np.sin(d) * np.tan(d)
         )
-        rrup2 = zhyp
+        rrup2 = zhyp.copy()
         filt = repi > 1.7 * w
         rrup2[filt] = np.sqrt((repi[filt] - 1.7 * w[filt] / 2.0) ** 2 + zhyp[filt] ** 2)
         rrup = 0.5 * rrup1 + 0.5 * rrup2
@@ -463,6 +590,28 @@ def get_source_data(
             zbor[filter],
         )
         return (arrays, {"index": np.flatnonzero(filter)}) if extras else arrays
+
+
+def _crustal_point_source_geometry(m, fault_type):
+    """Dip, width, hypocentre depth, ztor, and zbor of the ucla_plha crustal point source
+    ruptures (site-independent; see get_source_data)."""
+    dip = np.empty(len(m), dtype=float)
+
+    # using Kaklamanos et al. 2011 guidance for unknown dip, ztor, and zbor
+    # Note fault_type = 1 reverse, 2 normal, 3 strike slip
+    dip[fault_type == 1] = 40.0
+    dip[fault_type == 2] = 50.0
+    dip[fault_type == 3] = 90.0
+    w = 10.0 ** (-0.76 + 0.27 * m)
+    w[fault_type == 1] = 10.0 ** (-1.61 + 0.41 * m[fault_type == 1])
+    w[fault_type == 2] = 10.0 ** (-1.14 + 0.35 * m[fault_type == 2])
+    zhyp = 5.63 + 0.68 * m
+    zhyp[fault_type == 1] = 11.24 - 0.2 * m[fault_type == 1]
+    zhyp[fault_type == 2] = 7.08 + 0.61 * m[fault_type == 2]
+    ztor = zhyp - 0.6 * w * np.sin(dip * np.pi / 180.0)
+    ztor[ztor < 0.0] = 0.0
+    zbor = ztor + w * np.sin(dip * np.pi / 180.0)
+    return dip, w, zhyp, ztor, zbor
 
 
 def get_ground_motion_data(
@@ -839,6 +988,28 @@ def _reject_removed_options(liquefaction_models):
             raise ValueError(f'{model}: "{key}" is not an option: {reason}')
 
 
+LIQUEFACTION_MODELS = [
+    "boulanger_idriss_2012",
+    "boulanger_idriss_2016",
+    "cetin_et_al_2018",
+    "moss_et_al_2006",
+    "ngl_smt_2024",
+]
+
+
+def _normalize_liquefaction_weights(liquefaction_models):
+    """Divides the weights of the liquefaction models (config "liquefaction_models") by their sum."""
+    liquefaction_model_weight_sum = 0.0
+    for liquefaction_model in LIQUEFACTION_MODELS:
+        liquefaction_model_weight_sum += liquefaction_models.get(liquefaction_model, {}).get(
+            "weight", 0.0
+        )
+    if liquefaction_model_weight_sum > 0:
+        for liquefaction_model in LIQUEFACTION_MODELS:
+            if liquefaction_models.get(liquefaction_model, {}):
+                liquefaction_models[liquefaction_model]["weight"] /= liquefaction_model_weight_sum
+
+
 # Liquefaction models with a treatment of the peak acceleration conditioned on PGA: the value of
 # their "pga_uncertainty" for that treatment, and the default value (change a default here, e.g.
 # to "closed_form", to make the earlier treatment the default of a model)
@@ -887,43 +1058,49 @@ def _conditional_cdfs(liquefaction_model, c, fsl):
     return conditional_cdfs
 
 
-def _liquefaction_tables(liquefaction_models, fsl, truncation_level):
+def _liquefaction_tables(profiles, fsl, truncation_level):
     """Rate grids and conditional probability tables of the liquefaction models conditioned on
     PGA (CONDITIONAL_PGA_UNCERTAINTY) and integrated on the magnitude x PGA grid
     ("pga_integration" "grid", the default).
 
-    Returns the tables ({liquefaction model: pga_grid.ConditionalTable} of the models that use
-    the grid) and the rate grids (pga_grid.RateGrid), one for each set of grid parameters
-    ("pga_grid"), so that the liquefaction models with the same parameters share one grid.
+    Sets profile["tables"] ({liquefaction model: pga_grid.ConditionalTable} of the models of
+    the profile that use the grid) and returns the rate grids (pga_grid.RateGrid), one for each
+    set of grid parameters ("pga_grid"), so that all profiles and liquefaction models with the
+    same parameters share one grid.
     """
     grids = {}
-    tables = {}
-    for liquefaction_model, conditional in CONDITIONAL_PGA_UNCERTAINTY.items():
-        c = liquefaction_models.get(liquefaction_model)
-        if (
-            not c
-            or c.get("weight", 0.0) <= 0
-            or _pga_uncertainty(liquefaction_model, c) != conditional
-            or c.get("pga_integration", "grid") != "grid"
-        ):
-            continue
-        params = pga_grid.grid_parameters(c.get("pga_grid"))
-        key = tuple(sorted(params.items()))
-        if key not in grids:
-            grids[key] = pga_grid.RateGrid(truncation_level, **params)
-        tables[liquefaction_model] = pga_grid.ConditionalTable(
-            grids[key], _conditional_cdfs(liquefaction_model, c, fsl)
-        )
-    return tables, grids
+    for profile in profiles:
+        profile["tables"] = {}
+        for liquefaction_model, conditional in CONDITIONAL_PGA_UNCERTAINTY.items():
+            c = profile["models"].get(liquefaction_model)
+            if (
+                not c
+                or c.get("weight", 0.0) <= 0
+                or _pga_uncertainty(liquefaction_model, c) != conditional
+                or c.get("pga_integration", "grid") != "grid"
+            ):
+                continue
+            params = pga_grid.grid_parameters(c.get("pga_grid"))
+            key = tuple(sorted(params.items()))
+            if key not in grids:
+                grids[key] = pga_grid.RateGrid(truncation_level, **params)
+            profile["tables"][liquefaction_model] = pga_grid.ConditionalTable(
+                grids[key], _conditional_cdfs(liquefaction_model, c, fsl)
+            )
+    return grids
 
 
-def get_hazard(config_file):
+def get_hazard(config_file, models=None):
     """Reads config file and runs PSHA and PLHA
 
     Inputs:
-        config_file (string): Filename, including path, of config file. Must follow the schema
+        config_file (string or dict): Filename, including path, of config file, or a config
+            dict (as read from a config file; it is not changed). Must follow the schema
             defined by ucla_plha_schema.json. See documentation for more thorough documentation
             of the config file.
+        models (SourceModels): source models read and prepared once (load_source_models), to
+            run many sites without reading the source model files again. None (default): the
+            source models are read for this call. The results are the same.
 
     Returns:
         output (dict): Python dictionary containing output of analysis. The output contains all
@@ -932,51 +1109,62 @@ def get_hazard(config_file):
 
     Notes:
         The weights of the fault source models, of the point source models, of the ground
-        motion models, and of the liquefaction models are each normalized to sum to one. The
-        hazard is the sum of the weighted fault source hazard and the weighted point source
-        hazard.
+        motion models, and of the liquefaction models (of each soil profile) are each
+        normalized to sum to one. The hazard is the sum of the weighted fault source hazard
+        and the weighted point source hazard. With "profiles", the PLHA of each soil profile
+        is in output "profiles" (a list of {"name", "plha"}) instead of "plha".
     """
     # Validate config_file against schema. If ngl_smt_2024 liquefaction model is used, the cpt_data file is
     # validated in the get_liquefaction_hazards function.
 
-    schema = json.loads(
-        open(files("ucla_plha").joinpath("ucla_plha_schema.json")).read().lower()
-    )
-    config = json.loads(open(config_file).read().lower())
+    validator = _schema_validator()
+    config = _read_config(config_file)
 
     # validate config file and return messageg if errors are encountered
     try:
-        jsonschema.validate(config, schema)
+        error = jsonschema.exceptions.best_match(validator.iter_errors(config))
+        if error is not None:
+            raise error
     except jsonschema.ValidationError as e:
         print("Config File Error:", e.message)
         return
+    if "profiles" in config and "liquefaction_models" in config:
+        print(
+            'Config File Error: a config with "profiles" gives the liquefaction models of each '
+            'profile, not "liquefaction_models"'
+        )
+        return
+    if isinstance(config_file, dict) and config["output"].get("outputfile") == "default":
+        raise ValueError(
+            'outputfile "default" needs a config file name; give the output file name for '
+            "a config dict"
+        )
+    if models is None:
+        models = SourceModels()
 
     # normalize weights in config file
-    for models in config["source_models"].values():
-        _normalize_weights(models)
+    for type_models in config["source_models"].values():
+        _normalize_weights(type_models)
     _normalize_weights(config["ground_motion_models"])
 
-    liquefaction_model_weight_sum = 0.0
-    liquefaction_models = [
-        "boulanger_idriss_2012",
-        "boulanger_idriss_2016",
-        "cetin_et_al_2018",
-        "moss_et_al_2006",
-        "ngl_smt_2024",
-    ]
-    for liquefaction_model in liquefaction_models:
-        liquefaction_model_weight_sum += (
-            config.get("liquefaction_models", {})
-            .get(liquefaction_model, {})
-            .get("weight", 0.0)
-        )
-    if liquefaction_model_weight_sum > 0:
-        for liquefaction_model in liquefaction_models:
-            if config.get("liquefaction_models", {}).get(liquefaction_model, {}):
-                config["liquefaction_models"][liquefaction_model][
-                    "weight"
-                ] /= liquefaction_model_weight_sum
-    _reject_removed_options(config.get("liquefaction_models", {}))
+    # Soil profiles: the liquefaction models of the config, or of each of its "profiles" (the
+    # source data, ground motions, and PSHA are computed once for all profiles)
+    if "profiles" in config:
+        profiles = [
+            {
+                "name": profile.get("name", str(i)),
+                "models": profile["liquefaction_models"],
+                "config": profile,
+            }
+            for i, profile in enumerate(config["profiles"])
+        ]
+    else:
+        profiles = [
+            {"name": None, "models": config.get("liquefaction_models", {}), "config": config}
+        ]
+    for profile in profiles:
+        _reject_removed_options(profile["models"])
+        _normalize_liquefaction_weights(profile["models"])
 
     # Read site properties
     latitude = config["site"]["latitude"]
@@ -1084,19 +1272,21 @@ def get_hazard(config_file):
             plha_epsilon_bin_center = 0.5 * (
                 plha_epsilon_bin_edges[0:-1] + plha_epsilon_bin_edges[1:]
             )
-            plha_disagg = np.zeros(
-                (
-                    len(fsl),
-                    len(plha_magnitude_bin_center),
-                    len(plha_distance_bin_center),
-                    len(plha_epsilon_bin_center),
-                ),
-                dtype=float,
-            )
+            for profile in profiles:
+                profile["disagg"] = np.zeros(
+                    (
+                        len(fsl),
+                        len(plha_magnitude_bin_center),
+                        len(plha_distance_bin_center),
+                        len(plha_epsilon_bin_center),
+                    ),
+                    dtype=float,
+                )
         else:
             output_plha_disaggregation = False
             plha_distance_metric = "default"
-        liquefaction_hazard = np.zeros(len(fsl))
+        for profile in profiles:
+            profile["hazard"] = np.zeros(len(fsl))
     else:
         output_plha = False
         output_plha_disaggregation = False
@@ -1105,15 +1295,12 @@ def get_hazard(config_file):
     # Liquefaction models conditioned on PGA (NGL SMT 2024 with the PGA shared by the layers of the
     # profile, Boulanger and Idriss 2016, Moss et al. 2006; the defaults): the rates of the ground
     # motions of the events are accumulated on a magnitude x ln(PGA) grid (pga_grid.RateGrid),
-    # built once for all liquefaction models, and the hazard of each model is the sum over the
-    # grid of the rates times its conditional probabilities (added after the loops). The
-    # disaggregation uses per-event probabilities from the grid nodes.
-    if output_plha:
-        liquefaction_tables, liquefaction_grids = _liquefaction_tables(
-            config.get("liquefaction_models", {}), fsl, truncation_level
-        )
-    else:
-        liquefaction_tables, liquefaction_grids = {}, {}
+    # built once for all profiles and liquefaction models, and the hazard of each profile and
+    # model is the sum over the grid of the rates times its conditional probabilities (added
+    # after the loops). The disaggregation uses per-event probabilities from the grid nodes.
+    liquefaction_grids = (
+        _liquefaction_tables(profiles, fsl, truncation_level) if output_plha else {}
+    )
     on_grid = bool(liquefaction_grids) and not output_plha_disaggregation
 
     # all ground motion models determine the distance types, and rrup is also computed if the
@@ -1142,6 +1329,7 @@ def get_hazard(config_file):
                 rupture_rx=rupture_rx,
                 triangle_frame=triangle_frame,
                 extra_distances=extra_distances,
+                models=models,
             )
             # distances used for disaggregation (see disagg_distance)
             if output_psha_disaggregation:
@@ -1221,36 +1409,36 @@ def get_hazard(config_file):
                             source_model_weight * ground_motion_model_weight * rate,
                         )
                 # per-event probabilities of the models on the grid (for the disaggregation), with
-                # the quadrature weights of the events shared by the models of a grid
+                # the quadrature weights of the events shared by the profiles and models of a grid
                 grid_event_cdfs = {}
-                if output_plha and liquefaction_tables and not on_grid:
-                    grid_models = list(liquefaction_tables)
-                    grid_event_cdfs = dict(
-                        zip(
-                            grid_models,
-                            pga_grid.shared_event_cdfs(
-                                [liquefaction_tables[k] for k in grid_models],
-                                m,
-                                mu_ln_pga,
-                                sigma_events,
-                            ),
+                if output_plha and not on_grid:
+                    grid_tables = [
+                        (i, model, table)
+                        for i, profile in enumerate(profiles)
+                        for model, table in profile["tables"].items()
+                    ]
+                    if grid_tables:
+                        cdfs = pga_grid.shared_event_cdfs(
+                            [table for _, _, table in grid_tables], m, mu_ln_pga, sigma_events
                         )
-                    )
-                # Compute liquefaction hazard if requested in config file
-                if "liquefaction_models" in config.keys():
-                    for liquefaction_model in config["liquefaction_models"].keys():
-                        liquefaction_model_weight = config["liquefaction_models"][
-                            liquefaction_model
-                        ]["weight"]
+                        grid_event_cdfs = {
+                            (i, model): p for (i, model, _), p in zip(grid_tables, cdfs)
+                        }
+                # Compute liquefaction hazard if requested in config file, for each soil profile
+                for i, profile in enumerate(profiles):
+                    for liquefaction_model in profile["models"].keys():
+                        liquefaction_model_weight = profile["models"][liquefaction_model][
+                            "weight"
+                        ]
                         if liquefaction_model_weight <= 0:
                             continue
                         if output_plha:
-                            table = liquefaction_tables.get(liquefaction_model)
+                            table = profile["tables"].get(liquefaction_model)
                             if table is not None and on_grid:
                                 # the events are on the rate grid
                                 continue
                             if table is not None:
-                                liquefaction_hazards = grid_event_cdfs[liquefaction_model]
+                                liquefaction_hazards = grid_event_cdfs[(i, liquefaction_model)]
                                 eps = (
                                     ngl_smt_2024.get_eps(liquefaction_hazards)
                                     if liquefaction_model == "ngl_smt_2024"
@@ -1263,12 +1451,12 @@ def get_hazard(config_file):
                                     sigma_ln_pga,
                                     fsl,
                                     liquefaction_model,
-                                    config,
+                                    profile["config"],
                                     need_eps=output_plha_disaggregation,
                                     truncation_level=truncation_level,
                                 )
                             liquefaction_hazards *= rate[:, np.newaxis]
-                            liquefaction_hazard += (
+                            profile["hazard"] += (
                                 source_model_weight
                                 * ground_motion_model_weight
                                 * liquefaction_model_weight
@@ -1278,7 +1466,7 @@ def get_hazard(config_file):
                             if output_plha_disaggregation:
                                 eps = eps.T
                                 liquefaction_hazards = liquefaction_hazards.T
-                                plha_disagg += (
+                                profile["disagg"] += (
                                     source_model_weight
                                     * ground_motion_model_weight
                                     * liquefaction_model_weight
@@ -1294,10 +1482,11 @@ def get_hazard(config_file):
                                 )
     # Liquefaction hazard from the rate grid
     if on_grid:
-        for liquefaction_model, table in liquefaction_tables.items():
-            liquefaction_hazard += (
-                config["liquefaction_models"][liquefaction_model]["weight"] * table.curve()
-            )
+        for profile in profiles:
+            for liquefaction_model, table in profile["tables"].items():
+                profile["hazard"] += (
+                    profile["models"][liquefaction_model]["weight"] * table.curve()
+                )
 
     # Now prepare output
     output = {}
@@ -1335,19 +1524,29 @@ def get_hazard(config_file):
                         seismic_hazard,
                     )
     if output_plha:
-        if output_plha_disaggregation:
-            for i in range(len(fsl)):
-                plha_disagg[i] = plha_disagg[i] / liquefaction_hazard[i] * 100.0
-            output["output"]["plha"] = {
-                "FSL": fsl.tolist(),
-                "annual_rate_of_nonexceedance": liquefaction_hazard.tolist(),
-                "disaggregation": plha_disagg.tolist(),
-            }
-        else:
-            output["output"]["plha"] = {
-                "FSL": fsl.tolist(),
-                "annual_rate_of_nonexceedance": liquefaction_hazard.tolist(),
-            }
+        for profile in profiles:
+            liquefaction_hazard = profile["hazard"]
+            if output_plha_disaggregation:
+                plha_disagg = profile["disagg"]
+                for i in range(len(fsl)):
+                    plha_disagg[i] = plha_disagg[i] / liquefaction_hazard[i] * 100.0
+                plha_output = {
+                    "FSL": fsl.tolist(),
+                    "annual_rate_of_nonexceedance": liquefaction_hazard.tolist(),
+                    "disaggregation": plha_disagg.tolist(),
+                }
+            else:
+                plha_output = {
+                    "FSL": fsl.tolist(),
+                    "annual_rate_of_nonexceedance": liquefaction_hazard.tolist(),
+                }
+            if profile["name"] is None:
+                output["output"]["plha"] = plha_output
+            else:
+                # one entry per soil profile, in the order of the config "profiles"
+                output["output"].setdefault("profiles", []).append(
+                    {"name": profile["name"], "plha": plha_output}
+                )
 
     if "outputfile" in config["output"].keys():
         if config["output"]["outputfile"] == "default":

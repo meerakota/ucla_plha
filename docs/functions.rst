@@ -27,6 +27,8 @@ by a detailed description of each. Some general notes on the functions:
      - Compute seismic and liquefaction hazard disaggregation
    * - :func:`get_hazard`
      - Run the full PSHA and PLHA from a config file
+   * - :func:`load_source_models`
+     - Read and prepare the source models once for many sites
 
 ----
 
@@ -170,17 +172,37 @@ by a detailed description of each. Some general notes on the functions:
       :math:`L \times M \times R \times E`.
 
 
-.. py:function:: get_hazard(config_file)
+.. py:function:: get_hazard(config_file, models=None)
 
    Read a config file and run the PSHA and/or PLHA. This is the main entry point of the
    package.
 
-   :param str config_file: Filename, including path, of the config file. Must follow
-      the schema defined by ``ucla_plha_schema.json`` (see :doc:`config_format`). The
-      config file is case-insensitive.
+   :param config_file: Filename, including path, of the config file, or a config dict (as
+      read from a config file; it is not changed). Must follow the schema defined by
+      ``ucla_plha_schema.json`` (see :doc:`config_format`). The config is case-insensitive.
+      ``"outputfile": "default"`` needs a file name.
+   :param models: Source models read and prepared once by :func:`load_source_models`, to run
+      many sites without reading the source model files again. ``None`` (default): the source
+      models are read for this call. The results are the same.
 
    :returns: **output** -- dictionary containing the analysis output. It preserves all
-      of the inputs and adds the hazard curve(s) and any requested disaggregation data.
+      of the inputs and adds the hazard curve(s) and any requested disaggregation data. With
+      ``"profiles"``, the PLHA of each soil profile is in ``"profiles"`` (a list of
+      ``{"name", "plha"}``) instead of ``"plha"``.
+
+
+.. py:function:: load_source_models(config=None)
+
+   Read and prepare the source models of a config once, for many :func:`get_hazard` calls.
+
+   :param config: A config dict or config file name, as for :func:`get_hazard`. Its source
+      models are read and prepared by computing the PSHA of its site once. ``None`` returns an
+      empty ``SourceModels`` that loads the models on first use.
+
+   :returns: **models** -- a ``SourceModels`` object; pass it to
+      ``get_hazard(config, models=models)`` for each site. The results are identical to those
+      of :func:`get_hazard` without ``models``. The arrays are read-only, so worker processes
+      created with fork after ``load_source_models`` share them.
 
 
 References

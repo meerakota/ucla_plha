@@ -48,6 +48,10 @@ only a PSHA without performing a PLHA.
    * - ``"liquefaction_models"``
      - liquefaction triggering models and soil inputs; omit to run PSHA only
      - no
+   * - ``"profiles"``
+     - several soil profiles, each with its liquefaction models (instead of
+       ``"liquefaction_models"``)
+     - no
    * - ``"output"``
      - requested hazard outputs and optional disaggregation
      - yes
@@ -414,6 +418,116 @@ slows down the calculations, and should be included only if needed.
    The input JSON object is saved alongside the output in ``"outputfile"`` so that
    inputs and outputs are always stored together. This prevents inconsistencies if
    the config file is modified after a run.
+
+
+``"profiles"`` (several soil profiles at a site)
+-------------------------------------------------
+
+A config can give several soil profiles of the site with ``"profiles"`` instead of
+``"liquefaction_models"``: a list of profiles, each with an optional ``"name"`` and its
+``"liquefaction_models"`` (the same keys as the top-level ``"liquefaction_models"``,
+including the weights, which are normalized within each profile). The source data, ground
+motions, and PSHA are computed once for the site, and only the liquefaction models are
+evaluated for each profile, so a site with four profiles costs much less than four runs.
+The results of each profile are exactly those of a config with its liquefaction models. A
+config cannot have both ``"profiles"`` and ``"liquefaction_models"``; configs without
+``"profiles"`` work as before.
+
+.. code-block:: json
+
+   "profiles": [
+      {
+         "name": "boring_1",
+         "liquefaction_models": {
+            "moss_et_al_2006": {"qc": 5.49, "fs": 0.02617, "sigmav": 46.55,
+                                "sigmavp": 43.22, "depth": 2.85, "pa": 101.325,
+                                "weight": 0.5},
+            "boulanger_idriss_2016": {"qc1Ncs": 71.8, "sigmav": 40.0, "sigmavp": 28.0,
+                                      "depth": 2.2, "pa": 101.325, "weight": 0.5}
+         }
+      },
+      {
+         "name": "boring_2",
+         "liquefaction_models": {
+            "boulanger_idriss_2016": {"qc1Ncs": 95.0, "sigmav": 40.0, "sigmavp": 28.0,
+                                      "depth": 2.2, "pa": 101.325, "weight": 1.0}
+         }
+      }
+   ]
+
+The PLHA output is then ``"output": {"profiles": [{"name": "boring_1", "plha": {...}},
+{"name": "boring_2", "plha": {...}}]}``, in the order of the config, with each ``"plha"`` as
+the ``"plha"`` output of a single profile (including the disaggregation if requested),
+instead of ``"output": {"plha": {...}}``. Names are lowercase (the config is
+case-insensitive); the default name of a profile is its index (``"0"``, ``"1"``, ...).
+
+
+Running many sites
+------------------
+
+``plha.get_hazard`` also accepts a config dict (as read from a config file) instead of a file
+name (``"outputfile": "default"`` then needs a file name instead). To run many sites, read and
+prepare the source models once with ``plha.load_source_models`` and pass them to
+``get_hazard``:
+
+.. code-block:: python
+
+   from ucla_plha import plha
+
+   models = plha.load_source_models(config)  # reads and prepares the source models once
+   for site in sites:
+       config["site"] = site
+       output = plha.get_hazard(config, models=models)
+
+The results are identical to those of ``get_hazard`` without ``models``. The source model
+arrays are read-only, so worker processes created with fork after ``load_source_models``
+share them.
+
+``python -m ucla_plha.batch`` runs a table of sites (CSV or Parquet with ``site_id``,
+``latitude``, ``longitude``, ``vs30``, optional site parameters (``elevation``, ``measured_vs30``, ``z1p0``, ``z2p5``), and an optional
+``profiles_file`` with the ``"profiles"`` of each site) with a base config, loads the source
+models once, and processes the sites with a pool of worker processes (fork on Linux, so the
+workers share the source model arrays; spawn elsewhere). Each chunk of sites is written by its
+worker to one compact file (npz, or HDF5 with ``--format hdf5``) with the site ids, the PSHA
+curves, and the PLHA curves of every profile; existing chunks are skipped, so an interrupted
+run can be restarted:
+
+.. code-block:: bash
+
+   python -m ucla_plha.batch --sites sites.csv --config base.json --out-dir results \
+       --processes 128 --chunk-size 100 [--start 0 --max-sites 100000]
+
+On a cluster node (e.g. TACC Stampede3 or Vista) run one process per core
+(``--processes`` = number of cores, with ``OMP_NUM_THREADS=1``), and split a large table
+over a SLURM job array with ``--start`` and ``--max-sites`` (e.g.
+``--start $((SLURM_ARRAY_TASK_ID * 100000)) --max-sites 100000``), so that each array task
+writes its own chunk files. ``ucla_plha.batch.read_results`` reads the chunk files. mpi4py
+could distribute chunks over the nodes of one job instead, but is not needed. See the
+docstring of ``ucla_plha/batch.py``.
+
+GC2 cache
+^^^^^^^^^
+
+The site-independent GC2 set-up of the fault source models (Rx and Ry0 with
+``"rupture_rx": "gc2"``, the default) takes about 6 s for UCERF3 FM3.1 and 7 s for FM3.2 in
+each new process, and is too large to ship with the package (147 and 177 MB). It is written to a cache directory the
+first time it is computed and read by later processes (0.1 to 0.3 s per model):
+``UCLA_PLHA_CACHE_DIR`` (default ``~/.cache/ucla_plha``, or ``%LOCALAPPDATA%\ucla_plha\Cache``
+on Windows; ``none`` disables the cache). Run the precompute step once after installing, so that
+the jobs of a cluster run do not each compute it:
+
+.. code-block:: bash
+
+   export UCLA_PLHA_CACHE_DIR=$WORK/ucla_plha_cache   # TACC: not in $HOME (small quota)
+   python -m ucla_plha.precompute                     # both UCERF3 fault models, about 325 MB
+
+and use the same ``UCLA_PLHA_CACHE_DIR`` in the job scripts. The files are keyed on a hash of
+the model geometry files, the cache format, and the numpy version, written atomically (a
+temporary file in the cache directory that is renamed), and checked when they are read (key,
+array sizes, CRC-32 of the npz members); a missing, stale, or corrupt file is computed again,
+and the results are identical with and without the cache (``ucla_plha.gc2_cache``). With the
+cache, the first ``get_hazard`` of a new process for ``examples/config10.json`` without its
+disaggregation takes about 4 s instead of 19 s.
 
 
 Full config structure

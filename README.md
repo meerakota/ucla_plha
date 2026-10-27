@@ -151,6 +151,7 @@ The top level keys are all JSON objects. If the "liquefaction_models" key and it
 | "source_models" | x |
 | "ground_motion_models" | x |
 | "liquefaction_models" |  |
+| "profiles" |  |
 | "output" | x |
 
 ### "site" Keys  
@@ -225,6 +226,17 @@ The 2nd nesting level keys define the liquefaction model, and must be one of "bo
 "cetin_et_al_2018" includes only the model uncertainty (sigma_epsilon = 2.95) by default. Setting "parameter_uncertainty" to true adds the input parameter uncertainty of Cetin et al. (2018b): sigma_tot^2 = theta_7 sigma_input^2 + sigma_epsilon^2 with theta_7 = 0.392, where sigma_input^2 = theta_6^2 cov_csr^2 + sigma_n160^2 (1 + theta_1 FC)^2 + sigma_fc^2 (theta_1 N1,60 + theta_4)^2 + theta_3^2 cov_sigmavp^2 (Eqs. 4 and 5). Because ucla_plha integrates the ground motion variability in the hazard calculation, "cov_csr" should represent only the uncertainty in estimating CSR for a given ground motion (e.g., rd and the stresses), not the variability of the ground motion.
 
 Note, you cannot include keys if they are not required by a liquefaction model. For example, you cannot include "n160" in one of the cone penetration test models.
+
+### "profiles" Keys
+
+Instead of "liquefaction_models", a config can give several soil profiles of the site: "profiles" is a list of profiles, each with an optional "name" (default: its index, "0", "1", ...) and its "liquefaction_models" (the same keys as the top-level "liquefaction_models"; the weights are normalized within each profile). The source data, ground motions, and PSHA are computed once for the site, and only the liquefaction models are evaluated for each profile. The output then has "profiles": a list of {"name": ..., "plha": {...}} in the order of the config, where each "plha" is the "plha" output of that profile alone, instead of "plha". A config cannot have both "profiles" and "liquefaction_models".
+
+```
+"profiles": [
+    {"name": "boring_1", "liquefaction_models": {"boulanger_idriss_2016": {"qc1Ncs": 71.8, "sigmav": 40, "sigmavp": 28, "depth": 2.2, "pa": 101.325, "weight": 1.0}}},
+    {"name": "boring_2", "liquefaction_models": {"boulanger_idriss_2016": {"qc1Ncs": 95.0, "sigmav": 40, "sigmavp": 28, "depth": 2.2, "pa": 101.325, "weight": 1.0}}}
+]
+```
 
 ### "output" Keys
 
@@ -380,18 +392,50 @@ This function calculates the seismic and liquefaction hazard disaggregation  (an
         R = number of distance bins (note that r_bin_edges has a length of R + 1)
         E = number of epsilon bins (note that eps_bin_edges has a length of E + 1)
 
-## get_hazard(config_file)
+## get_hazard(config_file, models=None)
 Reads config file and runs PSHA and PLHA
 
     Inputs:
-        config_file (string): Filename, including path, of config file. Must follow the schema
+        config_file (string or dict): Filename, including path, of config file, or a config
+            dict (as read from a config file; it is not changed). Must follow the schema
             defined by ucla_plha_schema.json. See documentation for more thorough documentation
-            of the config file. The config file is case insensitive. 
-    
+            of the config file. The config file is case insensitive. "outputfile": "default"
+            needs a file name.
+        models (SourceModels): source models read and prepared once by load_source_models, to
+            run many sites without reading the source model files again. None (default): the
+            source models are read for this call. The results are the same.
+
     Returns:
         output (dict): Python dictionary containing output of analysis. The output contains all
             of the inputs for preservation, along with the hazard curve(s) and any requested
             disaggregation data. See documentation for more thorough description of output.
+
+## load_source_models(config=None)
+Reads and prepares the source models of a config once, for many get_hazard calls
+
+    Inputs:
+        config (dict or string): a config (or config file) as for get_hazard. Its source models
+            are read and prepared by computing the PSHA of its site once.
+
+    Returns:
+        models (SourceModels): pass it to get_hazard(config, models=models) for each site. The
+            results are identical to those of get_hazard without models. The arrays are
+            read-only, so worker processes created with fork after load_source_models share
+            them.
+
+Example:
+
+    from ucla_plha import plha
+
+    models = plha.load_source_models(config)
+    for site in sites:
+        config["site"] = site
+        output = plha.get_hazard(config, models=models)
+
+## ucla_plha.batch (many sites on a cluster node)
+`python -m ucla_plha.batch --sites sites.csv --config base.json --out-dir results --processes 128` runs a table of sites (CSV or Parquet with site_id, latitude, longitude, vs30, optional elevation, measured_vs30, z1p0, z2p5, and an optional profiles_file with the "profiles" of the site) with the source models, ground motion models, constraints, output values, and default "profiles" of a base config. The source models are loaded once, and the sites are run by a pool of worker processes (fork on Linux, so the workers share the source model arrays). Each chunk of --chunk-size sites is written by its worker to one file, results/chunk_<first site>.npz (or .h5 with --format hdf5), with site_id, pga, fsl, psha (sites x pga), plha (sites x profiles x fsl), and profile (names); existing chunks are skipped. On a cluster node (e.g. TACC Stampede3 or Vista) use one process per core and OMP_NUM_THREADS=1, and split a large table over a SLURM job array with --start and --max-sites (e.g. --start $((SLURM_ARRAY_TASK_ID * 100000)) --max-sites 100000). `ucla_plha.batch.read_results(out_dir)` reads the results.
+
+GC2 cache: the site-independent GC2 set-up of the fault source models (used for Rx and Ry0, "rupture_rx": "gc2", the default) takes about 6 s for UCERF3 FM3.1 and 7 s for FM3.2 in each new process, and is too large to ship with the package (147 and 177 MB). It is written to a cache directory the first time it is computed and read from there by later processes (about 0.1 to 0.3 s per model): `UCLA_PLHA_CACHE_DIR` (default `~/.cache/ucla_plha`, or `%LOCALAPPDATA%\ucla_plha\Cache` on Windows; `none` disables it). Run `python -m ucla_plha.precompute` once after installing (it writes the files of both UCERF3 fault source models, about 325 MB; `--cache-dir` and model names are optional), so that the jobs of a cluster run do not each compute it. On TACC, set `UCLA_PLHA_CACHE_DIR` to a directory on `$WORK` or `$SCRATCH` (the home quota is small) in the precompute step and in the job scripts. The files are keyed on a hash of the model geometry files, the cache format, and the numpy version, written atomically (a temporary file that is renamed), and checked when they are read (key, array sizes, CRC-32); a missing, stale, or corrupt file is computed again, and the results are identical with and without the cache. With the cache, the first `get_hazard` of a new process for config10 without its disaggregation takes about 4 s instead of 19 s.
 
 ## References
 
