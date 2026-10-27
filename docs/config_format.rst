@@ -173,9 +173,8 @@ Weights will be normalized within ``"fault_source_models"`` and within
 ``"ground_motion_models"`` keys
 --------------------------------
 
-In the flat format, the second nesting level defines the active crust ground motion
-models, e.g. one or more of ``"ask14"``, ``"bssa14"``, ``"cb14"``, ``"cy14"``,
-``"idriss14"`` (see Tectonic regions below for the per-region format). The third nesting level defines
+The second nesting level defines the ground motion model and must be one or more of
+``"ask14"``, ``"bssa14"``, ``"cb14"``, ``"cy14"``. The third nesting level defines
 the model parameters listed below. Weights within ``"ground_motion_models"`` will be
 normalized to sum to unity.
 
@@ -191,53 +190,23 @@ normalized to sum to unity.
      - required for all models
 
 
-Tectonic regions
-^^^^^^^^^^^^^^^^
+Distance and other options
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Each source model has a tectonic region (``source_info.json`` in its directory:
-``"active_crust"``, ``"stable_crust"``, ``"subduction_interface"``, or
-``"subduction_slab"``), and uses the ground motion models of its region. The
-per-region format is
-
-.. code-block:: json
-
-   "ground_motion_models": {
-       "active_crust": {"ask_14_basin": {"weight": 1}, "bssa14": {"weight": 1}},
-       "stable_crust": "default",
-       "subduction_interface": {"kbcg_20_cascadia_interface_basin": {"weight": 1}},
-       "subduction_slab": {"parkeretal2020": {"weight": 1, "options": {"basin": true},
-                                              "scenario": {"region": "cascadia"}}}
-   }
-
-Weights are normalized within each region. A model name is a ucla_plha model
-(``"ask14"``, ``"bssa14"``, ``"cb14"``, ``"cy14"``, ``"idriss14"``), an nshmp-lib Gmm id
-provided by pygmm (case insensitive), or a pygmm class name with optional ``"options"``
-and ``"scenario"``. Regions that are used but not given (or ``"default"``) use the
-USGS NSHM 2023 logic trees. With a pygmm older than 1b30f5b, AM_09 and ZHAO_06 are
-removed and the remaining weights renormalized, with a warning. The flat format above is the active crust
-format and works as before. A source model entry can also have its own
-``"ground_motion_models"`` and ``"dist_cutoff"``. ``"constraints"`` accepts
-``"dist_cutoff"`` as a number or ``{region: number}``, ``"truncation_level"``
-(upper truncation in standard deviations; the NSHM uses 3), ``"rupture_rx"``:
-``"gc2"`` (default) takes Rx and Ry0 of a fault rupture from the GC2 coordinates of Spudich
-and Chiou (2015) of the whole rupture, as in the NGA-West2 and NGA-West3 flatfiles (Rx1 = Rx
-minus the horizontal width of the segment with the smallest Rrup), ``"closest_section"`` takes
-Rx and Rx1 from the segment with the smallest Rrup, as nshmp-lib does, and ``"minimum"`` takes
-the minimum over the segments (earlier versions; because Rx is signed, this is the most
-footwall-side segment of the rupture); with the last two, Ry0 is the minimum over the
-segments. ``"triangle_frame"``: ``"local"`` (default) computes the Rjb and Rrup of the fault
-triangles in a projection on a sphere centred on the site, so that they are measured along the
-Earth's surface and Rrup >= Rjb, and ``"geocentric"`` uses straight lines in Earth-centred
-Cartesian coordinates (earlier versions; Rrup < Rjb for most ruptures beyond about 100 km).
-``"fault_distances"``: ``"source_info"`` (default)
-uses each fault source model's ``source_info.json`` setting (the NSHM23 models compute rJB,
-rRup, and rX from the nshmp-lib gridded surfaces, as nshmp-lib does; UCERF3 uses the
-triangles), and ``"triangles"`` uses the triangles and rectangles of the fault segments for
-all models. ``"section_rx"``: ``"source_info"`` (default), ``"minimum"`` (minimum Rx over
-the planar pieces of a segment, UCERF3 default), or ``"extended_trace"`` (nshmp-lib: distance
-to the whole upper edge of the segment extended 1000 km along strike, positive on the dip
-side; NSHM23 WUS default). The site accepts ``"zsed"``
-(coastal plain sediment thickness, km) for NGA-East. ``"output": {"psha":
+``"constraints"`` accepts ``"dist_cutoff"`` (km; applied to Rjb if a ground motion model
+uses Rjb, otherwise to Rrup), ``"m_min"``, ``"truncation_level"`` (upper truncation of the
+ground motion distribution in standard deviations; the USGS NSHM uses 3; default none),
+``"rupture_rx"``: ``"gc2"`` (default) takes Rx and Ry0 of a fault rupture from the GC2
+coordinates of Spudich and Chiou (2015) of the whole rupture, as in the NGA-West2 and
+NGA-West3 flatfiles (Rx1 = Rx minus the horizontal width of the segment with the smallest
+Rrup), ``"closest_section"`` takes Rx and Rx1 from the segment with the smallest Rrup, as
+nshmp-lib does, and ``"minimum"`` takes the minimum over the segments (earlier versions;
+because Rx is signed, this is the most footwall-side segment of the rupture); with the last
+two, Ry0 is the minimum over the segments. ``"triangle_frame"``: ``"local"`` (default)
+computes the Rjb and Rrup of the fault triangles in a projection on a sphere centred on the
+site, so that they are measured along the Earth's surface and Rrup >= Rjb, and
+``"geocentric"`` uses straight lines in Earth-centred Cartesian coordinates (earlier
+versions; Rrup < Rjb for most ruptures beyond about 100 km). ``"output": {"psha":
 {"source_model_hazard": true}}`` adds the hazard curve of each source model.
 
 
@@ -387,16 +356,9 @@ slows down the calculations, and should be included only if needed.
        -1e9 and 1e9, to bin all of them)
      - required if ``"disaggregation"`` is included
    * - ``"distance_metric"``
-     - distance used for the distance bins: ``"default"`` (rjb if a ground motion model of the
-       source model uses rjb, otherwise rrup), ``"rrup"`` (as the USGS NSHM disaggregation), or
-       ``"rjb"``
+     - distance used for the distance bins: ``"default"`` (rjb if a ground motion model uses
+       rjb, otherwise rrup), ``"rrup"`` (as the USGS NSHM disaggregation), or ``"rjb"``
      - optional (``"psha"`` and ``"plha"``)
-   * - ``"cluster_attribution"``
-     - how the hazard of a cluster (cluster source models) is shared among its ruptures:
-       ``"branch"`` (default; in proportion to the weighted exceedance probabilities within
-       each branch of a ground motion model) or ``"gmm"`` (as the USGS NSHM disaggregation,
-       nshmp-lib ``Disaggregator``: over all branches of the ground motion model)
-     - optional (``"psha"``)
    * - ``"means"``
      - ``true`` to also output ``"disaggregation_means"``: the binned contribution (%) and
        the mean magnitude, distance, and epsilon at each PGA, in total and, with

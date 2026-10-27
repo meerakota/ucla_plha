@@ -32,17 +32,6 @@
                 },
                 "z2p5": {
                     "type": "number"
-                },
-                "zsed": {
-                    "type": [
-                        "number",
-                        "null"
-                    ],
-                    "description": "Thickness of the Atlantic and Gulf coastal plain sediments (km) for the NGA-East models (pygmm depth_sed); null for a site off the coastal plain. If omitted, the USGS NSHM value (Boyd 2023 model, as used by the USGS hazard service) is used, unless nshm_site_data is false"
-                },
-                "nshm_site_data": {
-                    "type": "boolean",
-                    "description": "Use the location-dependent site data of the USGS NSHM (default true): the coastal plain sediment thickness zsed (unless zsed is given) and, for sites inside the NSHM Coastal Plain CPA region, its stable crust ground motion model logic tree (with the Chapman and Guo 2021 coastal plain amplification models) for all stable crust source models that use the default trees"
                 }
             },
             "additionalProperties": true,
@@ -57,52 +46,32 @@
             "type": "object",
             "properties": {
                 "dist_cutoff": {
-                    "type": [
-                        "number",
-                        "object"
-                    ],
-                    "description": "Maximum distance (km), either a number for all source models or an object with a number for each tectonic region",
-                    "properties": {
-                        "active_crust": {
-                            "type": "number"
-                        },
-                        "stable_crust": {
-                            "type": "number"
-                        },
-                        "subduction_interface": {
-                            "type": "number"
-                        },
-                        "subduction_slab": {
-                            "type": "number"
-                        }
-                    }
+                    "type": "number",
+                    "description": "Maximum distance (km), applied to Rjb if any ground motion model uses Rjb, otherwise to Rrup"
                 },
                 "m_min": {
                     "type": "number"
                 },
                 "truncation_level": {
                     "type": "number",
-                    "description": "Upper truncation of the ground motion distribution in standard deviations (nshmp-lib TRUNCATION_UPPER_ONLY; the USGS NSHM uses 3). Omit for no truncation."
+                    "description": "Upper truncation of the ground motion distribution in standard deviations (as the nshmp-lib TRUNCATION_UPPER_ONLY exceedance model; the USGS NSHM uses 3). Omit for no truncation."
                 },
                 "rupture_rx": {
                     "type": "string",
-                    "enum": ["gc2", "closest_section", "minimum"],
+                    "enum": [
+                        "gc2",
+                        "closest_section",
+                        "minimum"
+                    ],
                     "description": "Rx, Rx1, and Ry0 of fault source ruptures: from the GC2 coordinates of Spudich and Chiou (2015) of the whole rupture, as in the NGA-West2 and NGA-West3 flatfiles (default; Rx1 = Rx minus the horizontal width of the segment closest to the site); Rx and Rx1 of the segment closest to the site (smallest Rrup), as in nshmp-lib; or the minimum over the segments (ucla_plha 1.x). With the last two, Ry0 is the minimum over the segments."
                 },
                 "triangle_frame": {
                     "type": "string",
-                    "enum": ["local", "geocentric"],
+                    "enum": [
+                        "local",
+                        "geocentric"
+                    ],
                     "description": "Coordinates of the Rjb and Rrup of the fault triangles: a projection on a sphere centred on the site, so that distances are measured along the Earth's surface and Rrup >= Rjb (default), or straight lines in Earth-centred Cartesian coordinates (ucla_plha 2.x), whose Rrup is smaller than Rjb beyond about 100 km."
-                },
-                "fault_distances": {
-                    "type": "string",
-                    "enum": ["source_info", "triangles"],
-                    "description": "Distances of fault source ruptures: as given by each source model's source_info.json (default; the NSHM23 Cascadia interface and CEUS fault models compute rJB, rRup, and rX from their nshmp-lib gridded surfaces, as nshmp-lib does), or from the triangles and rectangles of the fault segments for all models."
-                },
-                "section_rx": {
-                    "type": "string",
-                    "enum": ["source_info", "minimum", "extended_trace"],
-                    "description": "Rx and Rx1 of a fault segment made of several planar pieces: as given by each source model's source_info.json (default; extended_trace for NSHM23 WUS, minimum for UCERF3), the minimum over the pieces, or, as in nshmp-lib, the distance to the upper edge of the whole segment extended along strike, positive on the dip side."
                 }
             },
             "additionalProperties": false
@@ -130,98 +99,6 @@
                             "properties": {
                                 "weight": {
                                     "type": "number"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_wus": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_cascadia_interface": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_ceus_fault": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_ceus_fault_cluster": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_cascadia_interface_cluster": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
                                 }
                             },
                             "required": [
@@ -281,98 +158,6 @@
                                 "weight"
                             ],
                             "additionalProperties": false
-                        },
-                        "nshm23_wus_grid": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_cascadia_slab": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_ceus_zone": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_ceus_grid": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
-                        },
-                        "nshm23_ceus_grid_system": {
-                            "type": "object",
-                            "properties": {
-                                "weight": {
-                                    "type": "number"
-                                },
-                                "dist_cutoff": {
-                                    "type": "number",
-                                    "description": "maximum distance (km) for this source model (overrides constraints.dist_cutoff)"
-                                },
-                                "ground_motion_models": {
-                                    "type": "object",
-                                    "description": "ground motion models for this source model (overrides its tectonic region and source_info.json gmm_tree)"
-                                }
-                            },
-                            "required": [
-                                "weight"
-                            ],
-                            "additionalProperties": false
                         }
                     }
                 }
@@ -381,36 +166,7 @@
         },
         "ground_motion_models": {
             "type": "object",
-            "description": "Either an object with one key per tectonic region (active_crust, stable_crust, subduction_interface, subduction_slab), or, in the earlier format, an object of ground motion models that are used for the active crust",
             "properties": {
-                "active_crust": {
-                    "type": [
-                        "object",
-                        "string"
-                    ],
-                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
-                },
-                "stable_crust": {
-                    "type": [
-                        "object",
-                        "string"
-                    ],
-                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
-                },
-                "subduction_interface": {
-                    "type": [
-                        "object",
-                        "string"
-                    ],
-                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
-                },
-                "subduction_slab": {
-                    "type": [
-                        "object",
-                        "string"
-                    ],
-                    "description": "Ground motion models of the tectonic region: an object of {model name: {weight}} (ucla_plha models ask14, bssa14, cb14, cy14, idriss14; nshmp-lib Gmm ids provided by pygmm; or pygmm class names, with optional options and scenario objects), or \"default\" for the USGS NSHM models of the region"
-                },
                 "bssa14": {
                     "type": "object",
                     "properties": {
@@ -458,37 +214,9 @@
                         "weight"
                     ],
                     "additionalProperties": false
-                },
-                "idriss14": {
-                    "type": "object",
-                    "properties": {
-                        "weight": {
-                            "type": "number"
-                        }
-                    },
-                    "required": [
-                        "weight"
-                    ],
-                    "additionalProperties": false
                 }
             },
-            "additionalProperties": {
-                "type": "object",
-                "properties": {
-                    "weight": {
-                        "type": "number"
-                    },
-                    "options": {
-                        "type": "object"
-                    },
-                    "scenario": {
-                        "type": "object"
-                    }
-                },
-                "required": [
-                    "weight"
-                ]
-            }
+            "additionalProperties": false
         },
         "liquefaction_models": {
             "type": "object",
@@ -757,12 +485,12 @@
                                     }
                                 },
                                 "distance_metric": {
-                                    "enum": ["default", "rrup", "rjb"],
-                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model of the source model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
-                                },
-                                "cluster_attribution": {
-                                    "enum": ["branch", "gmm"],
-                                    "description": "How the hazard of a cluster (cluster source models) is shared among its ruptures: branch (default; in proportion to the weighted exceedance probability w_i P_i within each ground motion branch) or gmm (as the USGS NSHM disaggregation, nshmp-lib Disaggregator: in proportion to w_b w_i P_ib over all branches b of each ground motion model)"
+                                    "enum": [
+                                        "default",
+                                        "rrup",
+                                        "rjb"
+                                    ],
+                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
                                 },
                                 "means": {
                                     "type": "boolean",
@@ -778,7 +506,7 @@
                         },
                         "source_model_hazard": {
                             "type": "boolean",
-                            "description": "Also output the weighted hazard curve of each source model (and of the clusters of cluster models)"
+                            "description": "Also output the weighted hazard curve of each source model"
                         }
                     }
                 },
@@ -813,8 +541,12 @@
                                     }
                                 },
                                 "distance_metric": {
-                                    "enum": ["default", "rrup", "rjb"],
-                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model of the source model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
+                                    "enum": [
+                                        "default",
+                                        "rrup",
+                                        "rjb"
+                                    ],
+                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
                                 }
                             },
                             "required": [

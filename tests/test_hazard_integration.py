@@ -27,7 +27,6 @@ GMM_MU = {
     "ask14": np.log(0.3),
     "cb14": np.log(0.15),
     "cy14": np.log(0.25),
-    "idriss14": np.log(0.22),
 }
 GMM_DIR = Path(str(files("ucla_plha").joinpath("ground_motion_models")))
 SIGMA = 0.6
@@ -151,27 +150,13 @@ def test_every_source_model_is_registered(synthetic, tmp_path, source_type):
     # Each source model directory must be accepted by the config schema and have its weight
     # normalized in get_hazard. An unregistered model would be rejected by the schema, or its
     # weight would be applied without normalization.
-    # Each source model uses the ground motion models of its tectonic region (source_info.json),
-    # so bssa14 is given for the region of the model. Cluster models do not have independent
-    # ruptures and are tested in test_tectonic_regions.py.
     models = sorted(
         p.name for p in (SOURCE_MODELS / source_type).iterdir() if p.is_dir()
     )
     assert models
     for model in models:
-        info = plha.get_source_info(source_type, model)
-        if info["cluster"]:
-            continue
         key = "fault_models" if source_type == "fault_source_models" else "point_models"
         config = _config(**{key: {model: 4.0}})
-        config["ground_motion_models"] = {
-            info["tectonic_region"]: config["ground_motion_models"]
-        }
-        if isinstance(info.get("gmm_tree"), list):
-            # source models with their own ground motion model tree (source_info.json)
-            config["source_models"][source_type][model]["ground_motion_models"] = {
-                "bssa14": {"weight": 1.0}
-            }
         out = _hazard(tmp_path, config)
         assert out is not None, f"{model} rejected by config schema"
         np.testing.assert_allclose(

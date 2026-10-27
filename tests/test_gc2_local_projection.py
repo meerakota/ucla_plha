@@ -159,16 +159,15 @@ def test_xyz_to_lat_lon_depth_inverts_point_to_xyz():
         np.testing.assert_allclose(out, [lat, lon, -elev], atol=1e-9)
 
 
-@pytest.mark.parametrize("model", ["ucerf3_fm31", "nshm23_wus"])
+@pytest.mark.parametrize("model", ["ucerf3_fm31", "ucerf3_fm32"])
 def test_rrup_not_less_than_rjb(model):
     # Los Angeles: with the local projection rrup >= rjb for every rupture; the Earth-centred
     # Cartesian triangles give rrup < rjb for most ruptures beyond ~100 km
     p_xyz = geometry.point_to_xyz(np.array([34.05, -118.25, 0.0]))
     # (no distance cutoff, so that both frames keep the same ruptures)
-    kw = dict(fault_distances="triangles")
-    local = plha.get_source_data("fault_source_models", model, p_xyz, None, 7.0, ["cy14"], **kw)
+    local = plha.get_source_data("fault_source_models", model, p_xyz, None, 7.0, ["cy14"])
     geo = plha.get_source_data("fault_source_models", model, p_xyz, None, 7.0, ["cy14"],
-                               triangle_frame="geocentric", **kw)
+                               triangle_frame="geocentric")
     rjb, rrup = local[3], local[4]
     assert np.all(rrup >= rjb - 1e-9)
     far = (geo[3] > 200.0) & (geo[3] < 500.0)
@@ -199,13 +198,25 @@ NAPA_STATIONS = [
 ]
 
 
+def _location(lon, lat, azimuth, distance):
+    """The point distance (km) from (lon, lat) along azimuth (radians) on the sphere of the
+    local projection."""
+    lat1 = np.radians(lat)
+    lon1 = np.radians(lon)
+    ad = distance / geometry.LOCAL_EARTH_RADIUS
+    lat2 = np.arcsin(np.sin(lat1) * np.cos(ad) + np.cos(lat1) * np.sin(ad) * np.cos(azimuth))
+    lon2 = lon1 + np.arctan2(np.sin(azimuth) * np.sin(ad) * np.cos(lat1),
+                             np.cos(ad) - np.sin(lat1) * np.sin(lat2))
+    return np.degrees(lon2), np.degrees(lat2)
+
+
 def _napa_geometry():
     f = NAPA
     stk = np.radians(f["strike"])
     h = f["width"] * np.cos(np.radians(f["dip"]))
-    lon2, lat2 = geometry._nshmp_location(f["lon"], f["lat"], stk, f["length"])
-    lon3, lat3 = geometry._nshmp_location(f["lon"], f["lat"], stk + np.pi / 2, h)
-    lon4, lat4 = geometry._nshmp_location(lon2, lat2, stk + np.pi / 2, h)
+    lon2, lat2 = _location(f["lon"], f["lat"], stk, f["length"])
+    lon3, lat3 = _location(f["lon"], f["lat"], stk + np.pi / 2, h)
+    lon4, lat4 = _location(lon2, lat2, stk + np.pi / 2, h)
     zb = f["depth"] + f["width"] * np.sin(np.radians(f["dip"]))
     p1, p2 = [f["lat"], f["lon"], f["depth"]], [lat2, lon2, f["depth"]]
     p3, p4 = [lat3, lon3, zb], [lat4, lon4, zb]
@@ -254,7 +265,7 @@ def test_get_source_data_gc2_default_and_options():
                              triangle_frame="flat")
 
 
-@pytest.mark.parametrize("model", ["ucerf3_fm31", "nshm23_wus"])
+@pytest.mark.parametrize("model", ["ucerf3_fm31", "ucerf3_fm32"])
 def test_gc2_matches_segment_rx_alongside_dipping_segments(model):
     # For a dipping single-piece segment with the site alongside it (Ry0 = 0), GC2 T is the
     # signed distance from the line of the upper edge, i.e. the Rx of get_Rx_Rx1_Ry0

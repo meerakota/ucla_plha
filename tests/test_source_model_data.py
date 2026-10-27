@@ -39,12 +39,6 @@ SECTION_FILES = {
         "DipDeg",
         "DipDir",
     ),
-    "nshm23_wus": (
-        UTILITIES / "nshm23_wus_branch_avg/sections.geojson",
-        "index",
-        "dip",
-        "dip-direction",
-    ),
 }
 GRID_INPUT_FILES = {
     "ucerf3_fm31_grid_sub_seis": (
@@ -65,11 +59,6 @@ GRID_INPUT_FILES = {
     ),
 }
 ALL_GMMS = ["bssa14", "ask14", "cb14", "cy14"]
-# Sites within 100 km of models outside California (default: Monterey, California)
-NEAR_SITES = {
-    "nshm23_cascadia_interface": (44.63, -124.05),
-    "nshm23_cascadia_interface_cluster": (44.63, -124.05),
-}
 
 
 def _load(source_type, model, name):
@@ -154,13 +143,8 @@ def test_fault_rupture_properties_are_physical(fault_model):
     assert np.all(r["ztor"] >= 0.0)
     assert np.all(r["zbor"] > r["ztor"])
     assert np.all(r["zbor"] < 40.0)
-    # Depths and dips should vary across ruptures rather than taking a handful of values (the CEUS
-    # fault models have only a few faults, so this applies to the WUS fault system models)
-    if fault_model["model"].startswith("nshm23_ceus"):
-        return
-    # Cluster models have few ruptures, most of them with the same upper trace depth
-    if not fault_model["model"].endswith("_cluster"):
-        assert len(np.unique(r["ztor"])) > 5
+    # Depths and dips should vary across ruptures rather than taking a handful of values
+    assert len(np.unique(r["ztor"])) > 5
     assert len(np.unique(r["zbor"])) > 5
     assert len(np.unique(r["dip"])) > 5
 
@@ -230,32 +214,23 @@ def test_fault_source_data_is_finite(model, site):
 
 @pytest.mark.parametrize("model", FAULT_MODELS)
 def test_rrup_only_models_get_rupture_distance(model):
-    # idriss14 needs only Rrup, so get_source_data must compute Rrup when it is the only GMM,
+    # ask14 uses Rrup but not Rjb, so get_source_data must compute Rrup when it is the only GMM,
     # and the result must match Rrup computed for the other GMMs
-    # a site near the faults of each model (New Madrid for the CEUS models)
-    site = (36.6, -89.6) if model.startswith("nshm23_ceus") else NEAR_SITES.get(model, (36.80547, -121.786074))
+    site = (36.80547, -121.786074)
     p_xyz = geometry.point_to_xyz(np.array([site[0], site[1], 0.0]))
     out_all = plha.get_source_data(
         "fault_source_models", model, p_xyz, None, 6.0, ALL_GMMS
     )
-    out_idriss = plha.get_source_data(
-        "fault_source_models", model, p_xyz, None, 6.0, ["idriss14"]
+    out_ask = plha.get_source_data(
+        "fault_source_models", model, p_xyz, None, 6.0, ["ask14"]
     )
-    np.testing.assert_array_equal(out_idriss[4], out_all[4])
+    np.testing.assert_array_equal(out_ask[4], out_all[4])
     # With only an Rrup-based GMM, the distance cutoff is applied to Rrup
-    out_cut, extras = plha.get_source_data(
-        "fault_source_models", model, p_xyz, 100.0, 6.0, ["idriss14"], extras=True
+    out_cut = plha.get_source_data(
+        "fault_source_models", model, p_xyz, 100.0, 6.0, ["ask14"]
     )
     assert len(out_cut[4]) > 0
-    if "cluster_id" in extras:
-        # nshmp-lib uses all ruptures of a cluster if any of them is within the cutoff
-        cid = extras["cluster_id"]
-        far = out_cut[4] >= 100.0
-        assert np.all(cid[far] >= 0)
-        assert set(cid[far]) <= set(cid[~far])
-        assert np.all(out_cut[4][cid < 0] < 100.0)
-    else:
-        assert np.all(out_cut[4] < 100.0)
+    assert np.all(out_cut[4] < 100.0)
 
 
 @pytest.mark.parametrize("model", POINT_MODELS)

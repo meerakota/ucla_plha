@@ -159,13 +159,21 @@ def test_disagg_distance_metrics():
     rjb, rrup = np.array([1.0, 2.0]), np.array([3.0, 4.0])
     assert plha.disagg_distance("default", ["bssa14"], rjb, rrup) is rjb
     assert plha.disagg_distance(None, [], rjb, rrup) is rjb
-    assert plha.disagg_distance("default", ["idriss14"], np.array([]), rrup) is rrup
+    assert plha.disagg_distance("default", ["ask14"], np.array([]), rrup) is rrup
     assert plha.disagg_distance("rrup", ["bssa14"], rjb, rrup) is rrup
-    assert plha.disagg_distance("rjb", ["idriss14", "bssa14"], rjb, rrup) is rjb
+    assert plha.disagg_distance("rjb", ["ask14", "bssa14"], rjb, rrup) is rjb
     with pytest.raises(ValueError, match="rjb"):
-        plha.disagg_distance("rjb", ["idriss14"], np.array([]), rrup)
+        plha.disagg_distance("rjb", ["ask14"], np.array([]), rrup)
     with pytest.raises(ValueError, match="unknown"):
         plha.disagg_distance("repi", ["bssa14"], rjb, rrup)
+
+
+def test_truncation_level():
+    from scipy.special import ndtr
+
+    eps, p = plha.get_exceedance(np.array([0.1, 1.0, 10.0]), np.log(np.array([0.1])), np.array([0.5]), 3.0)
+    p_hi = ndtr(-3.0)
+    np.testing.assert_allclose(p[:, 0], [(0.5 - p_hi) / (1 - p_hi), np.clip((1 - ndtr(np.log(10) / 0.5) - p_hi) / (1 - p_hi), 0, 1), 0.0])
 
 
 def test_get_hazard_disaggregation_by_rrup_with_means(tmp_path):

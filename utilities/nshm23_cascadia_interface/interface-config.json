@@ -1,5 +1,0 @@
-{
-  "surface-spacing": 5.0,
-  "rupture-scaling": "NSHM_SUB_GEOMAT_LENGTH",
-  "rupture-floating": "STRIKE_ONLY"
-}

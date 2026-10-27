@@ -1,9 +1,0 @@
-[
-  {
-    "name": "WA Intraslab",
-    "id": 8222,
-    "feature": 8220,
-    "mfd-tree": "or-wa-slab-mfd-hi",
-    "spatial-pdf": "pdf-wa.csv"
-  }
-]
