@@ -22,16 +22,16 @@
                     "type": "number"
                 },
                 "vs30": {
-                    "type": "number" 
+                    "type": "number"
                 },
-                "measured_vs30": { 
-                    "type": "boolean" 
+                "measured_vs30": {
+                    "type": "boolean"
                 },
                 "z1p0": {
-                    "type": "number" 
+                    "type": "number"
                 },
-                "z2p5": { 
-                    "type": "number" 
+                "z2p5": {
+                    "type": "number"
                 }
             },
             "additionalProperties": true,
@@ -45,15 +45,37 @@
         "constraints": {
             "type": "object",
             "properties": {
-                "dist_cutoff": { 
-                    "type": "number" 
+                "dist_cutoff": {
+                    "type": "number",
+                    "description": "Maximum distance (km), applied to Rjb if any ground motion model uses Rjb, otherwise to Rrup"
                 },
                 "m_min": {
-                    "type": "number" 
+                    "type": "number"
+                },
+                "truncation_level": {
+                    "type": "number",
+                    "description": "Upper truncation of the ground motion distribution in standard deviations (as the nshmp-lib TRUNCATION_UPPER_ONLY exceedance model; the USGS NSHM uses 3). Omit for no truncation."
+                },
+                "rupture_rx": {
+                    "type": "string",
+                    "enum": [
+                        "gc2",
+                        "closest_section",
+                        "minimum"
+                    ],
+                    "description": "Rx, Rx1, and Ry0 of fault source ruptures: from the GC2 coordinates of Spudich and Chiou (2015) of the whole rupture, as in the NGA-West2 and NGA-West3 flatfiles (default; Rx1 = Rx minus the horizontal width of the segment closest to the site); Rx and Rx1 of the segment closest to the site (smallest Rrup), as in nshmp-lib; or the minimum over the segments (ucla_plha 1.x). With the last two, Ry0 is the minimum over the segments."
+                },
+                "triangle_frame": {
+                    "type": "string",
+                    "enum": [
+                        "local",
+                        "geocentric"
+                    ],
+                    "description": "Coordinates of the Rjb and Rrup of the fault triangles: a projection on a sphere centred on the site, so that distances are measured along the Earth's surface and Rrup >= Rjb (default), or straight lines in Earth-centred Cartesian coordinates (ucla_plha 2.x), whose Rrup is smaller than Rjb beyond about 100 km."
                 }
-        },
+            },
             "additionalProperties": false
-        }, 
+        },
         "source_models": {
             "type": "object",
             "properties": {
@@ -144,7 +166,6 @@
         },
         "ground_motion_models": {
             "type": "object",
-            "additionalProperties": false,
             "properties": {
                 "bssa14": {
                     "type": "object",
@@ -194,7 +215,8 @@
                     ],
                     "additionalProperties": false
                 }
-            }
+            },
+            "additionalProperties": false
         },
         "liquefaction_models": {
             "type": "object",
@@ -256,6 +278,29 @@
                         },
                         "weight": {
                             "type": "number"
+                        },
+                        "pga_uncertainty": {
+                            "type": "string",
+                            "enum": ["conditional", "closed_form"],
+                            "description": "Treatment of the uncertainty of the peak acceleration. conditional (default): Phi((ln FSL - mu_ln_crr + ln CSR(M, PGA)) / 0.20) is integrated over the ground motion distribution of each event, truncated as in the PSHA (constraints.truncation_level). closed_form: ucla_plha 2.x and earlier, the untruncated closed form with sigma = sqrt(0.20^2 + sigma_ln_pga^2)."
+                        },
+                        "pga_integration": {
+                            "type": "string",
+                            "enum": ["grid", "quadrature"],
+                            "description": "Integration over PGA with the treatment conditioned on PGA (pga_uncertainty shared, or conditional for boulanger_idriss_2016 and moss_et_al_2006). grid (default): the rates of the ground motions of the site are accumulated on a magnitude x ln(PGA) grid shared by the liquefaction models (pga_grid). quadrature: Gauss-Legendre quadrature for each event (slow; for verification)."
+                        },
+                        "pga_grid": {
+                            "type": "object",
+                            "description": "Parameters of the magnitude x ln(PGA) grid (pga_integration grid). The defaults agree with an exact integration within about 2e-4 (relative) on the hazard curves.",
+                            "properties": {
+                                "pga_min": {"type": "number", "minimum": 0, "description": "Lower limit of the PGA bins in g (default 1e-4; lower PGAs are in the first bin)"},
+                                "pga_max": {"type": "number", "minimum": 0, "description": "Upper limit of the PGA bins in g (default 10; higher PGAs are in the last bin)"},
+                                "d_ln_pga": {"type": "number", "minimum": 0, "description": "Width of the ln(PGA) bins (default 0.1)"},
+                                "d_m": {"type": "number", "minimum": 0, "description": "Spacing of the magnitude nodes (default 0.05)"},
+                                "d_mu": {"type": "number", "minimum": 0, "description": "Spacing of the nodes of the mean of ln(PGA) of the events (default 0.05)"},
+                                "d_sigma": {"type": "number", "minimum": 0, "description": "Spacing of the nodes of the standard deviation of ln(PGA) of the events (default 0.005)"}
+                            },
+                            "additionalProperties": false
                         }
                     },
                     "required": [
@@ -291,6 +336,25 @@
                         },
                         "pa": {
                             "type": "number"
+                        },
+                        "parameter_uncertainty": {
+                            "type": "boolean"
+                        },
+                        "sigma_n160": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "sigma_fc": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "cov_sigmavp": {
+                            "type": "number",
+                            "minimum": 0
+                        },
+                        "cov_csr": {
+                            "type": "number",
+                            "minimum": 0
                         },
                         "weight": {
                             "type": "number"
@@ -330,6 +394,34 @@
                         },
                         "weight": {
                             "type": "number"
+                        },
+                        "rd_amax_cap": {
+                            "type": ["number", "null"],
+                            "minimum": 0,
+                            "description": "Upper limit of amax in g in rd with pga_uncertainty conditional (default 1; null: no limit). The rd of Cetin et al. (2004) used by Moss et al. (2006) decreases with amax to its lower limit 0.2 at about 2.5 to 3.5 g and jumps to its upper limit 1.0 at about 3.5 to 4 g; with the limit, rd above it is rd at the limit. closed_form (rd of the median PGA) has no limit."
+                        },
+                        "pga_uncertainty": {
+                            "type": "string",
+                            "enum": ["conditional", "closed_form"],
+                            "description": "Treatment of the uncertainty of the peak acceleration. conditional (default): the probability conditioned on PGA, with rd and the Delta qc adjustment of the CRR at that PGA and sigma = 1.632 / 7.177, is integrated over the ground motion distribution of each event, truncated as in the PSHA (constraints.truncation_level). closed_form: the untruncated closed form of ucla_plha 2.x with sigma = sqrt(sigma_ln_crr^2 + sigma_ln_pga^2) and rd and Delta qc at the median PGA, but without the duration weighting (CSR / DWF) of 2.x, which double counted the magnitude effect; the 2.x results can't be reproduced."
+                        },
+                        "pga_integration": {
+                            "type": "string",
+                            "enum": ["grid", "quadrature"],
+                            "description": "Integration over PGA with the treatment conditioned on PGA (pga_uncertainty shared, or conditional for boulanger_idriss_2016 and moss_et_al_2006). grid (default): the rates of the ground motions of the site are accumulated on a magnitude x ln(PGA) grid shared by the liquefaction models (pga_grid). quadrature: Gauss-Legendre quadrature for each event (slow; for verification)."
+                        },
+                        "pga_grid": {
+                            "type": "object",
+                            "description": "Parameters of the magnitude x ln(PGA) grid (pga_integration grid). The defaults agree with an exact integration within about 2e-4 (relative) on the hazard curves.",
+                            "properties": {
+                                "pga_min": {"type": "number", "minimum": 0, "description": "Lower limit of the PGA bins in g (default 1e-4; lower PGAs are in the first bin)"},
+                                "pga_max": {"type": "number", "minimum": 0, "description": "Upper limit of the PGA bins in g (default 10; higher PGAs are in the last bin)"},
+                                "d_ln_pga": {"type": "number", "minimum": 0, "description": "Width of the ln(PGA) bins (default 0.1)"},
+                                "d_m": {"type": "number", "minimum": 0, "description": "Spacing of the magnitude nodes (default 0.05)"},
+                                "d_mu": {"type": "number", "minimum": 0, "description": "Spacing of the nodes of the mean of ln(PGA) of the events (default 0.05)"},
+                                "d_sigma": {"type": "number", "minimum": 0, "description": "Spacing of the nodes of the standard deviation of ln(PGA) of the events (default 0.005)"}
+                            },
+                            "additionalProperties": false
                         }
                     },
                     "required": [
@@ -393,6 +485,29 @@
                         },
                         "weight": {
                             "type": "number"
+                        },
+                        "pga_uncertainty": {
+                            "type": "string",
+                            "enum": ["shared", "per_layer"],
+                            "description": "Treatment of the uncertainty of the peak acceleration. shared (default): all layers of the profile see the same PGA; the probability of profile manifestation is computed conditioned on magnitude and PGA and integrated over the ground motion distribution of each event, truncated as in the PSHA (constraints.truncation_level). per_layer: ucla_plha 2.x and earlier, the PGA uncertainty is included in each layer separately (as if the layers had independent PGAs), untruncated."
+                        },
+                        "pga_integration": {
+                            "type": "string",
+                            "enum": ["grid", "quadrature"],
+                            "description": "Integration over PGA with the treatment conditioned on PGA (pga_uncertainty shared, or conditional for boulanger_idriss_2016 and moss_et_al_2006). grid (default): the rates of the ground motions of the site are accumulated on a magnitude x ln(PGA) grid shared by the liquefaction models (pga_grid). quadrature: Gauss-Legendre quadrature for each event (slow; for verification)."
+                        },
+                        "pga_grid": {
+                            "type": "object",
+                            "description": "Parameters of the magnitude x ln(PGA) grid (pga_integration grid). The defaults agree with an exact integration within about 2e-4 (relative) on the hazard curves.",
+                            "properties": {
+                                "pga_min": {"type": "number", "minimum": 0, "description": "Lower limit of the PGA bins in g (default 1e-4; lower PGAs are in the first bin)"},
+                                "pga_max": {"type": "number", "minimum": 0, "description": "Upper limit of the PGA bins in g (default 10; higher PGAs are in the last bin)"},
+                                "d_ln_pga": {"type": "number", "minimum": 0, "description": "Width of the ln(PGA) bins (default 0.1)"},
+                                "d_m": {"type": "number", "minimum": 0, "description": "Spacing of the magnitude nodes (default 0.05)"},
+                                "d_mu": {"type": "number", "minimum": 0, "description": "Spacing of the nodes of the mean of ln(PGA) of the events (default 0.05)"},
+                                "d_sigma": {"type": "number", "minimum": 0, "description": "Spacing of the nodes of the standard deviation of ln(PGA) of the events (default 0.005)"}
+                            },
+                            "additionalProperties": false
                         }
                     },
                     "required": [
@@ -442,6 +557,18 @@
                                     "items": {
                                         "type": "number"
                                     }
+                                },
+                                "distance_metric": {
+                                    "enum": [
+                                        "default",
+                                        "rrup",
+                                        "rjb"
+                                    ],
+                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
+                                },
+                                "means": {
+                                    "type": "boolean",
+                                    "description": "Also output the contribution and the mean magnitude, distance, and epsilon of the binned hazard (in total and, with source_model_hazard, per source model)"
                                 }
                             },
                             "required": [
@@ -450,6 +577,10 @@
                                 "epsilon_bin_edges"
                             ],
                             "additionalProperties": false
+                        },
+                        "source_model_hazard": {
+                            "type": "boolean",
+                            "description": "Also output the weighted hazard curve of each source model"
                         }
                     }
                 },
@@ -482,6 +613,14 @@
                                     "items": {
                                         "type": "number"
                                     }
+                                },
+                                "distance_metric": {
+                                    "enum": [
+                                        "default",
+                                        "rrup",
+                                        "rjb"
+                                    ],
+                                    "description": "Distance used for the distance bins: default (rjb if any ground motion model uses rjb, otherwise rrup), rrup (as the USGS NSHM disaggregation, nshmp-lib Disaggregator), or rjb"
                                 }
                             },
                             "required": [

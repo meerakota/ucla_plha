@@ -111,7 +111,8 @@ def get_points(
     style_ss = np.full(len(rate_ss), 3)
     style_ns = np.full(len(rate_ns), 2)
     style_rs = np.full(len(rate_rs), 1)
-    style = np.hstack((style_ss, style_ns, style_rs))
+    # order must match the order of rate_ss, rate_rs, rate_ns in the rate array
+    style = np.hstack((style_ss, style_rs, style_ns))
     node_index_all = np.hstack((node_index_all, node_index_all, node_index_all))
     node_index_all = node_index_all[rate > 0]
     m_all = np.hstack((m_array, m_array, m_array))
