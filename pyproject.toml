@@ -25,7 +25,8 @@ pandas = ">=1.5.2"
 jupyter = [
     "jupyter (>=1.1.1,<2.0.0)",
     "matplotlib (>=3.10.7,<4.0.0)",
-    "pygmm (>=0.8.0,<0.9.0)",
+    # pygmm 0.9.1 requires Python 3.13 or later; on older Pythons the pygmm models are unavailable
+    "pygmm (>=0.9.1,<0.10.0) ; python_version >= \"3.13\"",
 ]
 dev = [
     "pytest (>=7.4.0,<8.0.0)",

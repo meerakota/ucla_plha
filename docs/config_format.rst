@@ -213,7 +213,8 @@ Weights are normalized within each region. A model name is a ucla_plha model
 (``"ask14"``, ``"bssa14"``, ``"cb14"``, ``"cy14"``, ``"idriss14"``), an nshmp-lib Gmm id
 provided by pygmm (case insensitive), or a pygmm class name with optional ``"options"``
 and ``"scenario"``. Regions that are used but not given (or ``"default"``) use the
-USGS NSHM 2023 logic trees. With a pygmm older than 1b30f5b, AM_09 and ZHAO_06 are
+USGS NSHM 2023 logic trees. The pygmm models require pygmm 0.9.1 or later
+(``pip install "pygmm>=0.9.1"``, Python 3.13 or later). With an older pygmm, AM_09 and ZHAO_06 are
 removed and the remaining weights renormalized, with a warning. The flat format above is the active crust
 format and works as before. A source model entry can also have its own
 ``"ground_motion_models"`` and ``"dist_cutoff"``. ``"constraints"`` accepts

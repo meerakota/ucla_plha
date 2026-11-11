@@ -14,7 +14,7 @@ A ground motion model in a ucla_plha config is one of
   (e.g. "ASK_14_BASIN") are replaced by the ucla_plha model (:data:`SUBSTITUTES`) with a
   warning, and are used from pygmm automatically once pygmm provides them in ``GMM_IDS``.
   Ids of models that the installed pygmm does not provide (AM_09 and ZHAO_06 before pygmm
-  1b30f5b; :data:`UNAVAILABLE`) are removed from the logic tree with a warning, and the
+  0.9.1; :data:`UNAVAILABLE`) are removed from the logic tree with a warning, and the
   remaining weights of the tectonic region are renormalized;
 * a pygmm class name (case insensitive), e.g. "ParkerEtAl2020" or
   "AbrahamsonSilvaKamai2014" (the published pygmm models), with optional constructor
@@ -46,10 +46,9 @@ NATIVE_DISTANCES = {
 # pygmm scenario keys of the distances computed by ucla_plha
 PYGMM_DISTANCES = {"dist_jb": "rjb", "dist_rup": "rrup", "dist_x": "rx", "dist_y0": "ry0"}
 
-# nshmp-lib Gmm ids of the NSHM trees that older versions of pygmm do not provide (pygmm added
-# them in 1b30f5b). If the installed pygmm does not provide one of them, it is removed from
-# the logic tree (with a warning) and the remaining weights of the tectonic region are
-# renormalized.
+# nshmp-lib Gmm ids of the NSHM trees that pygmm versions before 0.9.1 do not provide. If the
+# installed pygmm does not provide one of them, it is removed from the logic tree (with a
+# warning) and the remaining weights of the tectonic region are renormalized.
 UNAVAILABLE = {
     gmm_id: f"{name} is not provided by the installed pygmm"
     for name, ids in [
@@ -77,8 +76,8 @@ UNAVAILABLE = {
     for gmm_id in ids
 }
 
-# nshmp-lib NGA-West2 ids that are replaced by the ucla_plha models when pygmm does not
-# provide them (the nshmp-lib *_BASIN variants are being added to pygmm separately).
+# nshmp-lib NGA-West2 ids that are replaced by the ucla_plha models when the installed pygmm
+# does not provide them (pygmm 0.9.1 and later provide them, including the *_BASIN variants).
 SUBSTITUTES = {
     f"{prefix}_14{suffix}": native
     for prefix, native in [("ASK", "ask14"), ("BSSA", "bssa14"), ("CB", "cb14"), ("CY", "cy14")]
@@ -199,7 +198,7 @@ def _pygmm():
     except ImportError as e:  # pragma: no cover - depends on the environment
         raise ImportError(
             "pygmm is required for the nshmp-lib and pygmm ground motion models "
-            "(pip install pygmm, or add the pygmm source directory to PYTHONPATH)"
+            "(pip install \"pygmm>=0.9.1\")"
         ) from e
     return pygmm
 
@@ -388,8 +387,8 @@ def get_ground_motion_branches(spec, rupture, site, tectonic_region=None):
     branches at mu - epsilon, mu, and mu + epsilon, weights 0.185, 0.63, 0.185) give a logic
     tree of ground motions, and nshmp-lib computes the hazard as the weighted sum of the
     exceedance probabilities of the branches (ExceedanceModel.treeExceedanceCombined, with the
-    truncation applied to each branch). Older pygmm versions without
-    ``GroundMotionModel.ln_branches`` give one branch with the collapsed values.
+    truncation applied to each branch). pygmm versions before 0.9.1, which do not have
+    ``GroundMotionModel.ln_branches``, give one branch with the collapsed values.
 
     Returns:
         list of (weight, mu_ln_pga, sigma_ln_pga), with arrays of length N; the weights sum to 1
