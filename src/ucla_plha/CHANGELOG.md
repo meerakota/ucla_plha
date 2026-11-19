@@ -1,4 +1,5 @@
-Version 3.0.0 (unreleased)
+Version 2.2.0 (November 18, 2026)
+* Results change: the API and config files of 2.1.0 still work, but the bug fixes and new defaults below change the hazard results. For the example configurations, the 475- and 2475-year PGA increase by 3.7% to 6.0%, and the 475- and 2475-year FS_L decrease by 0.1% (NGL SMT 2024) to 16.4% (Moss et al. 2006).
 * This release covers California: the UCERF3 source models (ucerf3_fm31, ucerf3_fm32, and their gridded seismicity) and the four NGA-West2 ground motion models (ask14, bssa14, cb14, cy14) implemented in ucla_plha. It does not depend on pygmm.
 * ASK14: the magnitude taper T2 of the hanging wall term was zero for M >= 5.5, which removed the hanging wall effect of all events larger than M5.5 (Equation 12 sets T2 = 0 for M <= 5.5); T3 is now restricted to hanging wall sites, so vertical ruptures with Rx < 0 no longer give NaN.
 * CB14: R1 was computed as (zbor - ztor) * radians(dip) instead of W cos(dip) = (zbor - ztor) / tan(dip) (Equation 11).
