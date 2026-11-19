@@ -1,0 +1,13 @@
+[
+  {
+    "name": "2.2 (latest)",
+    "version": "2.2",
+    "url": "https://meerakota.github.io/ucla_plha/2.2/",
+    "preferred": true
+  },
+  {
+    "name": "2.1",
+    "version": "2.1",
+    "url": "https://meerakota.github.io/ucla_plha/2.1/"
+  }
+]

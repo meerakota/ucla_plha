@@ -1,0 +1,1147 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Config File Format &#8212; ucla_plha 2.2</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=6a604523" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=3dfe1ce0" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=ecfc290d"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="_static/design-tabs.js?v=fcb327ea"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"], ["$", "$"]], "displayMath": [["\\[", "\\]"], ["$$", "$$"]]}, "options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'config_format';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '../versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2.2';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Limitations" href="overview/limitations.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2.2" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/logo.svg" class="logo__image only-light" alt=""/>
+    <img src="_static/logo-dark.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">ucla_plha</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Documentation</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="get_started.html">Get started</a></li>
+
+<li class="toctree-l1 has-children"><a class="reference internal" href="overview.html">Overview</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview/coupled_decoupled.html">Coupled vs. Decoupled approaches</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview/limitations.html">Limitations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Config File Format</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">Functions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/meerakota/ucla_plha" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/config_format.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Config File Format</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#top-level-keys">Top-level keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#site-keys"><code class="docutils literal notranslate"><span class="pre">"site"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-keys"><code class="docutils literal notranslate"><span class="pre">"constraints"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-models-keys"><code class="docutils literal notranslate"><span class="pre">"source_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ground-motion-models-keys"><code class="docutils literal notranslate"><span class="pre">"ground_motion_models"</span></code> keys</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distance-and-other-options">Distance and other options</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#liquefaction-models-keys"><code class="docutils literal notranslate"><span class="pre">"liquefaction_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-keys"><code class="docutils literal notranslate"><span class="pre">"output"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-config-structure">Full config structure</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="config-file-format">
+<h1>Config File Format<a class="headerlink" href="#config-file-format" title="Link to this heading">#</a></h1>
+<p><strong>ucla_plha</strong> uses a <a class="reference external" href="https://www.json.org/json-en.html">Javascript Object Notation (JSON)</a> input file to configure
+the analysis, and uses <a class="reference external" href="https://json-schema.org/">JSON Schema</a> to validate user inputs. Example config files
+are provided in the <a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> section of this documentation, and the schema is
+defined by the <a class="reference external" href="https://github.com/meerakota/ucla_plha/blob/main/src/ucla_plha/ucla_plha_schema.json">ucla_plha_schema.json</a> file in the <code class="docutils literal notranslate"><span class="pre">src/ucla_plha</span></code> directory of
+the GitHub repository. We validate that the data types are correct and that all
+required fields have been specified.</p>
+<p>We thought about using a more human-readable input file format such as YAML, but
+decided to use JSON instead since our code is intended for HPC applications. Both
+JSON and YAML are human readable, but JSON is better for machine-parsing, and we
+prioritized that in our code.</p>
+<section id="top-level-keys">
+<h2>Top-level keys<a class="headerlink" href="#top-level-keys" title="Link to this heading">#</a></h2>
+<p>The top-level keys are all JSON objects. If the <code class="docutils literal notranslate"><span class="pre">&quot;liquefaction_models&quot;</span></code> key and
+its associated JSON objects are excluded from the config file, the code will perform
+only a PSHA without performing a PLHA.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 55.0%" />
+<col style="width: 15.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;site&quot;</span></code></p></td>
+<td><p>site location, shear-wave velocity, and optional depth parameters</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;</span></code></p></td>
+<td><p>distance and magnitude limits for the analysis</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;source_models&quot;</span></code></p></td>
+<td><p>earthquake source models (fault and point sources)</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ground_motion_models&quot;</span></code></p></td>
+<td><p>ground motion models and their weights</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;liquefaction_models&quot;</span></code></p></td>
+<td><p>liquefaction triggering models and soil inputs; omit to run PSHA only</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code></p></td>
+<td><p>requested hazard outputs and optional disaggregation</p></td>
+<td><p>yes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="site-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;site&quot;</span></code> keys<a class="headerlink" href="#site-keys" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 45.0%" />
+<col style="width: 18.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>units</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;latitude&quot;</span></code></p></td>
+<td><p>latitude</p></td>
+<td><p>decimal degrees</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;longitude&quot;</span></code></p></td>
+<td><p>longitude</p></td>
+<td><p>decimal degrees</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;elevation&quot;</span></code></p></td>
+<td><p>elevation</p></td>
+<td><p>km</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;vs30&quot;</span></code></p></td>
+<td><p>time-averaged shear-wave velocity in the upper 30 m</p></td>
+<td><p>m/s</p></td>
+<td><p>yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;measured_vs30&quot;</span></code></p></td>
+<td><p>boolean indicating whether <code class="docutils literal notranslate"><span class="pre">vs30</span></code> was measured (<code class="docutils literal notranslate"><span class="pre">true</span></code>) or inferred (<code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></td>
+<td><p>-</p></td>
+<td><p>no; default = <code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;z1p0&quot;</span></code></p></td>
+<td><p>depth to the isosurface where <span class="math notranslate nohighlight">\(V_S\)</span> = 1.0 km/s; used by ASK14 and CY14</p></td>
+<td><p>km</p></td>
+<td><p>no; default = centered value based on <span class="math notranslate nohighlight">\(V_{S30}\)</span> (i.e., <span class="math notranslate nohighlight">\(\delta z_{1.0} = 0\)</span>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;z2p5&quot;</span></code></p></td>
+<td><p>depth to the isosurface where <span class="math notranslate nohighlight">\(V_S\)</span> = 2.5 km/s; used by CB14</p></td>
+<td><p>km</p></td>
+<td><p>no; default = centered value based on <span class="math notranslate nohighlight">\(V_{S30}\)</span> (i.e., <span class="math notranslate nohighlight">\(\delta z_{2.5} = 0\)</span>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><span class="math notranslate nohighlight">\(z_{1.0}\)</span> is used in the BSSA14 model but has no influence on PGA, so it
+is not accepted as an input for <code class="docutils literal notranslate"><span class="pre">&quot;bssa14&quot;</span></code>.</p>
+</div>
+</section>
+<section id="constraints-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;</span></code> keys<a class="headerlink" href="#constraints-keys" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 45.0%" />
+<col style="width: 18.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>units</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;dist_cutoff&quot;</span></code></p></td>
+<td><p>maximum source-to-site distance to include in the PSHA</p></td>
+<td><p>km</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;m_min&quot;</span></code></p></td>
+<td><p>minimum magnitude to include in the PSHA</p></td>
+<td><p>-</p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="source-models-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;source_models&quot;</span></code> keys<a class="headerlink" href="#source-models-keys" title="Link to this heading">#</a></h2>
+<p>The second nesting level contains two keys: <code class="docutils literal notranslate"><span class="pre">&quot;fault_source_models&quot;</span></code>
+and <code class="docutils literal notranslate"><span class="pre">&quot;point_source_models&quot;</span></code>. The third nesting level contains the specific source
+model keys listed below. The fourth nesting level contains a single key
+<code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code>.</p>
+<p>Weights will be normalized within <code class="docutils literal notranslate"><span class="pre">&quot;fault_source_models&quot;</span></code> and within
+<code class="docutils literal notranslate"><span class="pre">&quot;point_source_models&quot;</span></code> such that they sum to unity.</p>
+<p><strong>fault_source_models</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 32.0%" />
+<col style="width: 51.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm31&quot;</span></code></p></td>
+<td><p>UCERF3 Fault Model 3.1</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm32&quot;</span></code></p></td>
+<td><p>UCERF3 Fault Model 3.2</p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>point_source_models</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 43.0%" />
+<col style="width: 17.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>description</p></th>
+<th class="head"><p>required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm31_grid_sub_seis&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.1 gridded sub-seismogenic sources</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm31_grid_unassociated&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.1 gridded unassociated sources</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm32_grid_sub_seis&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.2 gridded sub-seismogenic sources</p></td>
+<td><p>no</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ucerf3_fm32_grid_unassociated&quot;</span></code></p></td>
+<td><p>UCERF3 FM3.2 gridded unassociated sources</p></td>
+<td><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="ground-motion-models-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;ground_motion_models&quot;</span></code> keys<a class="headerlink" href="#ground-motion-models-keys" title="Link to this heading">#</a></h2>
+<p>The second nesting level defines the ground motion model and must be one or more of
+<code class="docutils literal notranslate"><span class="pre">&quot;ask14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;bssa14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cb14&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cy14&quot;</span></code>. The third nesting level defines
+the model parameters listed below. Weights within <code class="docutils literal notranslate"><span class="pre">&quot;ground_motion_models&quot;</span></code> will be
+normalized to sum to unity.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 55.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code></p></td>
+<td><p>weight assigned to this ground motion model</p></td>
+<td><p>required for all models</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="distance-and-other-options">
+<h3>Distance and other options<a class="headerlink" href="#distance-and-other-options" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;</span></code> accepts <code class="docutils literal notranslate"><span class="pre">&quot;dist_cutoff&quot;</span></code> (km; applied to Rjb if a ground motion model
+uses Rjb, otherwise to Rrup), <code class="docutils literal notranslate"><span class="pre">&quot;m_min&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;truncation_level&quot;</span></code> (upper truncation of the
+ground motion distribution in standard deviations; the USGS NSHM uses 3; default none),
+<code class="docutils literal notranslate"><span class="pre">&quot;rupture_rx&quot;</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;gc2&quot;</span></code> (default) takes Rx and Ry0 of a fault rupture from the GC2
+coordinates of Spudich and Chiou (2015) of the whole rupture, as in the NGA-West2 and
+NGA-West3 flatfiles (Rx1 = Rx minus the horizontal width of the segment with the smallest
+Rrup), <code class="docutils literal notranslate"><span class="pre">&quot;closest_section&quot;</span></code> takes Rx and Rx1 from the segment with the smallest Rrup, as
+nshmp-lib does, and <code class="docutils literal notranslate"><span class="pre">&quot;minimum&quot;</span></code> takes the minimum over the segments (earlier versions;
+because Rx is signed, this is the most footwall-side segment of the rupture); with the last
+two, Ry0 is the minimum over the segments. <code class="docutils literal notranslate"><span class="pre">&quot;triangle_frame&quot;</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;local&quot;</span></code> (default)
+computes the Rjb and Rrup of the fault triangles in a projection on a sphere centred on the
+site, so that they are measured along the Earth’s surface and Rrup &gt;= Rjb, and
+<code class="docutils literal notranslate"><span class="pre">&quot;geocentric&quot;</span></code> uses straight lines in Earth-centred Cartesian coordinates (earlier
+versions; Rrup &lt; Rjb for most ruptures beyond about 100 km). <code class="docutils literal notranslate"><span class="pre">&quot;output&quot;:</span> <span class="pre">{&quot;psha&quot;:</span>
+<span class="pre">{&quot;source_model_hazard&quot;:</span> <span class="pre">true}}</span></code> adds the hazard curve of each source model.</p>
+</section>
+</section>
+<section id="liquefaction-models-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;liquefaction_models&quot;</span></code> keys<a class="headerlink" href="#liquefaction-models-keys" title="Link to this heading">#</a></h2>
+<p>The second nesting level defines the liquefaction triggering model and must be one
+or more of <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>. The third
+nesting level defines the model inputs listed below.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 16.0%" />
+<col style="width: 40.0%" />
+<col style="width: 10.0%" />
+<col style="width: 34.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>units</p></th>
+<th class="head"><p>required by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;n160&quot;</span></code></p></td>
+<td><p>overburden- and energy-corrected SPT blow count</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;fc&quot;</span></code></p></td>
+<td><p>fines content</p></td>
+<td><p>%</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;vs12&quot;</span></code></p></td>
+<td><p>time-averaged shear-wave velocity in the upper 12 m</p></td>
+<td><p>m/s</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;parameter_uncertainty&quot;</span></code></p></td>
+<td><p>include the input parameter uncertainty of Cetin et al. (2018b) (default <code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></td>
+<td><p>-</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;sigma_n160&quot;</span></code></p></td>
+<td><p>standard deviation of <code class="docutils literal notranslate"><span class="pre">&quot;n160&quot;</span></code> (default 0)</p></td>
+<td><p>-</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">&quot;parameter_uncertainty&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;sigma_fc&quot;</span></code></p></td>
+<td><p>standard deviation of <code class="docutils literal notranslate"><span class="pre">&quot;fc&quot;</span></code> (default 0)</p></td>
+<td><p>%</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">&quot;parameter_uncertainty&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;cov_sigmavp&quot;</span></code></p></td>
+<td><p>coefficient of variation of <code class="docutils literal notranslate"><span class="pre">&quot;sigmavp&quot;</span></code> (default 0)</p></td>
+<td><p>-</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">&quot;parameter_uncertainty&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;cov_csr&quot;</span></code></p></td>
+<td><p>coefficient of variation of the cyclic stress ratio for a given ground motion (default 0)</p></td>
+<td><p>-</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">&quot;parameter_uncertainty&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;qc1Ncs&quot;</span></code></p></td>
+<td><p>overburden- and fines-corrected dimensionless cone tip resistance</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;qc&quot;</span></code></p></td>
+<td><p>cone tip resistance</p></td>
+<td><p>MPa</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;fs&quot;</span></code></p></td>
+<td><p>cone sleeve friction</p></td>
+<td><p>MPa</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;rd_amax_cap&quot;</span></code></p></td>
+<td><p>upper limit of <span class="math notranslate nohighlight">\(a_{max}\)</span> in <span class="math notranslate nohighlight">\(r_d\)</span> with <code class="docutils literal notranslate"><span class="pre">&quot;pga_uncertainty&quot;:</span> <span class="pre">&quot;conditional&quot;</span></code> (default 1.0; <code class="docutils literal notranslate"><span class="pre">null</span></code>: no limit)</p></td>
+<td><p>g</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;Ic&quot;</span></code></p></td>
+<td><p>soil behavior type index</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;Ksat&quot;</span></code></p></td>
+<td><p>saturation factor applied to probability of triggering</p></td>
+<td><p>-</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pga_uncertainty&quot;</span></code></p></td>
+<td><p>treatment of the uncertainty of the peak acceleration (see below): <code class="docutils literal notranslate"><span class="pre">&quot;shared&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;per_layer&quot;</span></code> for <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>; <code class="docutils literal notranslate"><span class="pre">&quot;conditional&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;closed_form&quot;</span></code> for <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+<td><p>-</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pga_integration&quot;</span></code></p></td>
+<td><p>integration over the peak acceleration with <code class="docutils literal notranslate"><span class="pre">&quot;shared&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;conditional&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;grid&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;quadrature&quot;</span></code></p></td>
+<td><p>-</p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pga_grid&quot;</span></code></p></td>
+<td><p>parameters of the magnitude <span class="math notranslate nohighlight">\(\times\)</span> PGA grid: <code class="docutils literal notranslate"><span class="pre">&quot;pga_min&quot;</span></code> (default 1e-4), <code class="docutils literal notranslate"><span class="pre">&quot;pga_max&quot;</span></code> (10), <code class="docutils literal notranslate"><span class="pre">&quot;d_ln_pga&quot;</span></code> (0.1), <code class="docutils literal notranslate"><span class="pre">&quot;d_m&quot;</span></code> (0.05), <code class="docutils literal notranslate"><span class="pre">&quot;d_mu&quot;</span></code> (0.05), <code class="docutils literal notranslate"><span class="pre">&quot;d_sigma&quot;</span></code> (0.005)</p></td>
+<td><p>g for <code class="docutils literal notranslate"><span class="pre">&quot;pga_min&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;pga_max&quot;</span></code></p></td>
+<td><p>optional, <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ztop&quot;</span></code></p></td>
+<td><p>depth to top of layer (array)</p></td>
+<td><p>m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;zbot&quot;</span></code></p></td>
+<td><p>depth to bottom of layer (array)</p></td>
+<td><p>m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;sigmav&quot;</span></code></p></td>
+<td><p>vertical total stress at center of layer</p></td>
+<td><p>kPa</p></td>
+<td><p>all models; array-valued for <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>, scalar-valued for other models</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;sigmavp&quot;</span></code></p></td>
+<td><p>vertical effective stress at center of layer</p></td>
+<td><p>kPa</p></td>
+<td><p>all models; array-valued for <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code>, scalar-valued for other models</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;depth&quot;</span></code></p></td>
+<td><p>depth to center of layer</p></td>
+<td><p>m</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2012&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pa&quot;</span></code></p></td>
+<td><p>atmospheric pressure</p></td>
+<td><p>kPa</p></td>
+<td><p>all models</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;weight&quot;</span></code></p></td>
+<td><p>weight assigned to this liquefaction model</p></td>
+<td><p>-</p></td>
+<td><p>all models</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code> treats the peak acceleration of an earthquake as the same in all layers of the profile (<code class="docutils literal notranslate"><span class="pre">&quot;pga_uncertainty&quot;:</span> <span class="pre">&quot;shared&quot;</span></code>, the default). The probability of profile manifestation is computed for a given magnitude <span class="math notranslate nohighlight">\(M\)</span> and PGA,</p>
+<div class="math notranslate nohighlight">
+\[P(FS &lt; FS_L \mid M, PGA) = 1 - \prod_j \left[1 - P_{MT,j}\, \Phi\left(\frac{\ln FS_L - \mu_{\ln CRR,j}(M, PGA) + \ln CSR_j(M, PGA)}{0.44}\right) P_{S,j}\, K_{sat,j}\right]^{t_j / t_c}\]</div>
+<p>(with the magnitude scaling factor of that PGA), and integrated over the distribution of <span class="math notranslate nohighlight">\(\ln PGA\)</span> of the earthquake, truncated as in the PSHA (<code class="docutils literal notranslate"><span class="pre">&quot;constraints&quot;:</span> <span class="pre">{&quot;truncation_level&quot;:</span> <span class="pre">...}</span></code>; untruncated if it is not given). The NGL SMT model itself does not treat the ground motion uncertainty. Versions 2.x and earlier included the PGA uncertainty in each layer separately (<span class="math notranslate nohighlight">\(\sigma = \sqrt{0.44^2 + \sigma_{\ln PGA}^2}\)</span>, magnitude scaling factor of the median PGA, untruncated) before the product over the layers, as if each layer had an independent PGA, which gives higher probabilities (about 5% to 15% in relative terms for single earthquakes); <code class="docutils literal notranslate"><span class="pre">&quot;pga_uncertainty&quot;:</span> <span class="pre">&quot;per_layer&quot;</span></code> reproduces those results exactly.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">&quot;shared&quot;</span></code>, the integration uses a grid of the rates of the ground motions of the site over magnitude and <span class="math notranslate nohighlight">\(\ln PGA\)</span> (<code class="docutils literal notranslate"><span class="pre">&quot;pga_integration&quot;:</span> <span class="pre">&quot;grid&quot;</span></code>, the default; <code class="docutils literal notranslate"><span class="pre">ucla_plha.pga_grid</span></code>), built once for the site and shared by the liquefaction models conditioned on PGA, so that the cost of a liquefaction model is small. With the default <code class="docutils literal notranslate"><span class="pre">&quot;pga_grid&quot;</span></code> parameters (bins of 0.1 in <span class="math notranslate nohighlight">\(\ln PGA\)</span> from 1e-4 g to 10 g, magnitude nodes every 0.05, and histogram nodes of the mean and standard deviation of <span class="math notranslate nohighlight">\(\ln PGA\)</span> of the earthquakes every 0.05 and 0.005), the hazard curves agree with an exact integration within about 2e-4 (relative). The disaggregation uses per-earthquake probabilities from the grid nodes. <code class="docutils literal notranslate"><span class="pre">&quot;pga_integration&quot;:</span> <span class="pre">&quot;quadrature&quot;</span></code> integrates each earthquake with Gauss-Legendre quadrature (slow; for verification).</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;boulanger_idriss_2016&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;moss_et_al_2006&quot;</span></code> are also computed conditioned on the peak acceleration (<code class="docutils literal notranslate"><span class="pre">&quot;pga_uncertainty&quot;:</span> <span class="pre">&quot;conditional&quot;</span></code>, the default),</p>
+<div class="math notranslate nohighlight">
+\[P(FS &lt; FS_L \mid M, PGA) = \Phi\left(\frac{\ln FS_L - \mu_{\ln CRR} + \ln CSR(M, PGA)}{\sigma_{\ln CRR}}\right)\]</div>
+<p>with the model uncertainty only (<span class="math notranslate nohighlight">\(\sigma_{\ln CRR}\)</span> = 0.20 and 1.632 / 7.177), integrated over the ground motion distribution of the earthquake with the truncation of the PSHA, on the same magnitude <span class="math notranslate nohighlight">\(\times\)</span> PGA grid as <code class="docutils literal notranslate"><span class="pre">&quot;ngl_smt_2024&quot;</span></code> (one grid per site for these models). For Boulanger and Idriss (2016), PGA enters only through CSR, so without truncation this is the closed form of earlier versions, <span class="math notranslate nohighlight">\(\Phi\left((\ln FS_L - \mu_{\ln CRR} + \mu_{\ln CSR}) / \sqrt{0.20^2 + \sigma_{\ln PGA}^2}\right)\)</span>. For Moss et al. (2006), <span class="math notranslate nohighlight">\(r_d\)</span> (which depends on <span class="math notranslate nohighlight">\(a_{max}\)</span>) and the <span class="math notranslate nohighlight">\(\Delta q_c\)</span> adjustment of the CRR (<span class="math notranslate nohighlight">\(x_1 \ln CSR + x_2\)</span>, for <span class="math notranslate nohighlight">\(R_f &gt; 0.5\%\)</span>) are evaluated at the conditioned PGA instead of the median PGA; <span class="math notranslate nohighlight">\(\Delta q_c\)</span> is not allowed below 0 (their Eq. 18 bounds the fines adjustment to <span class="math notranslate nohighlight">\(R_f\)</span> of 0.5 to 5% as a suppression of liquefiability; <span class="math notranslate nohighlight">\(x_1 \ln CSR + x_2 &lt; 0\)</span> only for <span class="math notranslate nohighlight">\(CSR &lt; e^{-3.84} = 0.021\)</span>, outside their data); and the CSR is not divided by the duration weighting factor <span class="math notranslate nohighlight">\(DWF = 17.84 M_w^{-1.43}\)</span> (with any <code class="docutils literal notranslate"><span class="pre">&quot;pga_uncertainty&quot;</span></code>), because their Eq. 20 and 21 have their own magnitude term (<span class="math notranslate nohighlight">\(-0.848 \ln M_w\)</span>) and are compared with the CSR of the event (the note to Eq. 21: it “produces results for the input magnitude”, whereas their Figs. 6 and 10 are for <span class="math notranslate nohighlight">\(M_w\)</span> 7.5, CSR*; and the CSR of the case histories in their Table 1 is <span class="math notranslate nohighlight">\(0.65\, a_{max} (\sigma_v / \sigma'_v)\, r_d\)</span>, not CSR / DWF). Earlier versions divided by the DWF as well, which double counted the magnitude effect (FS higher by the DWF: about 1.4 at <span class="math notranslate nohighlight">\(M_w\)</span> 6, 1.1 at 7, 0.91 at 8); the 2.x Moss et al. (2006) results, which divided CSR by the DWF, can’t be reproduced with this version (a config with <code class="docutils literal notranslate"><span class="pre">&quot;duration_weighting&quot;</span></code> is rejected). <code class="docutils literal notranslate"><span class="pre">&quot;pga_uncertainty&quot;:</span> <span class="pre">&quot;closed_form&quot;</span></code> gives the untruncated closed forms of earlier versions: exactly for Boulanger and Idriss (2016), and for Moss et al. (2006) with <span class="math notranslate nohighlight">\(r_d\)</span> and <span class="math notranslate nohighlight">\(\Delta q_c\)</span> at the median PGA but without the DWF. The <span class="math notranslate nohighlight">\(r_d\)</span> of Moss et al. (2006) (from Cetin et al. 2004) decreases with <span class="math notranslate nohighlight">\(a_{max}\)</span> to the lower limit 0.2 at about 2.5 to 3.5 g and jumps to the upper limit 1.0 at about 3.5 to 4 g (its denominator changes sign), so with <code class="docutils literal notranslate"><span class="pre">&quot;conditional&quot;</span></code> <span class="math notranslate nohighlight">\(r_d\)</span> is evaluated with <span class="math notranslate nohighlight">\(a_{max}\)</span> at most <code class="docutils literal notranslate"><span class="pre">&quot;rd_amax_cap&quot;</span></code> (default 1 g; <code class="docutils literal notranslate"><span class="pre">null</span></code> for no limit; <span class="math notranslate nohighlight">\(r_d\)</span> above the cap is <span class="math notranslate nohighlight">\(r_d\)</span> at the cap). <code class="docutils literal notranslate"><span class="pre">&quot;closed_form&quot;</span></code> (<span class="math notranslate nohighlight">\(r_d\)</span> of the median PGA) has no cap. <code class="docutils literal notranslate"><span class="pre">plha.DEFAULT_PGA_UNCERTAINTY</span></code> holds the default treatment of each model.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;cetin_et_al_2018&quot;</span></code> includes only the model uncertainty (<span class="math notranslate nohighlight">\(\sigma_\varepsilon = 2.95\)</span>) by default. With <code class="docutils literal notranslate"><span class="pre">&quot;parameter_uncertainty&quot;:</span> <span class="pre">true</span></code>, the input parameter uncertainty of Cetin et al. (2018b) is added, <span class="math notranslate nohighlight">\(\sigma_{tot}^2 = \theta_7 \sigma_{input}^2 + \sigma_\varepsilon^2\)</span> with <span class="math notranslate nohighlight">\(\theta_7 = 0.392\)</span> and <span class="math notranslate nohighlight">\(\sigma_{input}^2 = \theta_6^2 \delta_{CSR}^2 + \sigma_{N_{1,60}}^2 (1 + \theta_1 FC)^2 + \sigma_{FC}^2 (\theta_1 N_{1,60} + \theta_4)^2 + \theta_3^2 \delta_{\sigma'_v}^2\)</span> (their Eqs. 4 and 5), where <span class="math notranslate nohighlight">\(\delta_{CSR}\)</span> is <code class="docutils literal notranslate"><span class="pre">&quot;cov_csr&quot;</span></code>, <span class="math notranslate nohighlight">\(\sigma_{N_{1,60}}\)</span> is <code class="docutils literal notranslate"><span class="pre">&quot;sigma_n160&quot;</span></code>, <span class="math notranslate nohighlight">\(\sigma_{FC}\)</span> is <code class="docutils literal notranslate"><span class="pre">&quot;sigma_fc&quot;</span></code>, and <span class="math notranslate nohighlight">\(\delta_{\sigma'_v}\)</span> is <code class="docutils literal notranslate"><span class="pre">&quot;cov_sigmavp&quot;</span></code>. Because ucla_plha integrates the ground motion variability in the hazard calculation, <code class="docutils literal notranslate"><span class="pre">&quot;cov_csr&quot;</span></code> should represent only the uncertainty in estimating CSR for a given ground motion (e.g., <span class="math notranslate nohighlight">\(r_d\)</span> and the stresses), not the variability of the ground motion.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You cannot include keys that are not required by a given model. For example,
+<code class="docutils literal notranslate"><span class="pre">&quot;n160&quot;</span></code> cannot appear in a cone penetration test model entry.</p>
+</div>
+</section>
+<section id="output-keys">
+<h2><code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code> keys<a class="headerlink" href="#output-keys" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code> object specifies whether to write the PSHA and/or PLHA output to a
+JSON file, and whether to include disaggregation data. Including disaggregation data
+slows down the calculations, and should be included only if needed.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 28.0%" />
+<col style="width: 45.0%" />
+<col style="width: 27.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>key</p></th>
+<th class="head"><p>definition</p></th>
+<th class="head"><p>notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code></p></td>
+<td><p>include to output a PSHA hazard curve</p></td>
+<td><p>optional</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;pga&quot;</span></code></p></td>
+<td><p>array of PGA values at which to evaluate the hazard curve</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code></p></td>
+<td><p>include to output a PLHA hazard curve</p></td>
+<td><p>optional</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;fsl&quot;</span></code></p></td>
+<td><p>array of factor-of-safety values at which to evaluate the hazard curve</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code></p></td>
+<td><p>include under <code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code> to output disaggregation data</p></td>
+<td><p>optional</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;magnitude_bin_edges&quot;</span></code></p></td>
+<td><p>edges of magnitude bins for disaggregation</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;distance_bin_edges&quot;</span></code></p></td>
+<td><p>edges of distance bins for disaggregation</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;epsilon_bin_edges&quot;</span></code></p></td>
+<td><p>edges of epsilon bins for disaggregation. Bins include their lower edge and exclude
+their upper edge; events outside the bins are not binned (use wide outer edges, e.g.
+-1e9 and 1e9, to bin all of them)</p></td>
+<td><p>required if <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> is included</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;distance_metric&quot;</span></code></p></td>
+<td><p>distance used for the distance bins: <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> (rjb if a ground motion model uses
+rjb, otherwise rrup), <code class="docutils literal notranslate"><span class="pre">&quot;rrup&quot;</span></code> (as the USGS NSHM disaggregation), or <code class="docutils literal notranslate"><span class="pre">&quot;rjb&quot;</span></code></p></td>
+<td><p>optional (<code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;means&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> to also output <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation_means&quot;</span></code>: the binned contribution (%) and
+the mean magnitude, distance, and epsilon at each PGA, in total and, with
+<code class="docutils literal notranslate"><span class="pre">&quot;source_model_hazard&quot;</span></code>, per source model</p></td>
+<td><p>optional (<code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;outputfile&quot;</span></code></p></td>
+<td><p>filename for saving output (includes a copy of the inputs)</p></td>
+<td><p>optional</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can specify <code class="docutils literal notranslate"><span class="pre">&quot;plha&quot;</span></code> and its <code class="docutils literal notranslate"><span class="pre">&quot;disaggregation&quot;</span></code> object without including
+<code class="docutils literal notranslate"><span class="pre">&quot;psha&quot;</span></code>. In this case the PSHA will still be performed internally, but its
+results will not be returned.</p>
+<p>Whether or not <code class="docutils literal notranslate"><span class="pre">&quot;outputfile&quot;</span></code> is specified, the code returns a Python
+dictionary containing all results.</p>
+<p>The input JSON object is saved alongside the output in <code class="docutils literal notranslate"><span class="pre">&quot;outputfile&quot;</span></code> so that
+inputs and outputs are always stored together. This prevents inconsistencies if
+the config file is modified after a run.</p>
+</div>
+</section>
+<section id="full-config-structure">
+<h2>Full config structure<a class="headerlink" href="#full-config-structure" title="Link to this heading">#</a></h2>
+<p>The following shows the complete structure of a config file. Note that keys are
+lowercase following <a class="reference external" href="https://peps.python.org/pep-0008/">PEP 8</a> convention, but the config file is case-insensitive
+so <code class="docutils literal notranslate"><span class="pre">N160</span></code> works equally well as <code class="docutils literal notranslate"><span class="pre">n160</span></code>. Optional inputs are shown with their
+default values where applicable.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">   </span><span class="nt">"site"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">34.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="mf">-118.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"elevation"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"vs30"</span><span class="p">:</span><span class="w"> </span><span class="mf">350.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"measured_vs30"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"z1p0"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"z2p5"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">"constraints"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"dist_cutoff"</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"m_min"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">"source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"fault_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm31"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm32"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5</span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"point_source_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm31_grid_sub_seis"</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm31_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm32_grid_sub_seis"</span><span class="p">:</span><span class="w">     </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">         </span><span class="nt">"ucerf3_fm32_grid_unassociated"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">"ground_motion_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"ask14"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"bssa14"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"cb14"</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"cy14"</span><span class="p">:</span><span class="w">   </span><span class="p">{</span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">"liquefaction_models"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"boulanger_idriss_2012"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"n160"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"fc"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"boulanger_idriss_2016"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w"> </span><span class="mf">80.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"cetin_et_al_2018"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"n160"</span><span class="p">:</span><span class="w"> </span><span class="mf">10.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"fc"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"vs12"</span><span class="p">:</span><span class="w"> </span><span class="mf">150.0</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"moss_et_al_2006"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"qc"</span><span class="p">:</span><span class="w"> </span><span class="mf">3.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"fs"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"depth"</span><span class="p">:</span><span class="w"> </span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.25</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"ngl_smt_2024"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"ztop"</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">4.5</span><span class="p">,</span><span class="w"> </span><span class="mf">5.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"zbot"</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">5.5</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"qc1Ncs"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">80.0</span><span class="p">,</span><span class="w"> </span><span class="mf">85.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"Ic"</span><span class="p">:</span><span class="w">      </span><span class="p">[</span><span class="mf">1.8</span><span class="p">,</span><span class="w"> </span><span class="mf">1.9</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"sigmav"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span><span class="w"> </span><span class="mf">110.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"sigmavp"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">60.0</span><span class="p">,</span><span class="w"> </span><span class="mf">65.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"Ksat"</span><span class="p">:</span><span class="w">    </span><span class="p">[</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"pa"</span><span class="p">:</span><span class="w"> </span><span class="mf">101.325</span><span class="p">,</span>
+<span class="w">         </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">   </span><span class="p">},</span>
+<span class="w">   </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"psha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"pga"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.01</span><span class="p">,</span><span class="w"> </span><span class="mf">0.02</span><span class="p">,</span><span class="w"> </span><span class="mf">0.05</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.2</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"disaggregation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"magnitude_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"distance_bin_edges"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"epsilon_bin_edges"</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+<span class="w">         </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"plha"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="nt">"fsl"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.75</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.25</span><span class="p">,</span><span class="w"> </span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="mf">2.0</span><span class="p">],</span>
+<span class="w">         </span><span class="nt">"disaggregation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"magnitude_bin_edges"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">5.0</span><span class="p">,</span><span class="w"> </span><span class="mf">6.0</span><span class="p">,</span><span class="w"> </span><span class="mf">7.0</span><span class="p">,</span><span class="w"> </span><span class="mf">8.0</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"distance_bin_edges"</span><span class="p">:</span><span class="w">  </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"epsilon_bin_edges"</span><span class="p">:</span><span class="w">   </span><span class="p">[</span><span class="mi">-3</span><span class="p">,</span><span class="w"> </span><span class="mi">-2</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span>
+<span class="w">         </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">"outputfile"</span><span class="p">:</span><span class="w"> </span><span class="s2">"output.json"</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="overview/limitations.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Limitations</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="examples.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#top-level-keys">Top-level keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#site-keys"><code class="docutils literal notranslate"><span class="pre">"site"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#constraints-keys"><code class="docutils literal notranslate"><span class="pre">"constraints"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-models-keys"><code class="docutils literal notranslate"><span class="pre">"source_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ground-motion-models-keys"><code class="docutils literal notranslate"><span class="pre">"ground_motion_models"</span></code> keys</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distance-and-other-options">Distance and other options</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#liquefaction-models-keys"><code class="docutils literal notranslate"><span class="pre">"liquefaction_models"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-keys"><code class="docutils literal notranslate"><span class="pre">"output"</span></code> keys</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-config-structure">Full config structure</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Meera L. Kota, Scott J. Brandenberg
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026, Meera L. Kota and Scott J. Brandenberg.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

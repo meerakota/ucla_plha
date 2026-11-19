@@ -1,0 +1,73 @@
+/* ---- Fonts ---------------------------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+html {
+  --pst-font-family-base: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --pst-font-family-heading: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --pst-font-family-monospace: "JetBrains Mono", "SFMono-Regular", Menlo, monospace;
+}
+
+/* ---- Brand palette (UCLA blue + gold accent) ------------------------ */
+html[data-theme="light"] {
+  --pst-color-primary: #2774AE;
+  --pst-color-secondary: #2774AE;
+  --pst-color-link: #1f5e8f;
+  --pst-color-link-hover: #2774AE;
+  --ucla-gold: #FFC72C;
+}
+html[data-theme="dark"] {
+  --pst-color-primary: #6cb1ff;
+  --pst-color-secondary: #6cb1ff;
+  --pst-color-link: #8cc2ff;
+  --pst-color-link-hover: #6cb1ff;
+  --ucla-gold: #FFC72C;
+}
+
+/* ---- Headings: tighter, more deliberate ----------------------------- */
+h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.015em; }
+h2 {
+  border-bottom: 2px solid var(--pst-color-border);
+  padding-bottom: 0.25rem;
+  margin-top: 2.4rem;
+}
+/* gold tick before h2 — a quiet structural marker */
+h2::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem; height: 0.5rem;
+  margin-right: 0.55rem;
+  border-radius: 1px;
+  background: var(--ucla-gold);
+  vertical-align: middle;
+}
+
+/* ---- Code blocks: softer, framed ------------------------------------ */
+div.highlight {
+  border: 1px solid var(--pst-color-border);
+  border-radius: 8px;
+}
+div.highlight pre { border-radius: 8px; }
+
+/* ---- API signatures: clearer object boxes --------------------------- */
+dl.py.function > dt, dl.py.class > dt, dl.py.method > dt {
+  background: var(--pst-color-surface);
+  border-left: 3px solid var(--pst-color-primary);
+  border-radius: 0 6px 6px 0;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ---- Landing page cards (sphinx-design) ----------------------------- */
+.sd-card {
+  border: 1px solid var(--pst-color-border);
+  border-radius: 12px;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.sd-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(39,116,174,0.12);
+  border-color: var(--pst-color-primary);
+}
+.sd-card-title { font-weight: 600; }
+
+/* ---- Logo sizing ---------------------------------------------------- */
+img.logo__image { max-width: 7rem; height: auto; }
