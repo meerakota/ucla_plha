@@ -262,6 +262,8 @@ def get_source_data(
 
     Notes:
         N = number of events
+        For fault sources, distances not used by gmms (or listed in extra_distances) are not
+        computed and are returned as NaN.
         Point source distances use the Kaklamanos et al. (2011) and Thompson and Worden (2017)
         approximations.
     """
@@ -299,7 +301,8 @@ def get_source_data(
         # ask14: rrup,rx,rx1,ry0,
         # cb14: rjb,rrup,rx
         # cy14: rjb,rrup,rx
-        empty_array = np.empty(len(m))
+        # NaN for distances not computed (not used by gmms or extra_distances)
+        empty_array = np.full(len(m), np.nan)
         if rupture_rx not in ("gc2", "closest_section", "minimum"):
             raise ValueError(
                 f'rupture_rx must be "gc2", "closest_section", or "minimum", not "{rupture_rx}"'
